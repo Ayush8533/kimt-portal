@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const Student = require('../models/Student');
 const { Admin } = require('../models/Others');
 
-const signToken = (id, type = 'student') =>
+const signToken = (id, type = 'Student') =>
   jwt.sign({ id, type }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
 // ── STUDENT SIGNUP ─────────────────────────────
@@ -28,7 +28,7 @@ router.post('/student/signup', async (req, res) => {
       admissionYear: new Date().getFullYear()
     });
 
-    const token = signToken(student._id, 'student');
+    const token = signToken(student._id, 'Student');
     res.status(201).json({
       success: true,
       message: 'Account ban gaya! Admin se verification ke baad poora access milega.',
@@ -42,7 +42,7 @@ router.post('/student/signup', async (req, res) => {
 });
 
 // ── STUDENT LOGIN ──────────────────────────────
-router.post('/student/login', async (req, res) => {
+router.post('/Student/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -56,7 +56,7 @@ router.post('/student/login', async (req, res) => {
     const isMatch = await student.comparePassword(password);
     if (!isMatch) return res.status(401).json({ error: 'Email ya password galat hai.' });
 
-    const token = signToken(student._id, 'student');
+    const token = signToken(student._id, 'Student');
     res.json({
       success: true,
       message: 'Login successful!',
