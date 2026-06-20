@@ -201,7 +201,7 @@ async function handleUserQuery(query) {
   showTypingIndicator();
 
   try {
-    const res = await fetch('/api/chat', {
+   const res = await fetch('https://kimt-portal-production.up.railway.app/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: trimmed, history: chatHistory.slice(-10) })
@@ -313,7 +313,7 @@ if (inquiryForm) {
     statusEl.className    = 'inquiry-status';
 
     try {
-      const res  = await fetch('/api/inquiry', {
+      const res  = await fetch('https://kimt-portal-production.up.railway.app/api/inquiry',  {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
