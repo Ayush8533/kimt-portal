@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — KIMT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary:#0b3c91; --accent:#ffb703; --bg:#f0f4ff;
+      --white:#fff; --text:#1e293b; --muted:#64748b;
+      --border:#e2e8f0; --success:#10b981; --danger:#ef4444;
+      --warning:#f59e0b; --sidebar-w:250px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);background:var(--primary);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto;}
+    .sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);}
+    .sidebar-logo h2{color:#fff;font-size:16px;font-weight:700;}
+    .sidebar-logo p{color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px;}
+    .sidebar-logo .badge-admin{display:inline-block;padding:2px 8px;background:var(--accent);color:#000;border-radius:10px;font-size:10px;font-weight:700;margin-top:6px;}
+
+    .nav-section{padding:12px 0;}
+    .nav-section-title{padding:8px 20px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;border:none;background:none;width:100%;text-align:left;text-decoration:none;}
+    .nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.12);color:#fff;}
+    .nav-item.active{border-left:3px solid var(--accent);}
+    .nav-icon{font-size:16px;width:20px;}
+    .nav-badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;}
+
+    .sidebar-bottom{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto;}
+    .admin-info{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;flex-shrink:0;}
+    .admin-name{font-size:13px;font-weight:600;color:#fff;}
+    .admin-role{font-size:11px;color:rgba(255,255,255,0.5);}
+    .logout-btn{width:100%;padding:8px;background:rgba(255,255,255,0.1);border:none;border-radius:8px;color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer;font-family:inherit;}
+    .logout-btn:hover{background:rgba(239,68,68,0.3);color:#fff;}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;padding:24px;}
+    .page{display:none;}
+    .page.active{display:block;}
+
+    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+    .page-header h1{font-size:22px;font-weight:700;}
+    .page-header p{color:var(--muted);font-size:13px;}
+
+    .btn{padding:9px 18px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+    .btn-primary{background:var(--primary);color:#fff;}
+    .btn-primary:hover{background:#083173;}
+    .btn-success{background:var(--success);color:#fff;}
+    .btn-danger{background:var(--danger);color:#fff;}
+    .btn-sm{padding:5px 12px;font-size:12px;}
+    .btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary);}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+    .stat-card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--primary);}
+    .stat-card.accent{border-left-color:var(--accent);}
+    .stat-card.success{border-left-color:var(--success);}
+    .stat-card.danger{border-left-color:var(--danger);}
+    .stat-icon{font-size:24px;margin-bottom:8px;}
+    .stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
+    .stat-value{font-size:30px;font-weight:800;color:var(--primary);margin-top:4px;}
+    .stat-card.accent .stat-value{color:#b45309;}
+    .stat-card.success .stat-value{color:var(--success);}
+    .stat-card.danger .stat-value{color:var(--danger);}
+
+    .card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:20px;}
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    .card-header h3{font-size:15px;font-weight:700;color:var(--primary);}
+
+    /* TABLE */
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:10px 12px;text-align:left;white-space:nowrap;}
+    td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+    tr:last-child td{border:none;}
+    tr:hover td{background:#fafbff;}
+
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge-paid{background:#dcfce7;color:#166534;}
+    .badge-unpaid{background:#fef2f2;color:#b91c1c;}
+    .badge-partial{background:#fef9c3;color:#854d0e;}
+    .badge-new{background:#dbeafe;color:#1d4ed8;}
+    .badge-contacted{background:#fef9c3;color:#854d0e;}
+    .badge-admitted{background:#dcfce7;color:#166534;}
+    .badge-active{background:#dcfce7;color:#166534;}
+    .badge-inactive{background:#fef2f2;color:#b91c1c;}
+    .badge-pass{background:#dcfce7;color:#166534;}
+    .badge-fail{background:#fef2f2;color:#b91c1c;}
+
+    /* SEARCH */
+    .search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+    .search-bar input,.search-bar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:#fff;}
+    .search-bar input:focus,.search-bar select:focus{border-color:var(--primary);}
+    .search-bar input{flex:1;min-width:180px;}
+
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+    .modal h2{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);}
+    .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-group{margin-bottom:0;}
+    .form-group.full{grid-column:1/-1;}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.03em;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);}
+    .form-group textarea{resize:vertical;min-height:80px;}
+
+    .empty-state{text-align:center;padding:40px;color:var(--muted);}
+    .empty-state .emoji{font-size:36px;margin-bottom:10px;}
+    .loading{text-align:center;padding:30px;color:var(--muted);}
+
+    .alert{padding:12px 14px;border-radius:9px;font-size:13px;margin-bottom:14px;display:none;}
+    .alert.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:block;}
+    .alert.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:block;}
+
+    .action-btns{display:flex;gap:6px;}
+
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);transition:transform 0.3s;}
+      .sidebar.open{transform:translateX(0);}
+      .main{margin-left:0;padding:16px;}
+      .stats-grid{grid-template-columns:1fr 1fr;}
+      .form-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h2>⚙️ KIMT Admin</h2>
+    <p>Management Panel</p>
+    <span class="badge-admin" id="adminRoleBadge">ADMIN</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Overview</div>
+    <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Students</div>
+    <button class="nav-item" onclick="showPage('students')"><span class="nav-icon">👨‍🎓</span> All Students</button>
+    <button class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">📅</span> Attendance</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Academics</div>
+    <button class="nav-item" onclick="showPage('results')"><span class="nav-icon">📊</span> Results</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Finance</div>
+    <button class="nav-item" onclick="showPage('fees')"><span class="nav-icon">💰</span> Fee Records</button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Communication</div>
+    <button class="nav-item" onclick="showPage('notices')"><span class="nav-icon">📢</span> Notices</button>
+    <button class="nav-item" onclick="showPage('inquiries')"><span class="nav-icon">📩</span> Inquiries <span class="nav-badge" id="newInquiryBadge">0</span></button>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Website</div>
+    <a class="nav-item" href="/" target="_blank"><span class="nav-icon">🌐</span> View Website</a>
+    <a class="nav-item" href="/student/" target="_blank"><span class="nav-icon">👨‍🎓</span> Student Portal</a>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="admin-info">
+      <div class="avatar" id="adminAvatar">A</div>
+      <div>
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-role" id="adminRole">superadmin</div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div><h1>Dashboard 🏠</h1><p>KIMT ka complete overview</p></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div class="stat-label">Total Students</div><div class="stat-value" id="statStudents">—</div></div>
+      <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-label">Active Students</div><div class="stat-value" id="statActive">—</div></div>
+      <div class="stat-card accent"><div class="stat-icon">📩</div><div class="stat-label">New Inquiries</div><div class="stat-value" id="statInquiries">—</div></div>
+      <div class="stat-card danger"><div class="stat-icon">⏳</div><div class="stat-label">Unpaid Fees</div><div class="stat-value" id="statUnpaid">—</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap;">
+      <div class="card">
+        <div class="card-header"><h3>📩 Recent Inquiries</h3><button class="btn btn-primary btn-sm" onclick="showPage('inquiries')">View All</button></div>
+        <div id="dashInquiries"><div class="loading">Loading...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>👨‍🎓 Recent Students</h3><button class="btn btn-primary btn-sm" onclick="showPage('students')">View All</button></div>
+        <div id="dashStudents"><div class="loading">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDENTS -->
+  <div class="page" id="page-students">
+    <div class="page-header">
+      <div><h1>👨‍🎓 Students</h1><p>Saare students manage karo</p></div>
+      <button class="btn btn-primary" onclick="openModal('studentModal')">+ Add Student</button>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <input type="text" id="studentSearch" placeholder="🔍 Naam, email, enrollment no..." oninput="loadStudents()">
+        <select id="studentCourse" onchange="loadStudents()">
+          <option value="">All Courses</option>
+          <option>BCA</option><option>MCA</option><option>B.Tech</option>
+          <option>BBA</option><option>MBA</option><option>B.Com</option>
+          <option>BA</option><option>MA</option><option>BSc</option><option>MSc</option>
+        </select>
+        <select id="studentStatus" onchange="loadStudents()">
+          <option value="">All Status</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <div id="studentsContent"><div class="loading">Students load ho rahe hain...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="page" id="page-results">
+    <div class="page-header">
+      <div><h1>📊 Results</h1><p>Student results upload aur publish karo</p></div>
+      <button class="btn btn-primary" onclick="openModal('resultModal')">+ Add Result</button>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <select id="resultCourse" onchange="loadResults()">
+          <option value="">All Courses</option>
+          <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option>
+        </select>
+        <select id="resultSem" onchange="loadResults()">
+          <option value="">All Semesters</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="resultsContent"><div class="loading">Results load ho rahe hain...</div></div>
+    </div>
+  </div>
+
+  <!-- FEES -->
+  <div class="page" id="page-fees">
+    <div class="page-header">
+      <div><h1>💰 Fee Records</h1><p>Fees manage karo</p></div>
+      <button class="btn btn-primary" onclick="openModal('feeModal')">+ Add Fee Record</button>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <input type="text" id="feeSearch" placeholder="🔍 Student naam ya enrollment..." oninput="loadFees()">
+        <select id="feeStatus" onchange="loadFees()">
+          <option value="">All Status</option>
+          <option>Paid</option><option>Unpaid</option><option>Partial</option><option>Overdue</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="feesContent"><div class="loading">Fees load ho rahi hain...</div></div>
+    </div>
+  </div>
+
+  <!-- NOTICES -->
+  <div class="page" id="page-notices">
+    <div class="page-header">
+      <div><h1>📢 Notices</h1><p>Announcements post karo</p></div>
+      <button class="btn btn-primary" onclick="openModal('noticeModal')">+ Post Notice</button>
+    </div>
+    <div id="noticesContent"><div class="loading">Notices load ho rahe hain...</div></div>
+  </div>
+
+  <!-- INQUIRIES -->
+  <div class="page" id="page-inquiries">
+    <div class="page-header">
+      <div><h1>📩 Inquiries</h1><p>Website se aaye leads manage karo</p></div>
+      <select id="inquiryFilter" onchange="loadInquiries()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;">
+        <option value="">All</option>
+        <option value="New">New</option>
+        <option value="Contacted">Contacted</option>
+        <option value="Admitted">Admitted</option>
+        <option value="Not Interested">Not Interested</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="table-wrap" id="inquiriesContent"><div class="loading">Inquiries load ho rahi hain...</div></div>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="page" id="page-attendance">
+    <div class="page-header">
+      <div><h1>📅 Attendance</h1><p>Student attendance mark karo</p></div>
+    </div>
+    <div class="card">
+      <div class="form-grid" style="margin-bottom:20px;">
+        <div class="form-group">
+          <label>Course</label>
+          <select id="attCourse">
+            <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" id="attSubject" placeholder="Subject naam">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="attDate">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+          <button class="btn btn-primary" style="width:100%" onclick="loadStudentsForAttendance()">Load Students</button>
+        </div>
+      </div>
+      <div id="attendanceTable"><div class="empty-state"><div class="emoji">📅</div><p>Course aur subject select karke students load karo.</p></div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODALS -->
+
+<!-- Student Modal -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <h2>👨‍🎓 Student Add/Edit</h2>
+    <div id="studentModalAlert"></div>
+    <div class="form-grid">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="sName" placeholder="Student ka naam"></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="sEmail" placeholder="email@example.com"></div>
+      <div class="form-group"><label>Phone *</label><input type="tel" id="sPhone" placeholder="10-digit number"></div>
+      <div class="form-group"><label>Course *</label>
+        <select id="sCourse">
+          <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option>
+          <option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Enrollment No</label><input type="text" id="sEnrollment" placeholder="Auto ya manual"></div>
+      <div class="form-group"><label>Semester</label><select id="sSemester"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div class="form-group"><label>Session</label><input type="text" id="sSession" placeholder="2024-25"></div>
+      <div class="form-group"><label>Roll No</label><input type="text" id="sRollNo"></div>
+      <div class="form-group"><label>Father's Name</label><input type="text" id="sFather"></div>
+      <div class="form-group"><label>Password *</label><input type="password" id="sPassword" placeholder="Min 6 chars"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('studentModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal">
+    <h2>📊 Add Result</h2>
+    <div id="resultModalAlert"></div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Student Enrollment No *</label><input type="text" id="rEnrollment" placeholder="Enrollment number daalo"></div>
+      <div class="form-group full"><label>Student Name</label><input type="text" id="rName" placeholder="Student naam"></div>
+      <div class="form-group"><label>Course *</label><select id="rCourse"><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option></select></div>
+      <div class="form-group"><label>Semester *</label><select id="rSemester"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div class="form-group"><label>Session *</label><input type="text" id="rSession" placeholder="2024-25"></div>
+      <div class="form-group"><label>Exam Type</label><select id="rExamType"><option>End Term</option><option>Mid Term</option><option>Practical</option><option>Internal</option></select></div>
+      <div class="form-group"><label>Total Marks</label><input type="number" id="rTotal" placeholder="500"></div>
+      <div class="form-group"><label>Obtained Marks</label><input type="number" id="rObtained" placeholder="350" oninput="calcPercentage()"></div>
+      <div class="form-group"><label>Percentage</label><input type="text" id="rPercentage" placeholder="Auto calculated" readonly></div>
+      <div class="form-group"><label>Grade</label><input type="text" id="rGrade" placeholder="A, B, C..."></div>
+      <div class="form-group"><label>Result</label><select id="rResult"><option>Pass</option><option>Fail</option><option>Compartment</option></select></div>
+      <div class="form-group"><label>Publish Now?</label><select id="rPublish"><option value="true">Yes — Publish</option><option value="false">No — Save as Draft</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('resultModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveResult()">Save Result</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fee Modal -->
+<div class="modal-overlay" id="feeModal">
+  <div class="modal">
+    <h2>💰 Add Fee Record</h2>
+    <div id="feeModalAlert"></div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Student Enrollment No *</label><input type="text" id="fEnrollment" placeholder="Enrollment number"></div>
+      <div class="form-group full"><label>Student Name *</label><input type="text" id="fName" placeholder="Student naam"></div>
+      <div class="form-group"><label>Course *</label><select id="fCourse"><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option></select></div>
+      <div class="form-group"><label>Semester</label><select id="fSemester"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
+      <div class="form-group"><label>Session</label><input type="text" id="fSession" placeholder="2024-25"></div>
+      <div class="form-group"><label>Fee Type</label><select id="fType"><option>Total</option><option>Tuition</option><option>Exam</option><option>Library</option><option>Sports</option></select></div>
+      <div class="form-group"><label>Total Amount (₹) *</label><input type="number" id="fTotal" placeholder="25000"></div>
+      <div class="form-group"><label>Paid Amount (₹)</label><input type="number" id="fPaid" placeholder="0" value="0"></div>
+      <div class="form-group"><label>Due Date</label><input type="date" id="fDueDate"></div>
+      <div class="form-group"><label>Payment Mode</label><select id="fMode"><option value="">Not Paid</option><option>Cash</option><option>Online</option><option>DD</option><option>Cheque</option></select></div>
+      <div class="form-group full"><label>Transaction ID</label><input type="text" id="fTxn" placeholder="If paid online"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('feeModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFee()">Save Fee Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notice Modal -->
+<div class="modal-overlay" id="noticeModal">
+  <div class="modal">
+    <h2>📢 Post Notice</h2>
+    <div id="noticeModalAlert"></div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Title *</label><input type="text" id="nTitle" placeholder="Notice ka title"></div>
+      <div class="form-group full"><label>Content *</label><textarea id="nContent" rows="4" placeholder="Notice ka content..."></textarea></div>
+      <div class="form-group"><label>Category</label><select id="nCategory"><option>General</option><option>Exam</option><option>Fee</option><option>Admission</option><option>Event</option><option>Holiday</option></select></div>
+      <div class="form-group"><label>Target</label><select id="nTarget"><option>All</option><option>Students</option><option>Staff</option></select></div>
+      <div class="form-group"><label>Pin this notice?</label><select id="nPinned"><option value="false">No</option><option value="true">Yes — Pin to top</option></select></div>
+      <div class="form-group"><label>Expires On</label><input type="date" id="nExpiry"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('noticeModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNotice()">Post Notice</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('adminToken');
+if (!token) window.location.href = '/admin-panel/';
+
+const adminInfo = JSON.parse(localStorage.getItem('adminInfo') || '{}');
+if (adminInfo.name) {
+  document.getElementById('adminName').textContent = adminInfo.name;
+  document.getElementById('adminRole').textContent = adminInfo.role || 'admin';
+  document.getElementById('adminAvatar').textContent = adminInfo.name.charAt(0).toUpperCase();
+  document.getElementById('adminRoleBadge').textContent = (adminInfo.role || 'admin').toUpperCase();
+}
+
+// Set today's date for attendance
+document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
+
+function apiCall(url, method = 'GET', body = null) {
+  const opts = { method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(url, opts).then(r => {
+    if (r.status === 401) { logout(); throw new Error('Unauthorized'); }
+    return r.json();
+  });
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event?.target?.classList.add('active');
+  if (name === 'students') loadStudents();
+  else if (name === 'results') loadResults();
+  else if (name === 'fees') loadFees();
+  else if (name === 'notices') loadNotices();
+  else if (name === 'inquiries') loadInquiries();
+}
+
+function logout() {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminInfo');
+  window.location.href = '/admin-panel/';
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+function escHtml(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showModalAlert(elId, msg, type='error') {
+  const el = document.getElementById(elId);
+  el.className = `alert ${type}`;
+  el.textContent = msg;
+}
+
+// ── DASHBOARD ─────────────────────────────────
+async function loadDashboard() {
+  try {
+    const data = await apiCall('/api/admin/stats');
+    document.getElementById('statStudents').textContent = data.stats.totalStudents;
+    document.getElementById('statActive').textContent = data.stats.activeStudents;
+    document.getElementById('statInquiries').textContent = data.stats.newInquiries;
+    document.getElementById('statUnpaid').textContent = data.stats.unpaidFees;
+    document.getElementById('newInquiryBadge').textContent = data.stats.newInquiries;
+
+    // Recent inquiries
+    const inqEl = document.getElementById('dashInquiries');
+    if (!data.recentInquiries?.length) {
+      inqEl.innerHTML = '<div class="empty-state"><p>Koi inquiry nahi.</p></div>';
+    } else {
+      inqEl.innerHTML = `<table><thead><tr><th>Naam</th><th>Phone</th><th>Course</th><th>Status</th></tr></thead><tbody>
+        ${data.recentInquiries.map(i => `<tr>
+          <td>${escHtml(i.name)}</td>
+          <td>${escHtml(i.phone)}</td>
+          <td>${escHtml(i.course||'—')}</td>
+          <td><span class="badge badge-${i.status?.toLowerCase().replace(' ','-')}">${i.status}</span></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    }
+
+    // Recent students
+    const stuEl = document.getElementById('dashStudents');
+    if (!data.recentStudents?.length) {
+      stuEl.innerHTML = '<div class="empty-state"><p>Koi student nahi.</p></div>';
+    } else {
+      stuEl.innerHTML = `<table><thead><tr><th>Naam</th><th>Course</th><th>Status</th></tr></thead><tbody>
+        ${data.recentStudents.map(s => `<tr>
+          <td>${escHtml(s.name)}</td>
+          <td>${escHtml(s.course)}</td>
+          <td><span class="badge badge-${s.isActive?'active':'inactive'}">${s.isActive?'Active':'Inactive'}</span></td>
+        </tr>`).join('')}
+      </tbody></table>`;
+    }
+  } catch (err) { console.error(err); }
+}
+
+// ── STUDENTS ──────────────────────────────────
+async function loadStudents() {
+  const el = document.getElementById('studentsContent');
+  const search = document.getElementById('studentSearch').value;
+  const course = document.getElementById('studentCourse').value;
+  const isActive = document.getElementById('studentStatus').value;
+  try {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (course) params.set('course', course);
+    if (isActive) params.set('isActive', isActive);
+    const data = await apiCall(`/api/admin/students?${params}`);
+
+    if (!data.students?.length) {
+      el.innerHTML = '<div class="empty-state"><div class="emoji">👨‍🎓</div><p>Koi student nahi mila.</p></div>'; return;
+    }
+    el.innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Total: ${data.total} students</p>
+    <table><thead><tr><th>Naam</th><th>Email</th><th>Phone</th><th>Course</th><th>Sem</th><th>Enrollment</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${data.students.map(s => `<tr>
+      <td><strong>${escHtml(s.name)}</strong></td>
+      <td>${escHtml(s.email)}</td>
+      <td>${escHtml(s.phone)}</td>
+      <td>${escHtml(s.course)}</td>
+      <td>${s.semester||'—'}</td>
+      <td>${escHtml(s.enrollmentNo||'—')}</td>
+      <td><span class="badge badge-${s.isActive?'active':'inactive'}">${s.isActive?'Active':'Inactive'}</span></td>
+      <td><div class="action-btns">
+        <button class="btn btn-sm btn-primary" onclick="toggleStudentStatus('${s._id}', ${!s.isActive})">${s.isActive?'Deactivate':'Activate'}</button>
+      </div></td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state"><p>Load nahi hua. Retry karo.</p></div>';
+  }
+}
+
+async function saveStudent() {
+  const body = {
+    name: document.getElementById('sName').value,
+    email: document.getElementById('sEmail').value,
+    phone: document.getElementById('sPhone').value,
+    course: document.getElementById('sCourse').value,
+    enrollmentNo: document.getElementById('sEnrollment').value,
+    semester: Number(document.getElementById('sSemester').value),
+    session: document.getElementById('sSession').value,
+    rollNo: document.getElementById('sRollNo').value,
+    fatherName: document.getElementById('sFather').value,
+    password: document.getElementById('sPassword').value
+  };
+  if (!body.name||!body.email||!body.phone||!body.password) {
+    showModalAlert('studentModalAlert','Saare starred fields bharo.'); return;
+  }
+  try {
+    const data = await apiCall('/api/admin/students','POST',body);
+    if (data.success) { closeModal('studentModal'); loadStudents(); }
+    else showModalAlert('studentModalAlert', data.error||'Error hua.');
+  } catch (err) { showModalAlert('studentModalAlert','Server error.'); }
+}
+
+async function toggleStudentStatus(id, status) {
+  await apiCall(`/api/admin/students/${id}`, 'PUT', { isActive: status });
+  loadStudents();
+}
+
+// ── RESULTS ───────────────────────────────────
+async function loadResults() {
+  const el = document.getElementById('resultsContent');
+  const course = document.getElementById('resultCourse').value;
+  const semester = document.getElementById('resultSem').value;
+  try {
+    const params = new URLSearchParams();
+    if (course) params.set('course', course);
+    if (semester) params.set('semester', semester);
+    const data = await apiCall(`/api/admin/results?${params}`);
+    if (!data.results?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">📊</div><p>Koi result nahi.</p></div>'; return; }
+    el.innerHTML = `<table><thead><tr><th>Student</th><th>Course</th><th>Sem</th><th>Session</th><th>%</th><th>Grade</th><th>Result</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${data.results.map(r=>`<tr>
+      <td><strong>${escHtml(r.name)}</strong><br><small style="color:var(--muted)">${escHtml(r.enrollmentNo)}</small></td>
+      <td>${escHtml(r.course)}</td><td>Sem ${r.semester}</td><td>${escHtml(r.session)}</td>
+      <td>${r.percentage?.toFixed(1)||'—'}%</td>
+      <td><strong>${escHtml(r.grade||'—')}</strong></td>
+      <td><span class="badge badge-${r.result?.toLowerCase()}">${r.result}</span></td>
+      <td>${r.isPublished?'<span class="badge badge-active">Published</span>':'<span class="badge badge-inactive">Draft</span>'}</td>
+      <td><div class="action-btns">
+        ${!r.isPublished?`<button class="btn btn-sm btn-success" onclick="publishResult('${r._id}')">Publish</button>`:''}
+        <button class="btn btn-sm btn-danger" onclick="deleteResult('${r._id}')">Delete</button>
+      </div></td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+}
+
+function calcPercentage() {
+  const total = Number(document.getElementById('rTotal').value);
+  const obtained = Number(document.getElementById('rObtained').value);
+  if (total > 0) {
+    const pct = ((obtained/total)*100).toFixed(1);
+    document.getElementById('rPercentage').value = pct + '%';
+    document.getElementById('rGrade').value = pct>=90?'A+':pct>=80?'A':pct>=70?'B+':pct>=60?'B':pct>=50?'C':'F';
+    document.getElementById('rResult').value = pct >= 33 ? 'Pass' : 'Fail';
+  }
+}
+
+async function saveResult() {
+  const enrollmentNo = document.getElementById('rEnrollment').value.trim();
+  if (!enrollmentNo) { showModalAlert('resultModalAlert','Enrollment number daalo.'); return; }
+  // Find student by enrollment
+  try {
+    const sData = await apiCall(`/api/admin/students?search=${enrollmentNo}`);
+    const student = sData.students?.[0];
+    if (!student) { showModalAlert('resultModalAlert','Student nahi mila is enrollment number se.'); return; }
+
+    const body = {
+      student: student._id,
+      enrollmentNo, name: document.getElementById('rName').value || student.name,
+      course: document.getElementById('rCourse').value,
+      semester: Number(document.getElementById('rSemester').value),
+      session: document.getElementById('rSession').value,
+      examType: document.getElementById('rExamType').value,
+      totalMarks: Number(document.getElementById('rTotal').value),
+      obtainedMarks: Number(document.getElementById('rObtained').value),
+      percentage: parseFloat(document.getElementById('rPercentage').value),
+      grade: document.getElementById('rGrade').value,
+      result: document.getElementById('rResult').value,
+      isPublished: document.getElementById('rPublish').value === 'true',
+      publishedAt: document.getElementById('rPublish').value === 'true' ? new Date() : null
+    };
+    const data = await apiCall('/api/admin/results','POST',body);
+    if (data.success) { closeModal('resultModal'); loadResults(); }
+    else showModalAlert('resultModalAlert', data.error||'Error hua.');
+  } catch(err){ showModalAlert('resultModalAlert','Server error.'); }
+}
+
+async function publishResult(id) {
+  await apiCall(`/api/admin/results/${id}/publish`,'PUT');
+  loadResults();
+}
+async function deleteResult(id) {
+  if (!confirm('Yeh result delete karna chahte ho?')) return;
+  await apiCall(`/api/admin/results/${id}`,'DELETE');
+  loadResults();
+}
+
+// ── FEES ──────────────────────────────────────
+async function loadFees() {
+  const el = document.getElementById('feesContent');
+  const search = document.getElementById('feeSearch').value;
+  const status = document.getElementById('feeStatus').value;
+  try {
+    const params = new URLSearchParams();
+    if (search) params.set('search',search);
+    if (status) params.set('status',status);
+    const data = await apiCall(`/api/admin/fees?${params}`);
+    if (!data.fees?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">💰</div><p>Koi fee record nahi.</p></div>'; return; }
+    el.innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Total Collected: ₹${(data.totalCollected||0).toLocaleString('en-IN')}</p>
+    <table><thead><tr><th>Student</th><th>Course</th><th>Fee Type</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>${data.fees.map(f=>`<tr>
+      <td><strong>${escHtml(f.name)}</strong><br><small style="color:var(--muted)">${escHtml(f.enrollmentNo)}</small></td>
+      <td>${escHtml(f.course)}</td><td>${escHtml(f.feeType)}</td>
+      <td>₹${f.totalAmount?.toLocaleString('en-IN')}</td>
+      <td>₹${f.paidAmount?.toLocaleString('en-IN')}</td>
+      <td>₹${(f.dueAmount||0).toLocaleString('en-IN')}</td>
+      <td><span class="badge badge-${f.status?.toLowerCase()}">${f.status}</span></td>
+      <td><button class="btn btn-sm btn-success" onclick="markFeePaid('${f._id}')">Mark Paid</button></td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+}
+
+async function saveFee() {
+  const body = {
+    enrollmentNo: document.getElementById('fEnrollment').value,
+    name: document.getElementById('fName').value,
+    course: document.getElementById('fCourse').value,
+    semester: Number(document.getElementById('fSemester').value),
+    session: document.getElementById('fSession').value,
+    feeType: document.getElementById('fType').value,
+    totalAmount: Number(document.getElementById('fTotal').value),
+    paidAmount: Number(document.getElementById('fPaid').value)||0,
+    dueDate: document.getElementById('fDueDate').value,
+    paymentMode: document.getElementById('fMode').value||undefined,
+    transactionId: document.getElementById('fTxn').value
+  };
+  if (!body.name||!body.totalAmount) { showModalAlert('feeModalAlert','Naam aur amount zaroori hai.'); return; }
+  // Get student ID
+  try {
+    const sData = await apiCall(`/api/admin/students?search=${body.enrollmentNo}`);
+    body.student = sData.students?.[0]?._id;
+    if (!body.student) { showModalAlert('feeModalAlert','Student nahi mila.'); return; }
+    const data = await apiCall('/api/admin/fees','POST',body);
+    if (data.success) { closeModal('feeModal'); loadFees(); }
+    else showModalAlert('feeModalAlert', data.error||'Error.');
+  } catch(err){ showModalAlert('feeModalAlert','Server error.'); }
+}
+
+async function markFeePaid(id) {
+  await apiCall(`/api/admin/fees/${id}`,'PUT',{ status:'Paid', paidAt: new Date(), paymentMode:'Cash' });
+  loadFees();
+}
+
+// ── NOTICES ───────────────────────────────────
+async function loadNotices() {
+  const el = document.getElementById('noticesContent');
+  try {
+    const data = await apiCall('/api/admin/notices');
+    if (!data.notices?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">📢</div><p>Koi notice nahi.</p></div>'; return; }
+    el.innerHTML = data.notices.map(n=>`
+      <div class="card" style="border-left:4px solid ${n.isPinned?'var(--accent)':'var(--primary)'}">
+        <div class="card-header">
+          <div>
+            <h3>${n.isPinned?'📌 ':''}${escHtml(n.title)}</h3>
+            <small style="color:var(--muted)">${n.category} • ${n.targetAudience} • ${new Date(n.createdAt).toLocaleDateString('en-IN')}</small>
+          </div>
+          <div class="action-btns">
+            <button class="btn btn-sm btn-danger" onclick="deleteNotice('${n._id}')">Delete</button>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text)">${escHtml(n.content)}</p>
+      </div>
+    `).join('');
+  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+}
+
+async function saveNotice() {
+  const body = {
+    title: document.getElementById('nTitle').value,
+    content: document.getElementById('nContent').value,
+    category: document.getElementById('nCategory').value,
+    targetAudience: document.getElementById('nTarget').value,
+    isPinned: document.getElementById('nPinned').value==='true',
+    expiresAt: document.getElementById('nExpiry').value||null
+  };
+  if (!body.title||!body.content) { showModalAlert('noticeModalAlert','Title aur content zaroori hai.'); return; }
+  try {
+    const data = await apiCall('/api/admin/notices','POST',body);
+    if (data.success) { closeModal('noticeModal'); loadNotices(); }
+    else showModalAlert('noticeModalAlert', data.error||'Error.');
+  } catch(err){ showModalAlert('noticeModalAlert','Server error.'); }
+}
+
+async function deleteNotice(id) {
+  if (!confirm('Yeh notice delete karna chahte ho?')) return;
+  await apiCall(`/api/admin/notices/${id}`,'DELETE');
+  loadNotices();
+}
+
+// ── INQUIRIES ─────────────────────────────────
+async function loadInquiries() {
+  const el = document.getElementById('inquiriesContent');
+  const status = document.getElementById('inquiryFilter').value;
+  try {
+    const params = status ? `?status=${encodeURIComponent(status)}` : '';
+    const data = await apiCall(`/api/admin/inquiries${params}`);
+    if (!data.inquiries?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">📩</div><p>Koi inquiry nahi.</p></div>'; return; }
+    el.innerHTML = `<table><thead><tr><th>Naam</th><th>Phone</th><th>Email</th><th>Course</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${data.inquiries.map(i=>`<tr>
+      <td><strong>${escHtml(i.name)}</strong></td>
+      <td><a href="tel:+91${escHtml(i.phone)}" style="color:var(--primary)">${escHtml(i.phone)}</a></td>
+      <td>${i.email?`<a href="mailto:${escHtml(i.email)}" style="color:var(--primary)">${escHtml(i.email)}</a>`:'—'}</td>
+      <td>${escHtml(i.course||'—')}</td>
+      <td style="max-width:200px;font-size:12px">${escHtml((i.message||'').substring(0,80))}${(i.message||'').length>80?'…':''}</td>
+      <td><span class="badge badge-${i.status?.toLowerCase().replace(' ','-')}">${i.status}</span></td>
+      <td><select onchange="updateInquiry('${i._id}', this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;font-family:inherit;">
+        <option ${i.status==='New'?'selected':''}>New</option>
+        <option ${i.status==='Contacted'?'selected':''}>Contacted</option>
+        <option ${i.status==='Admitted'?'selected':''}>Admitted</option>
+        <option ${i.status==='Not Interested'?'selected':''} value="Not Interested">Not Interested</option>
+      </select>
+      <a href="https://wa.me/91${i.phone}?text=${encodeURIComponent('Hello '+i.name+', KIMT se contact kar rahe hain.')}" target="_blank" class="btn btn-sm btn-success" style="text-decoration:none;margin-left:4px">WhatsApp</a>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+}
+
+async function updateInquiry(id, status) {
+  await apiCall(`/api/admin/inquiries/${id}`,'PUT',{status});
+  document.getElementById('newInquiryBadge').textContent = '…';
+  loadDashboard();
+}
+
+// ── ATTENDANCE ────────────────────────────────
+async function loadStudentsForAttendance() {
+  const course = document.getElementById('attCourse').value;
+  const subject = document.getElementById('attSubject').value;
+  const date = document.getElementById('attDate').value;
+  if (!subject || !date) { alert('Subject aur date bharo.'); return; }
+
+  const data = await apiCall(`/api/admin/students?course=${course}&isActive=true`);
+  const students = data.students || [];
+  if (!students.length) { document.getElementById('attendanceTable').innerHTML = '<div class="empty-state"><p>Is course mein koi student nahi.</p></div>'; return; }
+
+  document.getElementById('attendanceTable').innerHTML = `
+    <p style="margin-bottom:12px;font-size:13px;color:var(--muted)">📅 ${date} | ${subject} | ${students.length} students</p>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn btn-success btn-sm" onclick="markAll('Present')">✅ Mark All Present</button>
+      <button class="btn btn-danger btn-sm" onclick="markAll('Absent')">❌ Mark All Absent</button>
+    </div>
+    <table>
+      <thead><tr><th>Naam</th><th>Enrollment</th><th>Status</th></tr></thead>
+      <tbody id="attTableBody">
+        ${students.map(s=>`<tr>
+          <td>${escHtml(s.name)}</td>
+          <td>${escHtml(s.enrollmentNo||'—')}</td>
+          <td>
+            <select data-student="${s._id}" class="att-select" style="padding:5px 10px;border-radius:7px;border:1px solid var(--border);font-family:inherit;">
+              <option value="Present">Present ✅</option>
+              <option value="Absent">Absent ❌</option>
+              <option value="Late">Late ⏰</option>
+            </select>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" onclick="submitAttendance('${subject}','${date}')">💾 Save Attendance</button>
+    </div>
+  `;
+}
+
+function markAll(status) {
+  document.querySelectorAll('.att-select').forEach(sel => sel.value = status);
+}
+
+async function submitAttendance(subject, date) {
+  const records = [];
+  document.querySelectorAll('.att-select').forEach(sel => {
+    records.push({ student: sel.dataset.student, subject, date, status: sel.value, course: document.getElementById('attCourse').value });
+  });
+  try {
+    const data = await apiCall('/api/admin/attendance','POST',records);
+    if (data.success) alert('✅ ' + data.message);
+    else alert('Error: ' + data.error);
+  } catch(err){ alert('Server error.'); }
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>

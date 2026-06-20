@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal — KIMT Bareilly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0b3c91;
+      --accent: #ffb703;
+      --bg: #f0f4ff;
+      --white: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --card-shadow: 0 4px 24px rgba(11,60,145,0.10);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    .top-bar { background: var(--primary); color: #fff; text-align: center; padding: 8px; font-size: 13px; }
+    .top-bar a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+    .auth-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+
+    .auth-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+    }
+
+    .auth-header {
+      background: var(--primary);
+      padding: 32px 36px 24px;
+      text-align: center;
+    }
+    .auth-header img { height: 56px; margin-bottom: 12px; }
+    .auth-header h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .auth-header p { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+    .tab-row { display: flex; border-bottom: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 14px; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.2s; }
+    .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+
+    .auth-body { padding: 28px 36px 32px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: #f8fafc;
+      transition: border 0.2s;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--primary); background: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+    .btn-primary:hover { background: #083173; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .divider { text-align: center; color: var(--muted); font-size: 13px; margin: 16px 0; position: relative; }
+    .divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border); }
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+
+    .alert { padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .alert.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .alert.show { display: block; }
+
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    footer { text-align: center; padding: 16px; font-size: 12px; color: var(--muted); }
+    footer a { color: var(--primary); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  🏠 <a href="/">KIMT Main Website</a> &nbsp;|&nbsp; 📞 +91 9084147587 &nbsp;|&nbsp; ✉️ kimtiinfo@gmail.com
+</div>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="/images/logo.jpg" alt="KIMT Logo" onerror="this.style.display='none'">
+      <h1>Student Portal</h1>
+      <p>Krishna Institute of Management and Technology</p>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" onclick="switchTab('signup')">New Registration</button>
+    </div>
+
+    <div class="auth-body">
+      <div id="alertBox" class="alert"></div>
+
+      <!-- LOGIN FORM -->
+      <div class="form-panel active" id="loginPanel">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="apna@email.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" id="loginBtn" onclick="doLogin()">Login to Portal</button>
+        <div class="divider">ya</div>
+        <p style="text-align:center;font-size:13px;color:var(--muted)">Naya student? <a href="#" onclick="switchTab('signup')" style="color:var(--primary);font-weight:600">Register karo</a></p>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div class="form-panel" id="signupPanel">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="signupName" placeholder="Aapka naam">
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" id="signupPhone" placeholder="10-digit number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="signupEmail" placeholder="apna@email.com">
+        </div>
+        <div class="form-group">
+          <label>Course *</label>
+          <select id="signupCourse">
+            <option value="">-- Course select karo --</option>
+            <option>BCA</option><option>MCA</option><option>B.Tech</option>
+            <option>BBA</option><option>MBA</option><option>B.Com</option>
+            <option>BA</option><option>MA</option><option>BSc</option>
+            <option>MSc</option><option>ParaMedical</option><option>Vocational</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Password * (min 6 characters)</label>
+          <input type="password" id="signupPassword" placeholder="Strong password banao">
+        </div>
+        <button class="btn-primary" id="signupBtn" onclick="doSignup()">Register Now</button>
+        <div class="divider">ya</div>
+        <p style="text-align:center;font-size:13px;color:var(--muted)">Already registered? <a href="#" onclick="switchTab('login')" style="color:var(--primary);font-weight:600">Login karo</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 KIMT Bareilly &nbsp;|&nbsp; <a href="/">Main Website</a> &nbsp;|&nbsp; <a href="/admin-panel/">Admin Login</a>
+</footer>
+
+<script>
+  // Check if already logged in
+  const token = localStorage.getItem('studentToken');
+  if (token) window.location.href = '/student/dashboard.html';
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'login')));
+    document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+    document.getElementById('signupPanel').classList.toggle('active', tab === 'signup');
+    hideAlert();
+  }
+
+  function showAlert(msg, type = 'error') {
+    const el = document.getElementById('alertBox');
+    el.textContent = msg;
+    el.className = `alert ${type} show`;
+  }
+  function hideAlert() {
+    document.getElementById('alertBox').className = 'alert';
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) return showAlert('Email aur password dono bharo.');
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Logging in...';
+
+    try {
+      const res = await fetch('/api/auth/student/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert(data.error || 'Login failed.'); return; }
+
+      localStorage.setItem('studentToken', data.token);
+      localStorage.setItem('studentInfo', JSON.stringify(data.student));
+      showAlert('Login successful! Redirect ho raha hai...', 'success');
+      setTimeout(() => window.location.href = '/student/dashboard.html', 800);
+    } catch (err) {
+      showAlert('Network error. Server se connect nahi ho pa raha.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Login to Portal';
+    }
+  }
+
+  async function doSignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const phone = document.getElementById('signupPhone').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const course = document.getElementById('signupCourse').value;
+    const password = document.getElementById('signupPassword').value;
+
+    if (!name || !phone || !email || !course || !password) return showAlert('Saare starred (*) fields bharo.');
+    if (!/^[6-9]\d{9}$/.test(phone)) return showAlert('Valid 10-digit phone number daalo.');
+    if (password.length < 6) return showAlert('Password kam se kam 6 characters ka hona chahiye.');
+
+    const btn = document.getElementById('signupBtn');
+    btn.disabled = true; btn.textContent = 'Registering...';
+
+    try {
+      const res = await fetch('/api/auth/student/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, email, course, password })
+      });
+      const data = await res.json();
+      if (!res.ok) { showAlert(data.error || 'Registration failed.'); return; }
+
+      localStorage.setItem('studentToken', data.token);
+      localStorage.setItem('studentInfo', JSON.stringify(data.student));
+      showAlert('Registration ho gaya! Dashboard pe ja raha hai...', 'success');
+      setTimeout(() => window.location.href = '/student/dashboard.html', 1000);
+    } catch (err) {
+      showAlert('Network error. Dobara try karo.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Register Now';
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const activePanel = document.querySelector('.form-panel.active');
+      if (activePanel.id === 'loginPanel') doLogin();
+      else doSignup();
+    }
+  });
+</script>
+</body>
+</html>
