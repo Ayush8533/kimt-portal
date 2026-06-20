@@ -97,15 +97,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-app.get('/create-admin', async (req, res) => {
-  const { Admin } = require('./models/Others');
-
-  const admin = await Admin.create({
-    name: "KIMT Admin",
-    email: "admin@kimt.com",
-    password: "admin123",
-    role: "superadmin"
-  });
-
-  res.json(admin);
-});
