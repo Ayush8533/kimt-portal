@@ -8,7 +8,7 @@ const signToken = (id, type = 'Student') =>
   jwt.sign({ id, type }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
 // ── STUDENT SIGNUP ─────────────────────────────
-router.post('/student/signup', async (req, res) => {
+router.post('/Student/signup', async (req, res) => {
   try {
     const { name, email, phone, password, course, session } = req.body;
 
@@ -92,6 +92,68 @@ router.post('/admin/login', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+
+// ── CHANGE PASSWORD ───────────────────────────
+router.put('/change-password', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Login required.' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        error: 'Current aur New Password dono required hain.'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: 'New password minimum 6 characters ka hona chahiye.'
+      });
+    }
+
+    let user;
+
+    if (decoded.type === 'admin') {
+      user = await Admin.findById(decoded.id).select('+password');
+    } else {
+      user = await Student.findById(decoded.id).select('+password');
+    }
+
+    if (!user) {
+      return res.status(404).json({ error: 'User nahi mila.' });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        error: 'Current password galat hai.'
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password successfully change ho gaya.'
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: 'Password change nahi hua.'
+    });
   }
 });
 
