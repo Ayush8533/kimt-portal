@@ -261,9 +261,8 @@ function toggleSidebar() {
 function logout() {
   localStorage.removeItem('studentToken');
   localStorage.removeItem('studentInfo');
-  window.location.href = '/student/';
+  window.location.href = '/student';
 }
-
 // ── LOAD DASHBOARD ────────────────────────────
 async function loadDashboard() {
   try {
