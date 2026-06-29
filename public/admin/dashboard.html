@@ -440,7 +440,7 @@
 
 <script>
 const token = localStorage.getItem('adminToken');
-if (!token) window.location.href = '/admin-panel/';
+if (!token) window.location.href = '/admin-panel';
 
 const adminInfo = JSON.parse(localStorage.getItem('adminInfo') || '{}');
 if (adminInfo.name) {

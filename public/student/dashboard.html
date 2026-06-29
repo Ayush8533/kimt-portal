@@ -222,7 +222,7 @@
 
 <script>
 const token = localStorage.getItem('studentToken');
-if (!token) window.location.href = '/student/';
+if (!token) window.location.href = '/student';
 
 const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
 
@@ -261,7 +261,7 @@ function toggleSidebar() {
 function logout() {
   localStorage.removeItem('studentToken');
   localStorage.removeItem('studentInfo');
-  window.location.replace('https://kimtonline.org/student');
+  window.location.href = '/student';
 }
 // ── LOAD DASHBOARD ────────────────────────────
 async function loadDashboard() {
