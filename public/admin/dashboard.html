@@ -477,7 +477,7 @@ function showPage(name) {
 function logout() {
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminInfo');
-  window.location.href = '/admin-panel/';
+  window.location.replace('https://kimtonline.org/admin-panel');
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
