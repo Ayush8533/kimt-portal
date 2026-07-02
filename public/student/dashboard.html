@@ -102,11 +102,25 @@
 
     .loading { text-align:center; padding:30px; color:var(--muted); }
 
+    .profile-grid { display:grid; grid-template-columns: 280px 1fr; gap:20px; align-items:start; }
+    .profile-photo { width:140px; height:140px; border-radius:50%; object-fit:cover; background:#e2e8f0; display:block; margin:0 auto 14px; border:4px solid #fff; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+    .profile-avatar-lg { width:140px; height:140px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:54px; font-weight:800; margin:0 auto 14px; color:#111827; border:4px solid #fff; box-shadow:0 6px 20px rgba(0,0,0,.12); }
+    .form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+    .form-group label { display:block; font-size:12px; color:var(--muted); font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+    .form-group input, .form-group textarea { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:10px; font-family:inherit; font-size:14px; background:#fff; }
+    .form-group textarea { min-height:86px; resize:vertical; }
+    .form-group input[readonly] { background:#f8fafc; color:var(--muted); }
+    .primary-btn { padding:10px 16px; background:var(--primary); color:#fff; border:none; border-radius:9px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .secondary-btn { padding:8px 12px; background:#f1f5f9; color:var(--text); border:1px solid var(--border); border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .helper-text { font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5; }
+    .toast { position:fixed; right:20px; bottom:20px; background:#111827; color:#fff; padding:12px 16px; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.18); z-index:500; display:none; font-size:14px; }
+
     @media (max-width:768px) {
       .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
       .sidebar.open { transform: translateX(0); }
       .main { margin-left: 0; padding: 16px; }
       .cards-grid { grid-template-columns: 1fr 1fr; }
+      .profile-grid, .form-grid { grid-template-columns: 1fr; }
       .menu-toggle { display:flex !important; }
     }
     .menu-toggle { display:none; position:fixed; top:16px; left:16px; z-index:200; background:var(--primary); border:none; border-radius:8px; padding:8px 10px; cursor:pointer; flex-direction:column; gap:4px; }
@@ -129,6 +143,7 @@
 
   <nav class="nav-menu">
     <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('profile')"><span class="nav-icon">👤</span> Profile</button>
     <button class="nav-item" onclick="showPage('results')"><span class="nav-icon">📊</span> Results</button>
     <button class="nav-item" onclick="showPage('fees')"><span class="nav-icon">💰</span> Fee Status</button>
     <button class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">📅</span> Attendance</button>
@@ -169,6 +184,13 @@
       <h3>📢 Latest Notices</h3>
       <div id="dashboardNotices"><div class="loading">Loading notices...</div></div>
     </div>
+  </div>
+
+
+  <!-- PROFILE -->
+  <div class="page" id="page-profile">
+    <div class="page-header"><h1>👤 My Profile</h1><p>Apni profile details aur photo manage karo</p></div>
+    <div id="profileContent"><div class="loading">Profile load ho rahi hai...</div></div>
   </div>
 
   <!-- RESULTS -->
@@ -217,12 +239,14 @@
 
 </main>
 
+<div class="toast" id="toast"></div>
+
 <!-- Razorpay -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 const token = localStorage.getItem('studentToken');
-if (!token) window.location.href = '/student';
+if (!token) window.location.replace('/student/index.html');
 
 const studentInfo = JSON.parse(localStorage.getItem('studentInfo') || '{}');
 
@@ -241,13 +265,35 @@ function apiGet(url) {
   });
 }
 
+
+function apiPut(url, body) {
+  return fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body)
+  }).then(r => r.json().then(data => ({ ok: r.ok, data })));
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 2600);
+}
+
+function fmtDate(date) {
+  if (!date) return '—';
+  return new Date(date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   event?.target?.closest('.nav-item')?.classList.add('active');
 
-  if (name === 'results') loadResults();
+  if (name === 'profile') loadProfile();
+  else if (name === 'results') loadResults();
   else if (name === 'fees') loadFees();
   else if (name === 'attendance') loadAttendance();
   else if (name === 'documents') loadDocuments();
@@ -261,8 +307,143 @@ function toggleSidebar() {
 function logout() {
   localStorage.removeItem('studentToken');
   localStorage.removeItem('studentInfo');
-  window.location.href = '/student';
+  window.location.replace('/student/index.html');
 }
+
+// ── PROFILE ───────────────────────────────────
+let currentStudent = studentInfo || {};
+
+async function loadProfile() {
+  const el = document.getElementById('profileContent');
+  try {
+    const data = await apiGet('/api/student/profile');
+    currentStudent = data.student || {};
+    updateStudentSidebar(currentStudent);
+    renderProfile(currentStudent);
+  } catch (err) {
+    el.innerHTML = '<div class="empty-state"><p>Profile load nahi hui.</p></div>';
+  }
+}
+
+function updateStudentSidebar(st) {
+  const name = st.name || 'Student';
+  document.getElementById('sidebarName').textContent = name;
+  document.getElementById('sidebarCourse').textContent = st.course || '';
+  document.getElementById('avatarEl').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('welcomeMsg').textContent = `Hello ${name}! Aaj kya dekhna chahte ho?`;
+  localStorage.setItem('studentInfo', JSON.stringify(st));
+}
+
+function renderProfile(st) {
+  const el = document.getElementById('profileContent');
+  const photoHtml = st.photoUrl
+    ? `<img class="profile-photo" id="profilePhotoPreview" src="${st.photoUrl}" alt="Student photo">`
+    : `<div class="profile-avatar-lg" id="profilePhotoPreview">${escHtml((st.name || 'S').charAt(0).toUpperCase())}</div>`;
+
+  el.innerHTML = `
+    <div class="profile-grid">
+      <div class="card" style="text-align:center">
+        ${photoHtml}
+        <h3 style="margin-bottom:4px">${escHtml(st.name || 'Student')}</h3>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px">${escHtml(st.course || '')} ${st.semester ? '• Sem ' + st.semester : ''}</p>
+        <form id="photoForm">
+          <input type="file" id="photoInput" name="photo" accept="image/png,image/jpeg,image/webp" style="display:none">
+          <button type="button" class="secondary-btn" onclick="document.getElementById('photoInput').click()">📷 Select Photo</button>
+          <button type="submit" class="primary-btn" style="margin-top:10px;width:100%">Upload Photo</button>
+        </form>
+        <div class="helper-text">JPG, PNG ya WEBP. Max size 2MB.</div>
+      </div>
+
+      <div class="card">
+        <h3>Personal & Academic Details</h3>
+        <form id="profileForm">
+          <div class="form-grid">
+            <div class="form-group"><label>Name</label><input value="${escAttr(st.name)}" readonly></div>
+            <div class="form-group"><label>Email</label><input value="${escAttr(st.email)}" readonly></div>
+            <div class="form-group"><label>Phone</label><input id="pPhone" value="${escAttr(st.phone)}" placeholder="Phone number"></div>
+            <div class="form-group"><label>Enrollment No</label><input value="${escAttr(st.enrollmentNo || 'Not assigned')}" readonly></div>
+            <div class="form-group"><label>Course</label><input value="${escAttr(st.course)}" readonly></div>
+            <div class="form-group"><label>Semester</label><input value="${escAttr(st.semester || '—')}" readonly></div>
+            <div class="form-group"><label>Father Name</label><input id="pFather" value="${escAttr(st.fatherName)}" placeholder="Father name"></div>
+            <div class="form-group"><label>Mother Name</label><input id="pMother" value="${escAttr(st.motherName)}" placeholder="Mother name"></div>
+            <div class="form-group"><label>DOB</label><input value="${escAttr(fmtDate(st.dob))}" readonly></div>
+            <div class="form-group"><label>Session</label><input value="${escAttr(st.session || '—')}" readonly></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Address</label><textarea id="pAddress" placeholder="Full address">${escHtml(st.address || '')}</textarea></div>
+          </div>
+          <button type="submit" class="primary-btn" style="margin-top:16px">💾 Save Profile</button>
+        </form>
+      </div>
+    </div>`;
+
+  document.getElementById('profileForm').addEventListener('submit', saveProfile);
+  document.getElementById('photoForm').addEventListener('submit', uploadProfilePhoto);
+}
+
+async function saveProfile(e) {
+  e.preventDefault();
+  const body = {
+    phone: document.getElementById('pPhone').value.trim(),
+    fatherName: document.getElementById('pFather').value.trim(),
+    motherName: document.getElementById('pMother').value.trim(),
+    address: document.getElementById('pAddress').value.trim()
+  };
+  const { ok, data } = await apiPut('/api/student/profile', body);
+  if (!ok) return toast(data.error || 'Profile update nahi hua.');
+  currentStudent = data.student;
+  updateStudentSidebar(currentStudent);
+  toast('✅ Profile update ho gaya!');
+}
+
+async function uploadProfilePhoto(e) {
+  e.preventDefault();
+  const input = document.getElementById('photoInput');
+  if (!input.files.length) return toast('Pehle photo select karo.');
+
+  const formData = new FormData();
+  formData.append('photo', input.files[0]);
+  const res = await fetch('/api/student/profile/photo', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData
+  });
+  const data = await res.json();
+  if (!res.ok) return toast(data.error || 'Photo upload nahi hui.');
+  toast('✅ Photo upload ho gayi!');
+  loadProfile();
+}
+
+function printFeeReceipt(feeId) {
+  const fee = (window.lastFees || []).find(f => f._id === feeId);
+  if (!fee) return toast('Receipt data nahi mila.');
+  const st = currentStudent || studentInfo || {};
+  const receipt = `
+    <html><head><title>KIMT Fee Receipt</title>
+    <style>body{font-family:Arial,sans-serif;padding:30px;color:#111}.box{border:2px solid #0b3c91;padding:24px;max-width:720px;margin:auto}h1{text-align:center;color:#0b3c91;margin:0}.sub{text-align:center;margin:6px 0 24px;color:#555}table{width:100%;border-collapse:collapse;margin-top:18px}td,th{border:1px solid #ddd;padding:10px;text-align:left}.total{font-weight:bold;background:#f3f6ff}.foot{margin-top:36px;display:flex;justify-content:space-between}.small{font-size:12px;color:#666;margin-top:18px}</style>
+    </head><body><div class="box">
+      <h1>Krishna Institute of Management and Technology</h1>
+      <div class="sub">Fee Receipt</div>
+      <table>
+        <tr><th>Receipt No</th><td>${escHtml(fee.receiptNo || 'Pending / Not Generated')}</td></tr>
+        <tr><th>Date</th><td>${fmtDate(fee.paidAt || fee.updatedAt || fee.createdAt)}</td></tr>
+        <tr><th>Student Name</th><td>${escHtml(st.name || fee.name || '—')}</td></tr>
+        <tr><th>Enrollment No</th><td>${escHtml(st.enrollmentNo || fee.enrollmentNo || '—')}</td></tr>
+        <tr><th>Course</th><td>${escHtml(st.course || fee.course || '—')}</td></tr>
+        <tr><th>Fee Type</th><td>${escHtml(fee.feeType || '—')}</td></tr>
+        <tr><th>Total Amount</th><td>₹${Number(fee.totalAmount || 0).toLocaleString('en-IN')}</td></tr>
+        <tr><th>Paid Amount</th><td>₹${Number(fee.paidAmount || 0).toLocaleString('en-IN')}</td></tr>
+        <tr class="total"><th>Due Amount</th><td>₹${Number(fee.dueAmount || 0).toLocaleString('en-IN')}</td></tr>
+        <tr><th>Status</th><td>${escHtml(fee.status || '—')}</td></tr>
+        <tr><th>Payment Mode</th><td>${escHtml(fee.paymentMode || '—')}</td></tr>
+      </table>
+      <div class="foot"><div>Student Copy</div><div>Authorized Signature</div></div>
+      <div class="small">This is a computer generated receipt. For official verification, contact KIMT office.</div>
+    </div></body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(receipt);
+  w.document.close();
+  w.print();
+}
+
 // ── LOAD DASHBOARD ────────────────────────────
 async function loadDashboard() {
   try {
@@ -337,12 +518,13 @@ async function loadFees() {
     document.getElementById('totalPaid').textContent = '₹' + (data.summary?.totalPaid || 0).toLocaleString('en-IN');
     document.getElementById('totalDue').textContent = '₹' + (data.summary?.totalDue || 0).toLocaleString('en-IN');
 
+    window.lastFees = data.fees || [];
     if (!data.fees?.length) {
       el.innerHTML = '<div class="empty-state"><div class="emoji">💰</div><p>Koi fee record nahi hai.</p></div>';
       return;
     }
     el.innerHTML = `<table>
-      <thead><tr><th>Fee Type</th><th>Semester</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Action</th></tr></thead>
+      <thead><tr><th>Fee Type</th><th>Semester</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Action</th><th>Receipt</th></tr></thead>
       <tbody>
         ${data.fees.map(f => `
           <tr>
@@ -353,6 +535,7 @@ async function loadFees() {
             <td>₹${(f.dueAmount || 0).toLocaleString('en-IN')}</td>
             <td><span class="status-badge status-${f.status?.toLowerCase()}">${f.status}</span></td>
             <td>${f.status !== 'Paid' ? `<button class="pay-btn" onclick="payFee('${f._id}', ${f.dueAmount})">Pay Now</button>` : '✅'}</td>
+            <td>${f.paidAmount > 0 ? `<button class="secondary-btn" onclick="printFeeReceipt('${f._id}')">Receipt</button>` : '—'}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -492,6 +675,10 @@ async function loadNotices() {
 
 function escHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function escAttr(str) {
+  return escHtml(str).replace(/\"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
 // Init
