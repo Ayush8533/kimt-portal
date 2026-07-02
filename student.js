@@ -6,39 +6,12 @@ const Result = require('../models/Result');
 const Fee = require('../models/Fee');
 const { Attendance, Notice } = require('../models/Others');
 
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-const uploadDir = path.join(__dirname, '..', 'uploads', 'students');
-fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `student-${req.student._id}-${Date.now()}${ext}`);
-  }
-});
-
-const uploadPhoto = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.mimetype)) return cb(new Error('Sirf JPG, PNG ya WEBP photo upload karo.'));
-    cb(null, true);
-  }
-});
-
 // All routes require student login
 router.use(protectStudent);
 
 // ── PROFILE ───────────────────────────────────
 router.get('/profile', (req, res) => {
-  const student = req.student.toJSON ? req.student.toJSON() : req.student;
-  if (student.photo) student.photoUrl = `/uploads/students/${student.photo}`;
-  res.json({ success: true, student });
+  res.json({ success: true, student: req.student });
 });
 
 router.put('/profile', async (req, res) => {
@@ -53,32 +26,6 @@ router.put('/profile', async (req, res) => {
     res.json({ success: true, message: 'Profile update ho gaya!', student });
   } catch (err) {
     res.status(500).json({ error: 'Profile update nahi hua.' });
-  }
-});
-
-router.post('/profile/photo', uploadPhoto.single('photo'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ error: 'Photo select karo.' });
-
-    if (req.student.photo) {
-      const oldPath = path.join(uploadDir, req.student.photo);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-    }
-
-    const student = await Student.findByIdAndUpdate(
-      req.student._id,
-      { photo: req.file.filename },
-      { new: true }
-    );
-
-    res.json({
-      success: true,
-      message: 'Photo upload ho gayi!',
-      photoUrl: `/uploads/students/${student.photo}`,
-      student
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'Photo upload nahi hui.' });
   }
 });
 
