@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fee History — KIMT Student Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .topbar{background:var(--primary);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;}
+    .topbar a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;}
+    .topbar h1{font-size:16px;font-weight:600;flex:1;}
+    .container{max-width:960px;margin:32px auto;padding:0 20px;}
+    .card{background:var(--white);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(11,60,145,0.07);margin-bottom:20px;}
+
+    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+    .sum-box{padding:20px;border-radius:14px;text-align:center;}
+    .sum-box.paid{background:linear-gradient(135deg,#dcfce7,#bbf7d0);}
+    .sum-box.due{background:linear-gradient(135deg,#fee2e2,#fecaca);}
+    .sum-box.total{background:linear-gradient(135deg,#dbeafe,#bfdbfe);}
+    .sum-icon{font-size:28px;margin-bottom:8px;}
+    .sum-amount{font-size:24px;font-weight:700;}
+    .sum-amount.paid{color:#166534;}
+    .sum-amount.due{color:#991b1b;}
+    .sum-amount.total{color:#1e40af;}
+    .sum-label{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500;}
+
+    .section-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .section-title i{color:var(--primary);}
+
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#f8fafc;font-size:11px;font-weight:700;color:var(--muted);padding:11px 14px;text-align:left;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.4px;}
+    td{padding:13px 14px;font-size:13px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+    tr:last-child td{border:none;}
+    tr:hover td{background:#fafbff;}
+
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge.green{background:#dcfce7;color:#166534;}
+    .badge.red{background:#fee2e2;color:#991b1b;}
+    .badge.blue{background:#dbeafe;color:#1e40af;}
+    .badge.yellow{background:#fef9c3;color:#854d0e;}
+
+    .download-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--primary);color:#fff;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;transition:.2s;}
+    .download-btn:hover{background:#083173;transform:translateY(-1px);}
+
+    .empty-state{text-align:center;padding:56px 24px;color:var(--muted);}
+    .empty-state i{font-size:52px;margin-bottom:14px;opacity:.3;}
+    .empty-state h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+    .empty-state p{font-size:13px;}
+
+    .progress-bar-wrap{height:6px;background:#e2e8f0;border-radius:10px;margin-top:6px;overflow:hidden;}
+    .progress-bar{height:100%;border-radius:10px;background:var(--success);transition:width .6s ease;}
+
+    @media(max-width:600px){
+      .summary-grid{grid-template-columns:1fr;}
+      table{font-size:12px;}
+      td,th{padding:9px 10px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/student/dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <h1><i class="fas fa-credit-card" style="margin-right:8px"></i>Fee History</h1>
+</div>
+
+<div class="container">
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+    <div class="sum-box paid">
+      <div class="sum-icon">💰</div>
+      <div class="sum-amount paid" id="totalPaid">₹0</div>
+      <div class="sum-label">Total Paid</div>
+    </div>
+    <div class="sum-box due">
+      <div class="sum-icon">⚠️</div>
+      <div class="sum-amount due" id="totalDue">₹0</div>
+      <div class="sum-label">Total Due</div>
+    </div>
+    <div class="sum-box total">
+      <div class="sum-icon">📊</div>
+      <div class="sum-amount total" id="totalAmount">₹0</div>
+      <div class="sum-label">Total Amount</div>
+    </div>
+  </div>
+
+  <!-- PAYMENT PROGRESS -->
+  <div class="card" id="progressCard" style="display:none">
+    <div class="section-title"><i class="fas fa-chart-line"></i> Payment Progress</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+      <span>Paid: <strong id="progressPaidText">₹0</strong></span>
+      <span id="progressPct" style="font-weight:600;color:var(--success)">0%</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px">Remaining due: <span id="progressDueText">₹0</span></div>
+  </div>
+
+  <!-- FEE TABLE -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-receipt"></i> Payment Records</div>
+    <div id="feesContent">
+      <div class="empty-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h3>Loading...</h3>
+        <p>Fee records fetch ho rahe hain</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO NOTE -->
+  <div style="background:#fff8e1;border:1px solid var(--accent);border-radius:10px;padding:14px 18px;font-size:13px;color:#78350f;display:flex;align-items:flex-start;gap:10px;">
+    <i class="fas fa-info-circle" style="margin-top:1px;color:var(--warning)"></i>
+    <div>Fee receipts PDF format mein download kar sakte ho. Koi problem ho toh accounts department se contact karo at <strong>kimtiinfo@gmail.com</strong></div>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem('studentToken');
+if (!token) window.location.href = '/student/index.html';
+const headers = { 'Authorization': 'Bearer ' + token };
+
+async function loadFees() {
+  try {
+    const res = await fetch('/api/student/fees', { headers });
+    const data = await res.json();
+
+    const paid = data.summary?.totalPaid || 0;
+    const due = data.summary?.totalDue || 0;
+    const total = paid + due;
+    const pct = total > 0 ? Math.round((paid / total) * 100) : 0;
+
+    document.getElementById('totalPaid').textContent = '₹' + paid.toLocaleString('en-IN');
+    document.getElementById('totalDue').textContent = '₹' + due.toLocaleString('en-IN');
+    document.getElementById('totalAmount').textContent = '₹' + total.toLocaleString('en-IN');
+
+    if (total > 0) {
+      document.getElementById('progressCard').style.display = 'block';
+      document.getElementById('progressPaidText').textContent = '₹' + paid.toLocaleString('en-IN');
+      document.getElementById('progressDueText').textContent = '₹' + due.toLocaleString('en-IN');
+      document.getElementById('progressPct').textContent = pct + '%';
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressBar').style.background = pct >= 75 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+    }
+
+    const el = document.getElementById('feesContent');
+    if (!data.fees || !data.fees.length) {
+      el.innerHTML = `<div class="empty-state">
+        <i class="fas fa-receipt"></i>
+        <h3>Koi payment record nahi hai</h3>
+        <p>Abhi tak koi fee payment nahi hui hai</p>
+      </div>`; return;
+    }
+
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead>
+        <tr>
+          <th>Receipt No.</th>
+          <th>Date</th>
+          <th>Fee Type</th>
+          <th>Paid Amount</th>
+          <th>Due Amount</th>
+          <th>Mode</th>
+          <th>Status</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.fees.map(f => {
+          const receiptNo = f._id.toString().slice(-8).toUpperCase();
+          const isPaid = (f.dueAmount || 0) === 0;
+          return `<tr>
+            <td style="font-family:monospace;font-weight:600;color:var(--primary)">#${receiptNo}</td>
+            <td>${new Date(f.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
+            <td>${f.feeType || 'Tuition Fee'}</td>
+            <td style="color:var(--success);font-weight:700">₹${Number(f.paidAmount||0).toLocaleString('en-IN')}</td>
+            <td style="color:${(f.dueAmount||0)>0?'var(--danger)':'var(--success)'};font-weight:600">₹${Number(f.dueAmount||0).toLocaleString('en-IN')}</td>
+            <td><span class="badge blue">${f.paymentMode||'Online'}</span></td>
+            <td><span class="badge ${isPaid?'green':'yellow'}">${isPaid?'✓ Paid':'Partial'}</span></td>
+            <td><a href="/api/student/fees/${f._id}/download" class="download-btn" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>`;
+  } catch (err) {
+    document.getElementById('feesContent').innerHTML = `<div class="empty-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <h3>Load nahi hua</h3>
+      <p>Fee records fetch karne mein error aayi. Refresh karo.</p>
+    </div>`;
+  }
+}
+
+loadFees();
+</script>
+</body>
+</html>

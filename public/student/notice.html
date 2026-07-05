@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notices — KIMT Student Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .topbar{background:var(--primary);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;}
+    .topbar a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;}
+    .topbar h1{font-size:16px;font-weight:600;flex:1;}
+    .container{max-width:820px;margin:32px auto;padding:0 20px;}
+    .card{background:var(--white);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(11,60,145,0.07);margin-bottom:20px;}
+
+    /* Search + filter */
+    .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+    .search-wrap{flex:1;min-width:200px;position:relative;}
+    .search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+    .search-wrap input{width:100%;padding:10px 12px 10px 36px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#f8fafc;}
+    .search-wrap input:focus{border-color:var(--primary);background:#fff;}
+    .cat-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+    .cat-tab{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:.2s;}
+    .cat-tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .cat-tab:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+
+    /* Notice card */
+    .notice-card{border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:12px;transition:.2s;position:relative;overflow:hidden;}
+    .notice-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary);}
+    .notice-card.urgent::before{background:var(--danger);}
+    .notice-card.exam::before{background:#7c3aed;}
+    .notice-card.fee::before{background:var(--warning);}
+    .notice-card.event::before{background:var(--success);}
+    .notice-card.holiday::before{background:#0891b2;}
+    .notice-card:hover{box-shadow:0 4px 16px rgba(11,60,145,0.1);transform:translateY(-1px);}
+
+    .notice-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+    .notice-title{font-size:15px;font-weight:700;flex:1;line-height:1.4;}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+    .badge.general{background:#dbeafe;color:#1e40af;}
+    .badge.exam{background:#ede9fe;color:#5b21b6;}
+    .badge.fee{background:#fef9c3;color:#854d0e;}
+    .badge.event{background:#dcfce7;color:#166534;}
+    .badge.holiday{background:#cffafe;color:#155e75;}
+    .badge.urgent{background:#fee2e2;color:#991b1b;}
+    .badge.pinned{background:#fef9c3;color:#854d0e;}
+
+    .notice-content{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;}
+    .notice-content.collapsed{display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .notice-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+    .notice-meta{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .notice-meta span{display:flex;align-items:center;gap:4px;}
+    .read-more-btn{font-size:12px;color:var(--primary);cursor:pointer;font-weight:600;background:none;border:none;font-family:inherit;padding:0;}
+    .attach-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#f0f4ff;color:var(--primary);border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;transition:.2s;}
+    .attach-btn:hover{background:var(--primary);color:#fff;}
+
+    /* Pinned section */
+    .pinned-section{margin-bottom:20px;}
+    .pinned-header{font-size:13px;font-weight:700;color:var(--warning);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+    /* Count bar */
+    .count-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .count-bar span{font-size:13px;color:var(--muted);}
+    .count-bar strong{color:var(--text);}
+
+    .empty-state{text-align:center;padding:56px 24px;color:var(--muted);}
+    .empty-state i{font-size:52px;margin-bottom:14px;opacity:.3;}
+    .empty-state h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+
+    @media(max-width:600px){
+      .notice-card{padding:14px 16px;}
+      .notice-title{font-size:14px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/student/dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <h1><i class="fas fa-bell" style="margin-right:8px"></i>Notices</h1>
+</div>
+
+<div class="container">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Notice search karo..." oninput="applyFilter()">
+    </div>
+  </div>
+  <div class="cat-tabs" id="catTabs">
+    <button class="cat-tab active" data-cat="" onclick="setCat('',this)">All</button>
+    <button class="cat-tab" data-cat="General" onclick="setCat('General',this)">General</button>
+    <button class="cat-tab" data-cat="Exam" onclick="setCat('Exam',this)">Exam</button>
+    <button class="cat-tab" data-cat="Fee" onclick="setCat('Fee',this)">Fee</button>
+    <button class="cat-tab" data-cat="Event" onclick="setCat('Event',this)">Event</button>
+    <button class="cat-tab" data-cat="Holiday" onclick="setCat('Holiday',this)">Holiday</button>
+    <button class="cat-tab" data-cat="Urgent" onclick="setCat('Urgent',this)">🚨 Urgent</button>
+  </div>
+
+  <div style="margin-top:20px">
+    <!-- PINNED -->
+    <div class="pinned-section" id="pinnedSection" style="display:none">
+      <div class="pinned-header"><i class="fas fa-thumbtack"></i> Pinned Notices</div>
+      <div id="pinnedList"></div>
+    </div>
+
+    <!-- ALL NOTICES -->
+    <div class="count-bar">
+      <span>Showing <strong id="noticeCount">0</strong> notices</span>
+    </div>
+    <div id="noticesList">
+      <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem('studentToken');
+if (!token) window.location.href = '/student/index.html';
+const headers = { 'Authorization': 'Bearer ' + token };
+
+let allNotices = [];
+let activeCat = '';
+let expandedIds = new Set();
+
+async function loadNotices() {
+  try {
+    const res = await fetch('/api/student/notices', { headers });
+    const data = await res.json();
+    allNotices = data.notices || [];
+    applyFilter();
+  } catch (err) {
+    document.getElementById('noticesList').innerHTML = `<div class="empty-state">
+      <i class="fas fa-exclamation-circle"></i><h3>Load nahi hua</h3><p>Notices fetch karne mein error aayi.</p>
+    </div>`;
+  }
+}
+
+function setCat(cat, btn) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = allNotices;
+  if (activeCat) filtered = filtered.filter(n => n.category === activeCat);
+  if (q) filtered = filtered.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q));
+
+  const pinned = filtered.filter(n => n.isPinned);
+  const regular = filtered.filter(n => !n.isPinned);
+
+  // Pinned section
+  if (pinned.length) {
+    document.getElementById('pinnedSection').style.display = 'block';
+    document.getElementById('pinnedList').innerHTML = pinned.map(n => renderNotice(n)).join('');
+  } else {
+    document.getElementById('pinnedSection').style.display = 'none';
+  }
+
+  document.getElementById('noticeCount').textContent = regular.length;
+  if (!regular.length && !pinned.length) {
+    document.getElementById('noticesList').innerHTML = `<div class="empty-state">
+      <i class="fas fa-bell-slash"></i><h3>Koi notice nahi mila</h3><p>Filter change karo ya baad mein check karo</p>
+    </div>`; return;
+  }
+  document.getElementById('noticesList').innerHTML = regular.map(n => renderNotice(n)).join('');
+}
+
+function renderNotice(n) {
+  const cat = (n.category || 'General').toLowerCase();
+  const isExpanded = expandedIds.has(n._id);
+  const isLong = n.content.length > 200;
+  const date = new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  const expires = n.expiresAt ? `• Expires: ${new Date(n.expiresAt).toLocaleDateString('en-IN')}` : '';
+
+  return `<div class="notice-card ${cat}" id="nc-${n._id}">
+    <div class="notice-top">
+      <div class="notice-title">${n.isPinned ? '📌 ' : ''}${n.title}</div>
+      <span class="badge ${cat}">${n.category || 'General'}</span>
+      ${n.category === 'Urgent' ? '<span class="badge urgent">🚨 Urgent</span>' : ''}
+    </div>
+    <div class="notice-content ${isLong && !isExpanded ? 'collapsed' : ''}" id="nc-content-${n._id}">
+      ${n.content}
+    </div>
+    <div class="notice-footer">
+      <div class="notice-meta">
+        <span><i class="fas fa-calendar"></i> ${date}</span>
+        <span><i class="fas fa-user"></i> ${n.postedBy || 'Admin'}</span>
+        <span><i class="fas fa-users"></i> ${n.targetAudience}</span>
+        ${expires ? `<span><i class="fas fa-clock"></i> ${expires}</span>` : ''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${n.attachmentUrl ? `<a href="${n.attachmentUrl}" target="_blank" class="attach-btn"><i class="fas fa-paperclip"></i> Attachment</a>` : ''}
+        ${isLong ? `<button class="read-more-btn" onclick="toggleExpand('${n._id}')">${isExpanded ? 'Read Less ↑' : 'Read More ↓'}</button>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleExpand(id) {
+  if (expandedIds.has(id)) expandedIds.delete(id);
+  else expandedIds.add(id);
+  applyFilter();
+  document.getElementById(`nc-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+loadNotices();
+</script>
+</body>
+</html>

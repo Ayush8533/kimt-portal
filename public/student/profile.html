@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — KIMT Student Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .topbar{background:var(--primary);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;}
+    .topbar a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;}
+    .topbar a:hover{color:#fff;}
+    .topbar h1{font-size:16px;font-weight:600;flex:1;}
+    .container{max-width:900px;margin:32px auto;padding:0 20px;}
+    .card{background:var(--white);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(11,60,145,0.07);margin-bottom:20px;}
+    .profile-top{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+    .photo-wrap{width:110px;height:110px;border-radius:50%;border:4px solid var(--primary);overflow:hidden;background:#f0f4ff;flex-shrink:0;cursor:pointer;position:relative;}
+    .photo-wrap img{width:100%;height:100%;object-fit:cover;}
+    .photo-overlay{position:absolute;inset:0;background:rgba(11,60,145,0.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;border-radius:50%;color:#fff;font-size:20px;}
+    .photo-wrap:hover .photo-overlay{opacity:1;}
+    .profile-info h2{font-size:22px;font-weight:700;}
+    .profile-info p{font-size:14px;color:var(--muted);margin-top:4px;}
+    .enroll-badge{display:inline-block;background:#dbeafe;color:#1e40af;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-top:8px;}
+    .status-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-top:8px;margin-left:8px;}
+    .active-badge{background:#dcfce7;color:#166534;}
+
+    .section-title{font-size:15px;font-weight:600;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+    .section-title i{color:var(--primary);}
+    .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;}
+    .info-item label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .info-item p{font-size:14px;font-weight:500;margin-top:4px;color:var(--text);}
+
+    .form-group{margin-bottom:14px;}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+    .form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;color:var(--text);background:#f8fafc;outline:none;transition:.2s;}
+    .form-group input:focus,.form-group textarea:focus{border-color:var(--primary);background:#fff;}
+    .form-group textarea{resize:vertical;min-height:70px;}
+
+    .btn{padding:10px 22px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:7px;}
+    .btn-primary{background:var(--primary);color:#fff;}
+    .btn-primary:hover{background:#083173;}
+    .btn-success{background:var(--success);color:#fff;}
+    .btn-outline{background:#f1f5f9;color:var(--text);}
+    .btn-outline:hover{background:#e2e8f0;}
+
+    .alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none;}
+    .alert.show{display:flex;align-items:center;gap:8px;}
+    .alert.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
+    .alert.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;}
+
+    .doc-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+    .doc-icon{width:40px;height:40px;background:#f0f4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:18px;}
+    .doc-name{font-size:13px;font-weight:500;flex:1;}
+    .doc-status{font-size:11px;color:var(--muted);}
+
+    @media(max-width:600px){
+      .profile-top{flex-direction:column;text-align:center;}
+      .info-grid{grid-template-columns:1fr 1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/student/dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <h1>My Profile</h1>
+</div>
+
+<div class="container">
+  <div id="alertBox" class="alert"></div>
+
+  <!-- PROFILE TOP -->
+  <div class="card">
+    <div class="profile-top">
+      <div class="photo-wrap" onclick="document.getElementById('photoInput').click()">
+        <img id="profilePhoto" src="" alt="Photo" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=0b3c91&color=fff&size=110'">
+        <div class="photo-overlay"><i class="fas fa-camera"></i></div>
+      </div>
+      <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="uploadPhoto(this)">
+      <div class="profile-info">
+        <h2 id="pName">Loading...</h2>
+        <p id="pEmail">—</p>
+        <span class="enroll-badge" id="pEnroll">Enrollment: —</span>
+        <span class="status-badge active-badge">✓ Active</span>
+        <div style="margin-top:10px">
+          <button class="btn btn-primary" onclick="document.getElementById('photoInput').click()">
+            <i class="fas fa-camera"></i> Change Photo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSONAL INFO -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-user"></i> Personal Information</div>
+    <div class="info-grid" id="personalInfo">
+      <div class="info-item"><label>Full Name</label><p id="v_name">—</p></div>
+      <div class="info-item"><label>Date of Birth</label><p id="v_dob">—</p></div>
+      <div class="info-item"><label>Gender</label><p id="v_gender">—</p></div>
+      <div class="info-item"><label>Phone</label><p id="v_phone">—</p></div>
+      <div class="info-item"><label>Father's Name</label><p id="v_father">—</p></div>
+      <div class="info-item"><label>Mother's Name</label><p id="v_mother">—</p></div>
+      <div class="info-item" style="grid-column:1/-1"><label>Address</label><p id="v_address">—</p></div>
+    </div>
+  </div>
+
+  <!-- ACADEMIC INFO -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-graduation-cap"></i> Academic Information</div>
+    <div class="info-grid">
+      <div class="info-item"><label>Course</label><p id="v_course">—</p></div>
+      <div class="info-item"><label>Branch</label><p id="v_branch">—</p></div>
+      <div class="info-item"><label>Semester</label><p id="v_sem">—</p></div>
+      <div class="info-item"><label>Session</label><p id="v_session">—</p></div>
+      <div class="info-item"><label>Admission Year</label><p id="v_admYear">—</p></div>
+      <div class="info-item"><label>Roll No.</label><p id="v_roll">—</p></div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-pen"></i> Update Profile</div>
+    <div class="info-grid">
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="e_phone" placeholder="10-digit number"></div>
+      <div class="form-group"><label>Father's Name</label><input type="text" id="e_father" placeholder="Father ka naam"></div>
+      <div class="form-group"><label>Mother's Name</label><input type="text" id="e_mother" placeholder="Mother ka naam"></div>
+    </div>
+    <div class="form-group"><label>Address</label><textarea id="e_address" placeholder="Apna pura address likho"></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-success" onclick="saveProfile()"><i class="fas fa-save"></i> Save Changes</button>
+      <button class="btn btn-outline" onclick="resetForm()"><i class="fas fa-undo"></i> Reset</button>
+    </div>
+  </div>
+
+  <!-- DOCUMENTS -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-folder"></i> My Documents</div>
+    <div id="docsContent">
+      <div class="doc-item"><div class="doc-icon"><i class="fas fa-id-card"></i></div><div><div class="doc-name">ID Card</div><div class="doc-status">Loading...</div></div></div>
+      <div class="doc-item"><div class="doc-icon"><i class="fas fa-file-alt"></i></div><div><div class="doc-name">Admit Card</div><div class="doc-status">Loading...</div></div></div>
+      <div class="doc-item"><div class="doc-icon"><i class="fas fa-certificate"></i></div><div><div class="doc-name">Marksheet</div><div class="doc-status">Loading...</div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem('studentToken');
+if (!token) window.location.href = '/student/index.html';
+const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+let studentData = null;
+
+async function init() {
+  try {
+    const [profileRes, docsRes] = await Promise.all([
+      fetch('/api/student/profile', { headers }),
+      fetch('/api/student/documents', { headers })
+    ]);
+    if (!profileRes.ok) { window.location.href = '/student/index.html'; return; }
+
+    const { student } = await profileRes.json();
+    studentData = student;
+
+    document.getElementById('pName').textContent = student.name;
+    document.getElementById('pEmail').textContent = student.email;
+    document.getElementById('pEnroll').textContent = 'Enrollment: ' + (student.enrollmentNo || 'Not Assigned');
+
+    if (student.photo) {
+      document.getElementById('profilePhoto').src = `/uploads/photos/${student.photo}`;
+    } else {
+      document.getElementById('profilePhoto').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=0b3c91&color=fff&size=110`;
+    }
+
+    // Personal
+    document.getElementById('v_name').textContent = student.name || '—';
+    document.getElementById('v_dob').textContent = student.dob ? new Date(student.dob).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+    document.getElementById('v_gender').textContent = student.gender || '—';
+    document.getElementById('v_phone').textContent = student.phone || '—';
+    document.getElementById('v_father').textContent = student.fatherName || '—';
+    document.getElementById('v_mother').textContent = student.motherName || '—';
+    document.getElementById('v_address').textContent = student.address || '—';
+
+    // Academic
+    document.getElementById('v_course').textContent = student.course || '—';
+    document.getElementById('v_branch').textContent = student.branch || '—';
+    document.getElementById('v_sem').textContent = student.semester ? `Semester ${student.semester}` : '—';
+    document.getElementById('v_session').textContent = student.session || '—';
+    document.getElementById('v_admYear').textContent = student.admissionYear || '—';
+    document.getElementById('v_roll').textContent = student.rollNo || '—';
+
+    // Pre-fill edit form
+    document.getElementById('e_phone').value = student.phone || '';
+    document.getElementById('e_father').value = student.fatherName || '';
+    document.getElementById('e_mother').value = student.motherName || '';
+    document.getElementById('e_address').value = student.address || '';
+
+    // Documents
+    if (docsRes.ok) {
+      const { documents } = await docsRes.json();
+      const docMap = [
+        { key: 'idCard', name: 'ID Card', icon: 'fa-id-card' },
+        { key: 'admitCard', name: 'Admit Card', icon: 'fa-file-alt' },
+        { key: 'marksheet', name: 'Marksheet', icon: 'fa-certificate' }
+      ];
+      document.getElementById('docsContent').innerHTML = docMap.map(d => `
+        <div class="doc-item">
+          <div class="doc-icon"><i class="fas ${d.icon}"></i></div>
+          <div style="flex:1">
+            <div class="doc-name">${d.name}</div>
+            <div class="doc-status">${documents[d.key] ? '<span style="color:var(--success)">✓ Available</span>' : '<span style="color:var(--muted)">Not uploaded yet</span>'}</div>
+          </div>
+          ${documents[d.key] ? `<a href="${documents[d.key]}" target="_blank" class="btn btn-outline" style="padding:6px 14px;font-size:12px"><i class="fas fa-eye"></i> View</a>` : ''}
+        </div>`).join('');
+    }
+  } catch (err) { console.error(err); }
+}
+
+async function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showAlert('Photo 2MB se chhota hona chahiye.', 'error'); return; }
+  const fd = new FormData();
+  fd.append('photo', file);
+  try {
+    showAlert('Photo upload ho raha hai...', 'success');
+    const res = await fetch('/api/student/photo', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+    const data = await res.json();
+    if (!res.ok) { showAlert(data.error || 'Upload failed', 'error'); return; }
+    document.getElementById('profilePhoto').src = data.photo + '?t=' + Date.now();
+    showAlert('Photo update ho gaya! ✅', 'success');
+  } catch (err) { showAlert('Upload failed. Try again.', 'error'); }
+}
+
+async function saveProfile() {
+  const body = {
+    phone: document.getElementById('e_phone').value.trim(),
+    fatherName: document.getElementById('e_father').value.trim(),
+    motherName: document.getElementById('e_mother').value.trim(),
+    address: document.getElementById('e_address').value.trim()
+  };
+  if (body.phone && !/^[6-9]\d{9}$/.test(body.phone)) { showAlert('Valid 10-digit phone number daalo.', 'error'); return; }
+  try {
+    const res = await fetch('/api/student/profile', { method: 'PUT', headers, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) { showAlert(data.error || 'Update failed', 'error'); return; }
+    studentData = data.student;
+    document.getElementById('v_phone').textContent = data.student.phone || '—';
+    document.getElementById('v_father').textContent = data.student.fatherName || '—';
+    document.getElementById('v_mother').textContent = data.student.motherName || '—';
+    document.getElementById('v_address').textContent = data.student.address || '—';
+    showAlert('Profile update ho gaya! ✅', 'success');
+  } catch (err) { showAlert('Update failed.', 'error'); }
+}
+
+function resetForm() {
+  if (studentData) {
+    document.getElementById('e_phone').value = studentData.phone || '';
+    document.getElementById('e_father').value = studentData.fatherName || '';
+    document.getElementById('e_mother').value = studentData.motherName || '';
+    document.getElementById('e_address').value = studentData.address || '';
+  }
+}
+
+function showAlert(msg, type) {
+  const el = document.getElementById('alertBox');
+  el.textContent = msg;
+  el.className = `alert ${type} show`;
+  setTimeout(() => el.className = 'alert', 4000);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results — KIMT Student Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .topbar{background:var(--primary);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;}
+    .topbar a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;}
+    .topbar h1{font-size:16px;font-weight:600;flex:1;}
+    .container{max-width:960px;margin:32px auto;padding:0 20px;}
+    .card{background:var(--white);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(11,60,145,0.07);margin-bottom:20px;}
+
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+    .stat-box{background:var(--white);border-radius:12px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(11,60,145,0.07);}
+    .stat-num{font-size:26px;font-weight:700;color:var(--primary);}
+    .stat-label{font-size:11px;color:var(--muted);margin-top:3px;font-weight:500;}
+
+    .sem-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+    .sem-tab{padding:7px 18px;border-radius:20px;font-size:13px;font-weight:600;border:2px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:.2s;}
+    .sem-tab.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .sem-tab:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+
+    .result-card{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+    .result-card-header{background:#f8fafc;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+    .result-card-title{font-size:14px;font-weight:700;}
+    .result-card-meta{font-size:12px;color:var(--muted);}
+
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#f8fafc;font-size:11px;font-weight:700;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px;}
+    td{padding:12px 14px;font-size:13px;border-bottom:1px solid #f1f5f9;}
+    tr:last-child td{border:none;}
+    tr:hover td{background:#fafbff;}
+
+    .grade-pill{display:inline-block;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+    .grade-O{background:#dcfce7;color:#166534;}
+    .grade-A{background:#dbeafe;color:#1e40af;}
+    .grade-B{background:#fef9c3;color:#854d0e;}
+    .grade-C{background:#fed7aa;color:#9a3412;}
+    .grade-F{background:#fee2e2;color:#991b1b;}
+
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge.green{background:#dcfce7;color:#166534;}
+    .badge.red{background:#fee2e2;color:#991b1b;}
+    .badge.blue{background:#dbeafe;color:#1e40af;}
+
+    .marks-bar-wrap{height:5px;background:#e2e8f0;border-radius:10px;margin-top:4px;overflow:hidden;width:80px;}
+    .marks-bar{height:100%;border-radius:10px;}
+
+    .empty-state{text-align:center;padding:56px 24px;color:var(--muted);}
+    .empty-state i{font-size:52px;margin-bottom:14px;opacity:.3;}
+    .empty-state h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+    .empty-state p{font-size:13px;}
+
+    @media(max-width:600px){
+      .stats-row{grid-template-columns:1fr 1fr;}
+      td,th{padding:9px 10px;font-size:12px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/student/dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <h1><i class="fas fa-award" style="margin-right:8px"></i>My Results</h1>
+</div>
+
+<div class="container">
+
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Subjects</div></div>
+    <div class="stat-box"><div class="stat-num" id="statPass" style="color:var(--success)">—</div><div class="stat-label">Pass</div></div>
+    <div class="stat-box"><div class="stat-num" id="statFail" style="color:var(--danger)">—</div><div class="stat-label">Fail</div></div>
+    <div class="stat-box"><div class="stat-num" id="statAvg" style="color:var(--primary)">—</div><div class="stat-label">Avg %</div></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div style="font-size:15px;font-weight:600"><i class="fas fa-award" style="color:var(--primary);margin-right:8px"></i>Semester Results</div>
+      <div class="sem-tabs" id="semTabs"></div>
+    </div>
+    <div id="resultContent">
+      <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3><p>Results fetch ho rahe hain</p></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem('studentToken');
+if (!token) window.location.href = '/student/index.html';
+const headers = { 'Authorization': 'Bearer ' + token };
+
+let allResults = [];
+let activeSem = null;
+
+async function loadResults() {
+  try {
+    const res = await fetch('/api/student/results', { headers });
+    const data = await res.json();
+    const el = document.getElementById('resultContent');
+
+    if (!data.results || !data.results.length) {
+      el.innerHTML = `<div class="empty-state">
+        <i class="fas fa-award"></i>
+        <h3>Koi result nahi mila</h3>
+        <p>Abhi tak koi result publish nahi hua hai</p>
+      </div>`; return;
+    }
+
+    allResults = data.results;
+
+    // Stats
+    const pass = allResults.filter(r => r.isPassed).length;
+    const fail = allResults.length - pass;
+    const avgArr = allResults.filter(r => r.maxMarks > 0).map(r => Math.round((r.marksObtained / r.maxMarks) * 100));
+    const avg = avgArr.length ? Math.round(avgArr.reduce((a,b) => a+b, 0) / avgArr.length) : 0;
+    document.getElementById('statTotal').textContent = allResults.length;
+    document.getElementById('statPass').textContent = pass;
+    document.getElementById('statFail').textContent = fail;
+    document.getElementById('statAvg').textContent = avg + '%';
+
+    // Semester tabs
+    const sems = [...new Set(allResults.map(r => r.semester))].sort();
+    const tabsEl = document.getElementById('semTabs');
+    tabsEl.innerHTML = `<button class="sem-tab active" onclick="filterSem('all', this)">All</button>` +
+      sems.map(s => `<button class="sem-tab" onclick="filterSem(${s}, this)">Sem ${s}</button>`).join('');
+
+    renderResults(allResults);
+  } catch (err) {
+    document.getElementById('resultContent').innerHTML = `<div class="empty-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <h3>Load nahi hua</h3>
+      <p>Results fetch karne mein error aayi.</p>
+    </div>`;
+  }
+}
+
+function filterSem(sem, btn) {
+  document.querySelectorAll('.sem-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  activeSem = sem;
+  const filtered = sem === 'all' ? allResults : allResults.filter(r => r.semester === sem);
+  renderResults(filtered);
+}
+
+function gradeClass(grade) {
+  if (!grade) return 'grade-B';
+  const g = grade.toString().toUpperCase();
+  if (g === 'O' || g === 'A+') return 'grade-O';
+  if (g.startsWith('A')) return 'grade-A';
+  if (g.startsWith('B')) return 'grade-B';
+  if (g.startsWith('C')) return 'grade-C';
+  if (g === 'F' || g === 'FAIL') return 'grade-F';
+  return 'grade-B';
+}
+
+function renderResults(results) {
+  const el = document.getElementById('resultContent');
+  if (!results.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-filter"></i><h3>No results</h3><p>Is semester ka koi result nahi mila</p></div>`; return;
+  }
+
+  // Group by semester
+  const bySem = {};
+  results.forEach(r => {
+    const key = r.semester || 'N/A';
+    if (!bySem[key]) bySem[key] = [];
+    bySem[key].push(r);
+  });
+
+  el.innerHTML = Object.entries(bySem).sort(([a],[b]) => b-a).map(([sem, rows]) => {
+    const semPass = rows.filter(r => r.isPassed).length;
+    const semTotal = rows.length;
+    const semAvg = rows.filter(r=>r.maxMarks>0).length
+      ? Math.round(rows.filter(r=>r.maxMarks>0).reduce((s,r)=>s+(r.marksObtained/r.maxMarks)*100,0)/rows.filter(r=>r.maxMarks>0).length)
+      : 0;
+
+    return `<div class="result-card">
+      <div class="result-card-header">
+        <div>
+          <div class="result-card-title">Semester ${sem}</div>
+          <div class="result-card-meta">${semTotal} subjects • ${semPass} pass • Avg ${semAvg}%</div>
+        </div>
+        <span class="badge ${semPass===semTotal?'green':'red'}">${semPass===semTotal?'✓ All Pass':'⚠ Back'}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Subject</th><th>Max Marks</th><th>Obtained</th><th>%</th><th>Grade</th><th>Status</th></tr></thead>
+          <tbody>
+            ${rows.map(r => {
+              const pct = r.maxMarks > 0 ? Math.round((r.marksObtained/r.maxMarks)*100) : 0;
+              const barColor = pct >= 75 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+              return `<tr>
+                <td style="font-weight:500">${r.subject || r.examType || '—'}</td>
+                <td>${r.maxMarks || '—'}</td>
+                <td><strong>${r.marksObtained ?? '—'}</strong></td>
+                <td>
+                  <div style="font-size:12px;font-weight:600">${pct}%</div>
+                  <div class="marks-bar-wrap"><div class="marks-bar" style="width:${pct}%;background:${barColor}"></div></div>
+                </td>
+                <td><div class="grade-pill ${gradeClass(r.grade)}">${r.grade || '—'}</div></td>
+                <td><span class="badge ${r.isPassed?'green':'red'}">${r.isPassed?'Pass':'Fail'}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+loadResults();
+</script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance — KIMT Student Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    .topbar{background:var(--primary);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;}
+    .topbar a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;}
+    .topbar h1{font-size:16px;font-weight:600;flex:1;}
+    .container{max-width:960px;margin:32px auto;padding:0 20px;}
+    .card{background:var(--white);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(11,60,145,0.07);margin-bottom:20px;}
+
+    /* Ring */
+    .overview-wrap{display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
+    .ring-wrap{position:relative;width:130px;height:130px;flex-shrink:0;}
+    .ring-wrap svg{width:130px;height:130px;transform:rotate(-90deg);}
+    .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .ring-pct{font-size:26px;font-weight:700;}
+    .ring-label{font-size:10px;color:var(--muted);margin-top:2px;}
+    .overview-stats{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .ov-stat{text-align:center;padding:14px 10px;border-radius:12px;}
+    .ov-stat.total-bg{background:#f0f4ff;}
+    .ov-stat.present-bg{background:#f0fdf4;}
+    .ov-stat.absent-bg{background:#fef2f2;}
+    .ov-num{font-size:24px;font-weight:700;}
+    .ov-label{font-size:11px;color:var(--muted);margin-top:3px;}
+
+    /* Warning banner */
+    .att-warning{display:none;background:#fff8e1;border:1px solid var(--accent);border-radius:10px;padding:12px 16px;font-size:13px;color:#78350f;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .att-danger-banner{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:13px;color:#991b1b;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+
+    /* Filters */
+    .filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+    .filter-row select,.filter-row input{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;color:var(--text);background:#f8fafc;outline:none;}
+    .filter-row select:focus,.filter-row input:focus{border-color:var(--primary);}
+    .btn-filter{padding:8px 18px;background:var(--primary);color:#fff;border:none;border-radius:9px;font-size:13px;cursor:pointer;font-family:inherit;}
+
+    /* Subject cards */
+    .subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px;}
+    .subject-card{border:1px solid var(--border);border-radius:12px;padding:16px;transition:.2s;cursor:pointer;}
+    .subject-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(11,60,145,0.1);}
+    .subject-card.selected{border-color:var(--primary);background:#f0f4ff;}
+    .subj-name{font-size:13px;font-weight:600;margin-bottom:8px;}
+    .subj-bar-wrap{height:6px;background:#e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:6px;}
+    .subj-bar{height:100%;border-radius:10px;}
+    .subj-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+
+    /* Table */
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#f8fafc;font-size:11px;font-weight:700;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px;}
+    td{padding:11px 14px;font-size:13px;border-bottom:1px solid #f1f5f9;}
+    tr:last-child td{border:none;}
+    tr:hover td{background:#fafbff;}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge.green{background:#dcfce7;color:#166534;}
+    .badge.red{background:#fee2e2;color:#991b1b;}
+    .badge.yellow{background:#fef9c3;color:#854d0e;}
+
+    .empty-state{text-align:center;padding:56px 24px;color:var(--muted);}
+    .empty-state i{font-size:52px;margin-bottom:14px;opacity:.3;}
+    .empty-state h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+
+    .section-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .section-title i{color:var(--primary);}
+
+    @media(max-width:600px){
+      .overview-stats{grid-template-columns:1fr 1fr 1fr;}
+      .subject-grid{grid-template-columns:1fr 1fr;}
+      td,th{padding:8px 10px;font-size:12px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/student/dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  <h1><i class="fas fa-calendar-check" style="margin-right:8px"></i>Attendance</h1>
+</div>
+
+<div class="container">
+
+  <!-- OVERVIEW -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-chart-pie"></i> Overall Attendance</div>
+    <div class="overview-wrap">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+          <circle id="ringCircle" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="3"
+            stroke-dasharray="0 100" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-pct" id="ringPct">0%</div>
+          <div class="ring-label">Overall</div>
+        </div>
+      </div>
+      <div class="overview-stats">
+        <div class="ov-stat total-bg"><div class="ov-num" id="ovTotal" style="color:var(--primary)">0</div><div class="ov-label">Total Classes</div></div>
+        <div class="ov-stat present-bg"><div class="ov-num" id="ovPresent" style="color:var(--success)">0</div><div class="ov-label">Present</div></div>
+        <div class="ov-stat absent-bg"><div class="ov-num" id="ovAbsent" style="color:var(--danger)">0</div><div class="ov-label">Absent</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WARNING BANNERS -->
+  <div id="warningBanner" style="display:none;background:#fff8e1;border:1px solid var(--accent);border-radius:10px;padding:12px 16px;font-size:13px;color:#78350f;margin-bottom:20px;display:none;align-items:center;gap:10px;">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>⚠️ Teri attendance 75% ke neeche ja rahi hai! Classes attend karna zaroori hai.</span>
+  </div>
+  <div id="dangerBanner" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:13px;color:#991b1b;margin-bottom:20px;align-items:center;gap:10px;">
+    <i class="fas fa-times-circle"></i>
+    <span>🚨 CRITICAL: Teri attendance 60% se bhi kam hai! Turant karyawayi zaroori hai.</span>
+  </div>
+
+  <!-- SUBJECT BREAKDOWN -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-book"></i> Subject-wise Breakdown</div>
+    <div class="subject-grid" id="subjectGrid">
+      <div style="text-align:center;padding:24px;color:var(--muted);grid-column:1/-1"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+    </div>
+  </div>
+
+  <!-- DETAILED RECORDS -->
+  <div class="card">
+    <div class="section-title"><i class="fas fa-list"></i> Detailed Records</div>
+    <div class="filter-row">
+      <select id="filterSubject" onchange="applyFilter()">
+        <option value="">All Subjects</option>
+      </select>
+      <select id="filterStatus" onchange="applyFilter()">
+        <option value="">All Status</option>
+        <option value="Present">Present</option>
+        <option value="Absent">Absent</option>
+        <option value="Late">Late</option>
+      </select>
+      <input type="month" id="filterMonth" onchange="applyFilter()">
+      <button class="btn-filter" onclick="clearFilters()"><i class="fas fa-times"></i> Clear</button>
+    </div>
+    <div class="table-wrap">
+      <div id="recordsContent">
+        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem('studentToken');
+if (!token) window.location.href = '/student/index.html';
+const headers = { 'Authorization': 'Bearer ' + token };
+
+let allRecords = [];
+
+async function loadAttendance() {
+  try {
+    const res = await fetch('/api/student/attendance', { headers });
+    const data = await res.json();
+    allRecords = data.records || [];
+
+    const { total, present, absent, percentage } = data.summary;
+
+    // Ring
+    document.getElementById('ringPct').textContent = percentage + '%';
+    document.getElementById('ringCircle').setAttribute('stroke-dasharray', `${percentage} 100`);
+    document.getElementById('ringCircle').setAttribute('stroke',
+      percentage >= 75 ? '#10b981' : percentage >= 60 ? '#f59e0b' : '#ef4444');
+
+    document.getElementById('ovTotal').textContent = total;
+    document.getElementById('ovPresent').textContent = present;
+    document.getElementById('ovAbsent').textContent = absent;
+
+    // Warning banners
+    if (percentage < 60) {
+      document.getElementById('dangerBanner').style.display = 'flex';
+    } else if (percentage < 75) {
+      document.getElementById('warningBanner').style.display = 'flex';
+    }
+
+    // Subject breakdown
+    buildSubjectBreakdown(allRecords);
+
+    // Filter dropdowns
+    const subjects = [...new Set(allRecords.map(r => r.subject))].sort();
+    const sel = document.getElementById('filterSubject');
+    subjects.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
+
+    renderTable(allRecords);
+  } catch (err) {
+    document.getElementById('recordsContent').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Load nahi hua</h3></div>`;
+  }
+}
+
+function buildSubjectBreakdown(records) {
+  const bySubject = {};
+  records.forEach(r => {
+    if (!bySubject[r.subject]) bySubject[r.subject] = { total: 0, present: 0 };
+    bySubject[r.subject].total++;
+    if (r.status === 'Present') bySubject[r.subject].present++;
+  });
+
+  const el = document.getElementById('subjectGrid');
+  if (!Object.keys(bySubject).length) {
+    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted);grid-column:1/-1">Koi attendance record nahi hai</div>`; return;
+  }
+
+  el.innerHTML = Object.entries(bySubject).map(([subj, d]) => {
+    const pct = Math.round((d.present / d.total) * 100);
+    const color = pct >= 75 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--danger)';
+    return `<div class="subject-card" onclick="filterBySubject('${subj}')">
+      <div class="subj-name">${subj}</div>
+      <div class="subj-bar-wrap"><div class="subj-bar" style="width:${pct}%;background:${color}"></div></div>
+      <div class="subj-meta">
+        <span>${d.present}/${d.total} Present</span>
+        <span style="font-weight:700;color:${color}">${pct}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterBySubject(subj) {
+  document.getElementById('filterSubject').value = subj;
+  applyFilter();
+  document.getElementById('recordsContent').scrollIntoView({ behavior: 'smooth' });
+}
+
+function applyFilter() {
+  const subj = document.getElementById('filterSubject').value;
+  const status = document.getElementById('filterStatus').value;
+  const month = document.getElementById('filterMonth').value;
+
+  let filtered = allRecords;
+  if (subj) filtered = filtered.filter(r => r.subject === subj);
+  if (status) filtered = filtered.filter(r => r.status === status);
+  if (month) filtered = filtered.filter(r => r.date && r.date.startsWith(month));
+
+  renderTable(filtered);
+}
+
+function clearFilters() {
+  document.getElementById('filterSubject').value = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterMonth').value = '';
+  renderTable(allRecords);
+}
+
+function renderTable(records) {
+  const el = document.getElementById('recordsContent');
+  if (!records.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-times"></i><h3>Koi record nahi mila</h3></div>`; return;
+  }
+  el.innerHTML = `<table>
+    <thead><tr><th>Date</th><th>Day</th><th>Subject</th><th>Status</th><th>Marked By</th></tr></thead>
+    <tbody>${records.map(r => {
+      const d = new Date(r.date);
+      return `<tr>
+        <td>${d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
+        <td style="color:var(--muted)">${d.toLocaleDateString('en-IN',{weekday:'short'})}</td>
+        <td style="font-weight:500">${r.subject}</td>
+        <td><span class="badge ${r.status==='Present'?'green':r.status==='Late'?'yellow':'red'}">${r.status}</span></td>
+        <td style="color:var(--muted)">${r.markedBy || 'Faculty'}</td>
+      </tr>`;
+    }).join('')}
+    </tbody></table>`;
+}
+
+loadAttendance();
+</script>
+</body>
+</html>
