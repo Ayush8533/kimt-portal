@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { v2: cloudinary } = require('cloudinary');
 
 const { protectStudent } = require('../middleware/auth');
 
@@ -15,6 +16,12 @@ const {
   Notice,
   StudyMaterial
 } = require('../models/Others');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 
 // ==========================================
@@ -209,98 +216,52 @@ router.post(
 
   '/profile/photo',
 
-  uploadPhoto.single('photo'),
+uploadPhoto.single('photo'),
 
-  async (req, res) => {
-
-    try {
-
-      if (!req.file) {
-
-        return res.status(400).json({
-
-          error:
-            'Photo select karo.'
-
-        });
-
-      }
-
-
-      if (req.student.photo) {
-
-        const oldPath =
-          path.join(
-
-            uploadDir,
-
-            req.student.photo
-
-          );
-
-
-        if (fs.existsSync(oldPath)) {
-
-          fs.unlinkSync(oldPath);
-
-        }
-
-      }
-
-
-      const student =
-        await Student.findByIdAndUpdate(
-
-          req.student._id,
-
-          {
-            photo:
-              req.file.filename
-          },
-
-          {
-            new: true
-          }
-
-        );
-
-
-      res.json({
-
-        success: true,
-
-        message:
-          'Photo upload ho gayi!',
-
-        photoUrl:
-          `/uploads/students/${student.photo}`,
-
-        student: student
-
+async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'Photo select karo.'
       });
-
-
-    } catch (err) {
-
-      console.error(
-        'PHOTO UPLOAD ERROR:',
-        err
-      );
-
-
-      res.status(500).json({
-
-        error:
-          'Photo upload nahi hui.'
-
-      });
-
     }
 
+    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'kimt/students',
+      resource_type: 'image'
+    });
+
+    if (req.student.photoPublicId) {
+      await cloudinary.uploader.destroy(req.student.photoPublicId);
+    }
+
+    const student = await Student.findByIdAndUpdate(
+      req.student._id,
+      {
+        photo: uploadResult.secure_url,
+        photoPublicId: uploadResult.public_id
+      },
+      {
+        new: true
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'Photo upload ho gayi!',
+      photoUrl: student.photo,
+      student: student
+    });
+
+  } catch (err) {
+    console.error('PHOTO UPLOAD ERROR:', err);
+
+    res.status(500).json({
+      error: 'Photo upload nahi hui.'
+    });
   }
-
+}
 );
-
 
 // ==========================================
 // RESULTS
