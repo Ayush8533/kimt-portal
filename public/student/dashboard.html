@@ -159,7 +159,7 @@
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <img src="/images/logo.jpg" alt="KIMT" onerror="this.style.display='none'">
+    <img src="/images/logo.jpg" alt="KIMT student portal logo" onerror="this.style.display='none'">
     <h2>Student Portal</h2>
     <p>KIMT Bareilly</p>
     <span class="badge-student">Student</span>
@@ -261,7 +261,7 @@
     <div class="profile-grid">
       <div class="card photo-card">
         <div class="photo-wrap">
-          <img id="profilePhoto" src="" alt="Photo" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=0b3c91&color=fff&size=130'">
+          <img id="profilePhoto" src="" alt="Student profile photo on KIMT dashboard" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=0b3c91&color=fff&size=130'">
         </div>
         <div class="photo-name" id="profileName">—</div>
         <div class="photo-course" id="profileCourse">—</div>
@@ -443,7 +443,7 @@ async function init() {
 
     // Avatar
     if (student.photo) {
-      document.getElementById('sidebarAvatar').innerHTML = `<img src="/uploads/photos/${student.photo}" alt="">`;
+      document.getElementById('sidebarAvatar').innerHTML = `<img src="/uploads/photos/${student.photo}" alt="Student profile photo on KIMT dashboard">`;
       document.getElementById('profilePhoto').src = `/uploads/photos/${student.photo}`;
     } else {
       document.getElementById('profilePhoto').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=0b3c91&color=fff&size=130`;
@@ -499,18 +499,37 @@ function renderHomeNotices(notices) {
 async function uploadPhoto(input) {
   const file = input.files[0];
   if (!file) return;
+
   const fd = new FormData();
   fd.append('photo', file);
-  try {
-    const res = await fetch('/api/student/photo', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
-    const data = await res.json();
-    if (!res.ok) return alert(data.error || 'Upload failed');
-    document.getElementById('profilePhoto').src = data.photo + '?t=' + Date.now();
-    document.getElementById('sidebarAvatar').innerHTML = `<img src="${data.photo}?t=${Date.now()}" alt="">`;
-    alert('Photo update ho gaya! ✅');
-  } catch (err) { alert('Upload failed. Try again.'); }
-}
 
+  try {
+    const res = await fetch('/api/student/profile/photo', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      body: fd
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return alert(data.error || 'Upload failed');
+    }
+
+    document.getElementById('profilePhoto').src =
+      data.photoUrl + '?t=' + Date.now();
+
+    document.getElementById('sidebarAvatar').innerHTML =
+      `<img src="${data.photoUrl}?t=${Date.now()}" alt="Student profile photo on KIMT dashboard">`;
+
+    alert('Photo update Successful! ');
+
+  } catch (err) {
+    alert('Upload failed. Try again.');
+  }
+}
 // ── EDIT PROFILE ───────────────────────────────
 let editMode = false;
 function toggleEditProfile() {
