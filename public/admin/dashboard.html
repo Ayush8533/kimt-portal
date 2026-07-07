@@ -5,34 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard — KIMT</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    :root {
-      --primary:#0b3c91; --accent:#ffb703; --bg:#f0f4ff;
-      --white:#fff; --text:#1e293b; --muted:#64748b;
-      --border:#e2e8f0; --success:#10b981; --danger:#ef4444;
-      --warning:#f59e0b; --sidebar-w:250px;
-    }
+    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--sidebar-w:250px;}
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
 
     /* SIDEBAR */
     .sidebar{width:var(--sidebar-w);background:var(--primary);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;overflow-y:auto;}
-    .sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);}
-    .sidebar-logo h2{color:#fff;font-size:16px;font-weight:700;}
+    .sidebar-logo{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.1);}
+    .sidebar-logo h2{color:#fff;font-size:15px;font-weight:700;}
     .sidebar-logo p{color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px;}
-    .sidebar-logo .badge-admin{display:inline-block;padding:2px 8px;background:var(--accent);color:#000;border-radius:10px;font-size:10px;font-weight:700;margin-top:6px;}
-
-    .nav-section{padding:12px 0;}
-    .nav-section-title{padding:8px 20px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;border:none;background:none;width:100%;text-align:left;text-decoration:none;}
+    .badge-admin{display:inline-block;padding:2px 8px;background:var(--accent);color:#000;border-radius:10px;font-size:10px;font-weight:700;margin-top:5px;}
+    .nav-sec{padding:8px 0;}
+    .nav-sec-title{padding:8px 20px;font-size:9px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.8px;}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;font-weight:500;transition:.2s;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent;}
     .nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.12);color:#fff;}
-    .nav-item.active{border-left:3px solid var(--accent);}
-    .nav-icon{font-size:16px;width:20px;}
-    .nav-badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;}
-
-    .sidebar-bottom{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto;}
+    .nav-item.active{border-left-color:var(--accent);}
+    .nav-icon{font-size:15px;width:18px;text-align:center;}
+    .nav-badge{margin-left:auto;background:var(--danger);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;}
+    .sidebar-bottom{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto;}
     .admin-info{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-    .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;flex-shrink:0;}
+    .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:13px;}
     .admin-name{font-size:13px;font-weight:600;color:#fff;}
     .admin-role{font-size:11px;color:rgba(255,255,255,0.5);}
     .logout-btn{width:100%;padding:8px;background:rgba(255,255,255,0.1);border:none;border-radius:8px;color:rgba(255,255,255,0.7);font-size:13px;cursor:pointer;font-family:inherit;}
@@ -42,54 +36,54 @@
     .main{margin-left:var(--sidebar-w);flex:1;padding:24px;}
     .page{display:none;}
     .page.active{display:block;}
+    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+    .page-header h1{font-size:20px;font-weight:700;}
+    .page-header p{color:var(--muted);font-size:13px;margin-top:2px;}
 
-    .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-    .page-header h1{font-size:22px;font-weight:700;}
-    .page-header p{color:var(--muted);font-size:13px;}
-
-    .btn{padding:9px 18px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+    /* BUTTONS */
+    .btn{padding:9px 18px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:7px;}
     .btn-primary{background:var(--primary);color:#fff;}
     .btn-primary:hover{background:#083173;}
     .btn-success{background:var(--success);color:#fff;}
     .btn-danger{background:var(--danger);color:#fff;}
-    .btn-sm{padding:5px 12px;font-size:12px;}
+    .btn-warning{background:var(--warning);color:#fff;}
     .btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary);}
+    .btn-sm{padding:5px 12px;font-size:12px;}
 
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
-    .stat-card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid var(--primary);}
-    .stat-card.accent{border-left-color:var(--accent);}
-    .stat-card.success{border-left-color:var(--success);}
-    .stat-card.danger{border-left-color:var(--danger);}
-    .stat-icon{font-size:24px;margin-bottom:8px;}
-    .stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
-    .stat-value{font-size:30px;font-weight:800;color:var(--primary);margin-top:4px;}
-    .stat-card.accent .stat-value{color:#b45309;}
-    .stat-card.success .stat-value{color:var(--success);}
-    .stat-card.danger .stat-value{color:var(--danger);}
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px;}
+    .stat-card{background:var(--white);border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-left:4px solid var(--primary);}
+    .stat-card.a{border-left-color:var(--accent);}
+    .stat-card.s{border-left-color:var(--success);}
+    .stat-card.d{border-left-color:var(--danger);}
+    .stat-card.w{border-left-color:var(--warning);}
+    .stat-icon{font-size:22px;margin-bottom:8px;}
+    .stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+    .stat-value{font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;}
+    .stat-card.a .stat-value{color:#b45309;}
+    .stat-card.s .stat-value{color:var(--success);}
+    .stat-card.d .stat-value{color:var(--danger);}
 
-    .card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:20px;}
-    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    /* CARD */
+    .card{background:var(--white);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:18px;}
+    .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
     .card-header h3{font-size:15px;font-weight:700;color:var(--primary);}
 
     /* TABLE */
     .table-wrap{overflow-x:auto;}
     table{width:100%;border-collapse:collapse;font-size:13px;}
-    th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:10px 12px;text-align:left;white-space:nowrap;}
+    th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:10px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);}
     td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
     tr:last-child td{border:none;}
     tr:hover td{background:#fafbff;}
 
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
-    .badge-paid{background:#dcfce7;color:#166534;}
-    .badge-unpaid{background:#fef2f2;color:#b91c1c;}
-    .badge-partial{background:#fef9c3;color:#854d0e;}
-    .badge-new{background:#dbeafe;color:#1d4ed8;}
-    .badge-contacted{background:#fef9c3;color:#854d0e;}
-    .badge-admitted{background:#dcfce7;color:#166534;}
-    .badge-active{background:#dcfce7;color:#166534;}
-    .badge-inactive{background:#fef2f2;color:#b91c1c;}
-    .badge-pass{background:#dcfce7;color:#166534;}
-    .badge-fail{background:#fef2f2;color:#b91c1c;}
+    /* BADGES */
+    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+    .badge.green{background:#dcfce7;color:#166534;}
+    .badge.red{background:#fef2f2;color:#b91c1c;}
+    .badge.yellow{background:#fef9c3;color:#854d0e;}
+    .badge.blue{background:#dbeafe;color:#1d4ed8;}
+    .badge.purple{background:#ede9fe;color:#5b21b6;}
 
     /* SEARCH */
     .search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
@@ -99,32 +93,55 @@
 
     /* MODAL */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
-    .modal-overlay.open{display:flex;}
-    .modal{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
-    .modal h2{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);}
-    .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+    .modal-overlay.show{display:flex;}
+    .modal{background:var(--white);border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+    .modal h2{font-size:17px;font-weight:700;margin-bottom:20px;color:var(--primary);}
+    .modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
     .form-group{margin-bottom:0;}
     .form-group.full{grid-column:1/-1;}
-    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.03em;}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;}
-    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);}
-    .form-group textarea{resize:vertical;min-height:80px;}
+    .form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:#f8fafc;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);background:#fff;}
+    .form-group textarea{resize:vertical;min-height:70px;}
 
-    .empty-state{text-align:center;padding:40px;color:var(--muted);}
-    .empty-state .emoji{font-size:36px;margin-bottom:10px;}
-    .loading{text-align:center;padding:30px;color:var(--muted);}
+    /* GALLERY GRID */
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+    .gallery-item{border-radius:10px;overflow:hidden;border:1px solid var(--border);position:relative;aspect-ratio:1;}
+    .gallery-item img{width:100%;height:100%;object-fit:cover;}
+    .gallery-item .del-btn{position:absolute;top:6px;right:6px;background:var(--danger);color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;display:none;}
+    .gallery-item:hover .del-btn{display:block;}
+    .gallery-item .caption{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);color:#fff;font-size:11px;padding:4px 8px;}
 
-    .alert{padding:12px 14px;border-radius:9px;font-size:13px;margin-bottom:14px;display:none;}
-    .alert.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:block;}
-    .alert.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:block;}
+    /* MATERIAL LIST */
+    .mat-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;}
+    .mat-icon{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+    .mat-icon.pdf{background:#fee2e2;color:#dc2626;}
+    .mat-icon.video{background:#dbeafe;color:#2563eb;}
+    .mat-icon.link{background:#dcfce7;color:#16a34a;}
+    .mat-title{font-size:13px;font-weight:600;flex:1;}
+    .mat-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 
-    .action-btns{display:flex;gap:6px;}
+    /* EMPTY */
+    .empty-state{text-align:center;padding:48px 24px;color:var(--muted);}
+    .empty-state i{font-size:48px;margin-bottom:12px;opacity:.3;}
+    .empty-state p{font-size:14px;}
 
+    /* ALERT */
+    .alert{padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;display:none;}
+    .alert.show{display:flex;align-items:center;gap:8px;}
+    .alert.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
+    .alert.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;}
+
+    /* MOBILE */
+    .menu-toggle{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 11px;font-size:16px;cursor:pointer;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:90;}
     @media(max-width:768px){
-      .sidebar{transform:translateX(-100%);transition:transform 0.3s;}
-      .sidebar.open{transform:translateX(0);}
-      .main{margin-left:0;padding:16px;}
+      .sidebar{left:-100%;transition:.3s;}
+      .sidebar.open{left:0;}
+      .menu-toggle{display:block;}
+      .overlay.show{display:block;}
+      .main{margin-left:0;padding:16px;padding-top:56px;}
       .stats-grid{grid-template-columns:1fr 1fr;}
       .form-grid{grid-template-columns:1fr;}
     }
@@ -132,82 +149,82 @@
 </head>
 <body>
 
+<button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <h2>⚙️ KIMT Admin</h2>
-    <p>Management Panel</p>
-    <span class="badge-admin" id="adminRoleBadge">ADMIN</span>
+    <h2>KIMT Admin Panel</h2>
+    <p>Krishna Institute of Management</p>
+    <span class="badge-admin">Admin</span>
   </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Overview</div>
-    <button class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">🏠</span> Dashboard</button>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Students</div>
-    <button class="nav-item" onclick="showPage('students')"><span class="nav-icon">👨‍🎓</span> All Students</button>
-    <button class="nav-item" onclick="showPage('attendance')"><span class="nav-icon">📅</span> Attendance</button>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Academics</div>
-    <button class="nav-item" onclick="showPage('results')"><span class="nav-icon">📊</span> Results</button>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Finance</div>
-    <button class="nav-item" onclick="showPage('fees')"><span class="nav-icon">💰</span> Fee Records</button>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Communication</div>
-    <button class="nav-item" onclick="showPage('notices')"><span class="nav-icon">📢</span> Notices</button>
-    <button class="nav-item" onclick="showPage('inquiries')"><span class="nav-icon">📩</span> Inquiries <span class="nav-badge" id="newInquiryBadge">0</span></button>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Website</div>
-    <a class="nav-item" href="/" target="_blank"><span class="nav-icon">🌐</span> View Website</a>
-    <a class="nav-item" href="/student/" target="_blank"><span class="nav-icon">👨‍🎓</span> Student Portal</a>
-  </div>
-
+  <nav>
+    <div class="nav-sec">
+      <div class="nav-sec-title">Main</div>
+      <button class="nav-item active" onclick="showPage('home',this)"><i class="nav-icon fas fa-home"></i> Dashboard</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-title">People</div>
+      <button class="nav-item" onclick="showPage('students',this)"><i class="nav-icon fas fa-user-graduate"></i> Students</button>
+      <button class="nav-item" onclick="showPage('faculty',this)"><i class="nav-icon fas fa-chalkboard-teacher"></i> Faculty</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-title">Academics</div>
+      <button class="nav-item" onclick="showPage('results',this)"><i class="nav-icon fas fa-award"></i> Results</button>
+      <button class="nav-item" onclick="showPage('attendance',this)"><i class="nav-icon fas fa-calendar-check"></i> Attendance</button>
+      <button class="nav-item" onclick="showPage('materials',this)"><i class="nav-icon fas fa-book-open"></i> Study Material</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-title">Finance</div>
+      <button class="nav-item" onclick="showPage('fees',this)"><i class="nav-icon fas fa-credit-card"></i> Fee Management</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-title">Content</div>
+      <button class="nav-item" onclick="showPage('notices',this)"><i class="nav-icon fas fa-bell"></i> Notices</button>
+      <button class="nav-item" onclick="showPage('news',this)"><i class="nav-icon fas fa-newspaper"></i> News</button>
+      <button class="nav-item" onclick="showPage('gallery',this)"><i class="nav-icon fas fa-images"></i> Gallery</button>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-sec-title">Support</div>
+      <button class="nav-item" onclick="showPage('inquiries',this)"><i class="nav-icon fas fa-envelope"></i> Inquiries <span class="nav-badge" id="inqBadge">0</span></button>
+    </div>
+  </nav>
   <div class="sidebar-bottom">
     <div class="admin-info">
       <div class="avatar" id="adminAvatar">A</div>
       <div>
         <div class="admin-name" id="adminName">Admin</div>
-        <div class="admin-role" id="adminRole">superadmin</div>
+        <div class="admin-role" id="adminRole">Superadmin</div>
       </div>
     </div>
-    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </div>
 </div>
 
 <!-- MAIN -->
-<main class="main">
+<div class="main">
+  <div id="globalAlert" class="alert"></div>
 
-  <!-- DASHBOARD -->
-  <div class="page active" id="page-dashboard">
-    <div class="page-header">
-      <div><h1>Dashboard 🏠</h1><p>KIMT ka complete overview</p></div>
-    </div>
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="page-header"><div><h1>Dashboard</h1><p>KIMT Admin Overview</p></div><span id="dateChip" style="font-size:13px;color:var(--muted)"></span></div>
     <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div class="stat-label">Total Students</div><div class="stat-value" id="statStudents">—</div></div>
-      <div class="stat-card success"><div class="stat-icon">✅</div><div class="stat-label">Active Students</div><div class="stat-value" id="statActive">—</div></div>
-      <div class="stat-card accent"><div class="stat-icon">📩</div><div class="stat-label">New Inquiries</div><div class="stat-value" id="statInquiries">—</div></div>
-      <div class="stat-card danger"><div class="stat-icon">⏳</div><div class="stat-label">Unpaid Fees</div><div class="stat-value" id="statUnpaid">—</div></div>
+      <div class="stat-card"><div class="stat-icon">👨‍🎓</div><div class="stat-label">Total Students</div><div class="stat-value" id="s_students">—</div></div>
+      <div class="stat-card s"><div class="stat-icon">✅</div><div class="stat-label">Active Students</div><div class="stat-value" id="s_active">—</div></div>
+      <div class="stat-card a"><div class="stat-icon">👨‍🏫</div><div class="stat-label">Faculty</div><div class="stat-value" id="s_faculty">—</div></div>
+      <div class="stat-card d"><div class="stat-icon">⚠️</div><div class="stat-label">Fee Due (Count)</div><div class="stat-value" id="s_due">—</div></div>
+      <div class="stat-card"><div class="stat-icon">📢</div><div class="stat-label">Active Notices</div><div class="stat-value" id="s_notices">—</div></div>
+      <div class="stat-card w"><div class="stat-icon">📩</div><div class="stat-label">New Inquiries</div><div class="stat-value" id="s_inq">—</div></div>
     </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;flex-wrap:wrap;">
       <div class="card">
-        <div class="card-header"><h3>📩 Recent Inquiries</h3><button class="btn btn-primary btn-sm" onclick="showPage('inquiries')">View All</button></div>
-        <div id="dashInquiries"><div class="loading">Loading...</div></div>
+        <div class="card-header"><h3>Recent Students</h3><button class="btn btn-sm btn-outline" onclick="showPage('students',null)">View All</button></div>
+        <div id="recentStudents"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
       </div>
       <div class="card">
-        <div class="card-header"><h3>👨‍🎓 Recent Students</h3><button class="btn btn-primary btn-sm" onclick="showPage('students')">View All</button></div>
-        <div id="dashStudents"><div class="loading">Loading...</div></div>
+        <div class="card-header"><h3>Recent Inquiries</h3><button class="btn btn-sm btn-outline" onclick="showPage('inquiries',null)">View All</button></div>
+        <div id="recentInquiries"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
       </div>
     </div>
   </div>
@@ -215,657 +232,962 @@
   <!-- STUDENTS -->
   <div class="page" id="page-students">
     <div class="page-header">
-      <div><h1>👨‍🎓 Students</h1><p>Saare students manage karo</p></div>
-      <button class="btn btn-primary" onclick="openModal('studentModal')">+ Add Student</button>
+      <div><h1>Students</h1><p>Manage all students</p></div>
+      <button class="btn btn-primary" onclick="openModal('addStudent')"><i class="fas fa-plus"></i> Add Student</button>
     </div>
     <div class="card">
       <div class="search-bar">
-        <input type="text" id="studentSearch" placeholder="🔍 Naam, email, enrollment no..." oninput="loadStudents()">
-        <select id="studentCourse" onchange="loadStudents()">
+        <input type="text" id="studentSearch" placeholder="Search by name, email, enrollment..." oninput="searchStudents()">
+        <select id="studentCourse" onchange="searchStudents()">
           <option value="">All Courses</option>
-          <option>BCA</option><option>MCA</option><option>B.Tech</option>
-          <option>BBA</option><option>MBA</option><option>B.Com</option>
-          <option>BA</option><option>MA</option><option>BSc</option><option>MSc</option>
+          <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option>
         </select>
-        <select id="studentStatus" onchange="loadStudents()">
+        <select id="studentStatus" onchange="searchStudents()">
           <option value="">All Status</option>
           <option value="true">Active</option>
           <option value="false">Inactive</option>
         </select>
       </div>
       <div class="table-wrap">
-        <div id="studentsContent"><div class="loading">Students load ho rahe hain...</div></div>
+        <div id="studentsTable"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
       </div>
+    </div>
+  </div>
+
+  <!-- FACULTY -->
+  <div class="page" id="page-faculty">
+    <div class="page-header">
+      <div><h1>Faculty</h1><p>Manage teaching staff</p></div>
+      <button class="btn btn-primary" onclick="openModal('addFaculty')"><i class="fas fa-plus"></i> Add Faculty</button>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <input type="text" id="facultySearch" placeholder="Search faculty..." oninput="loadFaculty()">
+      </div>
+      <div id="facultyTable"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
     </div>
   </div>
 
   <!-- RESULTS -->
   <div class="page" id="page-results">
     <div class="page-header">
-      <div><h1>📊 Results</h1><p>Student results upload aur publish karo</p></div>
-      <button class="btn btn-primary" onclick="openModal('resultModal')">+ Add Result</button>
+      <div><h1>Results</h1><p>Manage exam results</p></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="openModal('bulkResult')"><i class="fas fa-upload"></i> Bulk Upload</button>
+        <button class="btn btn-primary" onclick="openModal('addResult')"><i class="fas fa-plus"></i> Add Result</button>
+      </div>
     </div>
     <div class="card">
       <div class="search-bar">
-        <select id="resultCourse" onchange="loadResults()">
-          <option value="">All Courses</option>
-          <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option>
-        </select>
-        <select id="resultSem" onchange="loadResults()">
-          <option value="">All Semesters</option>
-          <option>1</option><option>2</option><option>3</option><option>4</option>
-          <option>5</option><option>6</option><option>7</option><option>8</option>
-        </select>
+        <select id="resultCourse" onchange="loadResults()"><option value="">All Courses</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option></select>
+        <select id="resultSem" onchange="loadResults()"><option value="">All Semesters</option><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select>
       </div>
-      <div class="table-wrap" id="resultsContent"><div class="loading">Results load ho rahe hain...</div></div>
+      <div id="resultsTable"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="page" id="page-attendance">
+    <div class="page-header"><div><h1>Attendance</h1><p>Mark student attendance</p></div></div>
+    <div class="card">
+      <div class="form-grid" style="margin-bottom:16px">
+        <div class="form-group"><label>Date</label><input type="date" id="attDate" value="${new Date().toISOString().split('T')[0]}"></div>
+        <div class="form-group"><label>Subject</label><input type="text" id="attSubject" placeholder="e.g. Data Structures"></div>
+        <div class="form-group"><label>Course</label><select id="attCourse"><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option></select></div>
+        <div class="form-group"><label>Semester</label><select id="attSem"><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select></div>
+      </div>
+      <button class="btn btn-primary" onclick="loadStudentsForAttendance()"><i class="fas fa-search"></i> Load Students</button>
+      <div id="attendanceStudents" style="margin-top:16px"></div>
+      <div id="attSaveBtn" style="display:none;margin-top:16px">
+        <button class="btn btn-success" onclick="saveAttendance()"><i class="fas fa-save"></i> Save Attendance</button>
+      </div>
     </div>
   </div>
 
   <!-- FEES -->
   <div class="page" id="page-fees">
     <div class="page-header">
-      <div><h1>💰 Fee Records</h1><p>Fees manage karo</p></div>
-      <button class="btn btn-primary" onclick="openModal('feeModal')">+ Add Fee Record</button>
+      <div><h1>Fee Management</h1><p>Track student payments</p></div>
+      <button class="btn btn-primary" onclick="openModal('addFee')"><i class="fas fa-plus"></i> Add Fee Record</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+      <div class="card" style="margin:0;text-align:center">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Total Collected</div>
+        <div style="font-size:24px;font-weight:700;color:var(--success)" id="feeCollected">₹0</div>
+      </div>
+      <div class="card" style="margin:0;text-align:center">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Total Due</div>
+        <div style="font-size:24px;font-weight:700;color:var(--danger)" id="feeDue">₹0</div>
+      </div>
     </div>
     <div class="card">
       <div class="search-bar">
-        <input type="text" id="feeSearch" placeholder="🔍 Student naam ya enrollment..." oninput="loadFees()">
-        <select id="feeStatus" onchange="loadFees()">
-          <option value="">All Status</option>
-          <option>Paid</option><option>Unpaid</option><option>Partial</option><option>Overdue</option>
-        </select>
+        <select id="feeStatus" onchange="loadFees()"><option value="">All</option><option value="paid">Fully Paid</option><option value="due">Has Due</option></select>
       </div>
-      <div class="table-wrap" id="feesContent"><div class="loading">Fees load ho rahi hain...</div></div>
+      <div id="feesTable"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
     </div>
   </div>
 
   <!-- NOTICES -->
   <div class="page" id="page-notices">
     <div class="page-header">
-      <div><h1>📢 Notices</h1><p>Announcements post karo</p></div>
-      <button class="btn btn-primary" onclick="openModal('noticeModal')">+ Post Notice</button>
+      <div><h1>Notices</h1><p>Post and manage notices</p></div>
+      <button class="btn btn-primary" onclick="openModal('addNotice')"><i class="fas fa-plus"></i> Post Notice</button>
     </div>
-    <div id="noticesContent"><div class="loading">Notices load ho rahe hain...</div></div>
+    <div id="noticesContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
+  </div>
+
+  <!-- NEWS -->
+  <div class="page" id="page-news">
+    <div class="page-header">
+      <div><h1>News</h1><p>College news and updates</p></div>
+      <button class="btn btn-primary" onclick="openModal('addNews')"><i class="fas fa-plus"></i> Add News</button>
+    </div>
+    <div id="newsContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="page" id="page-gallery">
+    <div class="page-header">
+      <div><h1>Gallery</h1><p>College photo gallery</p></div>
+      <button class="btn btn-primary" onclick="openModal('addGallery')"><i class="fas fa-plus"></i> Upload Photo</button>
+    </div>
+    <div id="galleryContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
+  </div>
+
+  <!-- STUDY MATERIAL -->
+  <div class="page" id="page-materials">
+    <div class="page-header">
+      <div><h1>Study Material</h1><p>Upload notes, PDFs, videos</p></div>
+      <button class="btn btn-primary" onclick="openModal('addMaterial')"><i class="fas fa-plus"></i> Upload Material</button>
+    </div>
+    <div class="card">
+      <div class="search-bar">
+        <select id="matCourse" onchange="loadMaterials()"><option value="">All Courses</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option></select>
+        <select id="matSem" onchange="loadMaterials()"><option value="">All Semesters</option><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select>
+      </div>
+      <div id="materialsContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
+    </div>
   </div>
 
   <!-- INQUIRIES -->
   <div class="page" id="page-inquiries">
-    <div class="page-header">
-      <div><h1>📩 Inquiries</h1><p>Website se aaye leads manage karo</p></div>
-      <select id="inquiryFilter" onchange="loadInquiries()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;">
-        <option value="">All</option>
-        <option value="New">New</option>
-        <option value="Contacted">Contacted</option>
-        <option value="Admitted">Admitted</option>
-        <option value="Not Interested">Not Interested</option>
-      </select>
-    </div>
+    <div class="page-header"><div><h1>Inquiries</h1><p>Student and parent queries</p></div></div>
     <div class="card">
-      <div class="table-wrap" id="inquiriesContent"><div class="loading">Inquiries load ho rahi hain...</div></div>
-    </div>
-  </div>
-
-  <!-- ATTENDANCE -->
-  <div class="page" id="page-attendance">
-    <div class="page-header">
-      <div><h1>📅 Attendance</h1><p>Student attendance mark karo</p></div>
-    </div>
-    <div class="card">
-      <div class="form-grid" style="margin-bottom:20px;">
-        <div class="form-group">
-          <label>Course</label>
-          <select id="attCourse">
-            <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Subject</label>
-          <input type="text" id="attSubject" placeholder="Subject naam">
-        </div>
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="attDate">
-        </div>
-        <div class="form-group" style="display:flex;align-items:flex-end;">
-          <button class="btn btn-primary" style="width:100%" onclick="loadStudentsForAttendance()">Load Students</button>
-        </div>
+      <div class="search-bar">
+        <select id="inqStatus" onchange="loadInquiries()"><option value="">All</option><option value="New">New</option><option value="Contacted">Contacted</option><option value="Admitted">Admitted</option><option value="Rejected">Rejected</option></select>
       </div>
-      <div id="attendanceTable"><div class="empty-state"><div class="emoji">📅</div><p>Course aur subject select karke students load karo.</p></div></div>
+      <div id="inquiriesTable"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div></div>
     </div>
   </div>
 
-</main>
+</div><!-- /main -->
 
-<!-- MODALS -->
+<!-- ══ MODALS ══════════════════════════════════ -->
 
-<!-- Student Modal -->
-<div class="modal-overlay" id="studentModal">
+<!-- Add Student -->
+<div class="modal-overlay" id="modal-addStudent">
   <div class="modal">
-    <h2>👨‍🎓 Student Add/Edit</h2>
-    <div id="studentModalAlert"></div>
+    <h2><i class="fas fa-user-graduate" style="color:var(--primary);margin-right:8px"></i>Add New Student</h2>
     <div class="form-grid">
-      <div class="form-group"><label>Full Name *</label><input type="text" id="sName" placeholder="Student ka naam"></div>
-      <div class="form-group"><label>Email *</label><input type="email" id="sEmail" placeholder="email@example.com"></div>
-      <div class="form-group"><label>Phone *</label><input type="tel" id="sPhone" placeholder="10-digit number"></div>
+      <div class="form-group"><label>Full Name *</label><input type="text" id="s_name" placeholder="Student naam"></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="s_email" placeholder="email@example.com"></div>
+      <div class="form-group"><label>Phone *</label><input type="tel" id="s_phone" placeholder="10-digit number"></div>
+      <div class="form-group"><label>Password *</label><input type="text" id="s_pass" placeholder="Initial password" value="Student@123"></div>
       <div class="form-group"><label>Course *</label>
-        <select id="sCourse">
-          <option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option>
-          <option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option>
-        </select>
+        <select id="s_course"><option value="">Select</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option></select>
       </div>
-      <div class="form-group"><label>Enrollment No</label><input type="text" id="sEnrollment" placeholder="Auto ya manual"></div>
-      <div class="form-group"><label>Semester</label><select id="sSemester"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
-      <div class="form-group"><label>Session</label><input type="text" id="sSession" placeholder="2024-25"></div>
-      <div class="form-group"><label>Roll No</label><input type="text" id="sRollNo"></div>
-      <div class="form-group"><label>Father's Name</label><input type="text" id="sFather"></div>
-      <div class="form-group"><label>Password *</label><input type="password" id="sPassword" placeholder="Min 6 chars"></div>
+      <div class="form-group"><label>Semester</label><select id="s_sem"><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select></div>
+      <div class="form-group"><label>Gender</label><select id="s_gender"><option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+      <div class="form-group"><label>Admission Year</label><input type="number" id="s_year" value="2026" min="2020" max="2030"></div>
+      <div class="form-group"><label>Session</label><input type="text" id="s_session" placeholder="e.g. 2025-26"></div>
+      <div class="form-group"><label>Father's Name</label><input type="text" id="s_father" placeholder="Father naam"></div>
+      <div class="form-group full"><label>Address</label><input type="text" id="s_address" placeholder="Full address"></div>
     </div>
+    <p style="font-size:12px;color:var(--success);margin-top:10px">✅ Enrollment number automatically generate hoga</p>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('studentModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveStudent()">Save Student</button>
+      <button class="btn btn-outline" onclick="closeModal('addStudent')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStudent()"><i class="fas fa-save"></i> Add Student</button>
     </div>
   </div>
 </div>
 
-<!-- Result Modal -->
-<div class="modal-overlay" id="resultModal">
+<!-- Add Faculty -->
+<div class="modal-overlay" id="modal-addFaculty">
   <div class="modal">
-    <h2>📊 Add Result</h2>
-    <div id="resultModalAlert"></div>
+    <h2><i class="fas fa-chalkboard-teacher" style="color:var(--primary);margin-right:8px"></i>Add Faculty</h2>
     <div class="form-grid">
-      <div class="form-group full"><label>Student Enrollment No *</label><input type="text" id="rEnrollment" placeholder="Enrollment number daalo"></div>
-      <div class="form-group full"><label>Student Name</label><input type="text" id="rName" placeholder="Student naam"></div>
-      <div class="form-group"><label>Course *</label><select id="rCourse"><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option></select></div>
-      <div class="form-group"><label>Semester *</label><select id="rSemester"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
-      <div class="form-group"><label>Session *</label><input type="text" id="rSession" placeholder="2024-25"></div>
-      <div class="form-group"><label>Exam Type</label><select id="rExamType"><option>End Term</option><option>Mid Term</option><option>Practical</option><option>Internal</option></select></div>
-      <div class="form-group"><label>Total Marks</label><input type="number" id="rTotal" placeholder="500"></div>
-      <div class="form-group"><label>Obtained Marks</label><input type="number" id="rObtained" placeholder="350" oninput="calcPercentage()"></div>
-      <div class="form-group"><label>Percentage</label><input type="text" id="rPercentage" placeholder="Auto calculated" readonly></div>
-      <div class="form-group"><label>Grade</label><input type="text" id="rGrade" placeholder="A, B, C..."></div>
-      <div class="form-group"><label>Result</label><select id="rResult"><option>Pass</option><option>Fail</option><option>Compartment</option></select></div>
-      <div class="form-group"><label>Publish Now?</label><select id="rPublish"><option value="true">Yes — Publish</option><option value="false">No — Save as Draft</option></select></div>
+      <div class="form-group"><label>Full Name *</label><input type="text" id="f_name" placeholder="Faculty naam"></div>
+      <div class="form-group"><label>Email *</label><input type="email" id="f_email" placeholder="email@kimt.edu"></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="f_phone" placeholder="Phone number"></div>
+      <div class="form-group"><label>Password *</label><input type="text" id="f_pass" placeholder="Initial password" value="Faculty@123"></div>
+      <div class="form-group"><label>Department</label><input type="text" id="f_dept" placeholder="e.g. Computer Science"></div>
+      <div class="form-group"><label>Designation</label><input type="text" id="f_desig" placeholder="e.g. Assistant Professor"></div>
+      <div class="form-group full"><label>Subjects (comma separated)</label><input type="text" id="f_subjects" placeholder="e.g. DBMS, OS, Networks"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('resultModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveResult()">Save Result</button>
+      <button class="btn btn-outline" onclick="closeModal('addFaculty')">Cancel</button>
+      <button class="btn btn-primary" onclick="addFaculty()"><i class="fas fa-save"></i> Add Faculty</button>
     </div>
   </div>
 </div>
 
-<!-- Fee Modal -->
-<div class="modal-overlay" id="feeModal">
+<!-- Add Result -->
+<div class="modal-overlay" id="modal-addResult">
   <div class="modal">
-    <h2>💰 Add Fee Record</h2>
-    <div id="feeModalAlert"></div>
+    <h2><i class="fas fa-award" style="color:var(--primary);margin-right:8px"></i>Add Result</h2>
     <div class="form-grid">
-      <div class="form-group full"><label>Student Enrollment No *</label><input type="text" id="fEnrollment" placeholder="Enrollment number"></div>
-      <div class="form-group full"><label>Student Name *</label><input type="text" id="fName" placeholder="Student naam"></div>
-      <div class="form-group"><label>Course *</label><select id="fCourse"><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option></select></div>
-      <div class="form-group"><label>Semester</label><select id="fSemester"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></div>
-      <div class="form-group"><label>Session</label><input type="text" id="fSession" placeholder="2024-25"></div>
-      <div class="form-group"><label>Fee Type</label><select id="fType"><option>Total</option><option>Tuition</option><option>Exam</option><option>Library</option><option>Sports</option></select></div>
-      <div class="form-group"><label>Total Amount (₹) *</label><input type="number" id="fTotal" placeholder="25000"></div>
-      <div class="form-group"><label>Paid Amount (₹)</label><input type="number" id="fPaid" placeholder="0" value="0"></div>
-      <div class="form-group"><label>Due Date</label><input type="date" id="fDueDate"></div>
-      <div class="form-group"><label>Payment Mode</label><select id="fMode"><option value="">Not Paid</option><option>Cash</option><option>Online</option><option>DD</option><option>Cheque</option></select></div>
-      <div class="form-group full"><label>Transaction ID</label><input type="text" id="fTxn" placeholder="If paid online"></div>
+      <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="r_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
+      <div class="form-group"><label>Subject *</label><input type="text" id="r_subject" placeholder="Subject naam"></div>
+      <div class="form-group"><label>Exam Type</label><input type="text" id="r_examType" placeholder="e.g. End Semester" value="End Semester"></div>
+      <div class="form-group"><label>Semester *</label><select id="r_sem"><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select></div>
+      <div class="form-group"><label>Max Marks</label><input type="number" id="r_max" value="100"></div>
+      <div class="form-group"><label>Marks Obtained *</label><input type="number" id="r_obtained" placeholder="Marks"></div>
+      <div class="form-group"><label>Grade</label><input type="text" id="r_grade" placeholder="e.g. A, B, O, F"></div>
+      <div class="form-group"><label>Session</label><input type="text" id="r_session" placeholder="e.g. 2025-26"></div>
+      <div class="form-group"><label>Publish Now?</label>
+        <select id="r_publish"><option value="true">Yes — Publish</option><option value="false">No — Draft</option></select>
+      </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('feeModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveFee()">Save Fee Record</button>
+      <button class="btn btn-outline" onclick="closeModal('addResult')">Cancel</button>
+      <button class="btn btn-primary" onclick="addResult()"><i class="fas fa-save"></i> Save Result</button>
     </div>
   </div>
 </div>
 
-<!-- Notice Modal -->
-<div class="modal-overlay" id="noticeModal">
+<!-- Bulk Result Upload -->
+<div class="modal-overlay" id="modal-bulkResult">
   <div class="modal">
-    <h2>📢 Post Notice</h2>
-    <div id="noticeModalAlert"></div>
-    <div class="form-grid">
-      <div class="form-group full"><label>Title *</label><input type="text" id="nTitle" placeholder="Notice ka title"></div>
-      <div class="form-group full"><label>Content *</label><textarea id="nContent" rows="4" placeholder="Notice ka content..."></textarea></div>
-      <div class="form-group"><label>Category</label><select id="nCategory"><option>General</option><option>Exam</option><option>Fee</option><option>Admission</option><option>Event</option><option>Holiday</option></select></div>
-      <div class="form-group"><label>Target</label><select id="nTarget"><option>All</option><option>Students</option><option>Staff</option></select></div>
-      <div class="form-group"><label>Pin this notice?</label><select id="nPinned"><option value="false">No</option><option value="true">Yes — Pin to top</option></select></div>
-      <div class="form-group"><label>Expires On</label><input type="date" id="nExpiry"></div>
+    <h2><i class="fas fa-upload" style="color:var(--primary);margin-right:8px"></i>Bulk Result Upload (JSON)</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">JSON array paste karo. Format:</p>
+    <pre style="background:#f8fafc;padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;margin-bottom:12px">[
+  {"enrollmentNo":"KIMT/2026/BCA/001","subject":"DBMS","semester":3,"marksObtained":78,"maxMarks":100,"grade":"B","session":"2025-26","isPublished":true},
+  ...
+]</pre>
+    <div class="form-group">
+      <label>JSON Data</label>
+      <textarea id="bulkResultJson" rows="8" placeholder="JSON array yahan paste karo..."></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('noticeModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveNotice()">Post Notice</button>
+      <button class="btn btn-outline" onclick="closeModal('bulkResult')">Cancel</button>
+      <button class="btn btn-primary" onclick="uploadBulkResults()"><i class="fas fa-upload"></i> Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Fee -->
+<div class="modal-overlay" id="modal-addFee">
+  <div class="modal">
+    <h2><i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>Add Fee Record</h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="fee_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
+      <div class="form-group"><label>Fee Type</label><select id="fee_type"><option>Tuition Fee</option><option>Exam Fee</option><option>Library Fee</option><option>Hostel Fee</option><option>Other</option></select></div>
+      <div class="form-group"><label>Paid Amount ₹</label><input type="number" id="fee_paid" placeholder="0"></div>
+      <div class="form-group"><label>Due Amount ₹</label><input type="number" id="fee_due" placeholder="0"></div>
+      <div class="form-group"><label>Payment Mode</label><select id="fee_mode"><option>Online</option><option>Cash</option><option>Cheque</option><option>DD</option></select></div>
+      <div class="form-group"><label>Transaction ID</label><input type="text" id="fee_txn" placeholder="Optional"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addFee')">Cancel</button>
+      <button class="btn btn-primary" onclick="addFee()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Notice -->
+<div class="modal-overlay" id="modal-addNotice">
+  <div class="modal">
+    <h2><i class="fas fa-bell" style="color:var(--primary);margin-right:8px"></i>Post Notice</h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>Title *</label><input type="text" id="n_title" placeholder="Notice ka title"></div>
+      <div class="form-group full"><label>Content *</label><textarea id="n_content" placeholder="Notice content..."></textarea></div>
+      <div class="form-group"><label>Category</label><select id="n_cat"><option>General</option><option>Exam</option><option>Fee</option><option>Event</option><option>Holiday</option><option>Urgent</option></select></div>
+      <div class="form-group"><label>Target Audience</label><select id="n_target"><option>All</option><option>Students</option><option>Faculty</option></select></div>
+      <div class="form-group"><label>Pin to top?</label><select id="n_pin"><option value="false">No</option><option value="true">Yes</option></select></div>
+      <div class="form-group"><label>Expires On (optional)</label><input type="date" id="n_expires"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addNotice')">Cancel</button>
+      <button class="btn btn-primary" onclick="addNotice()"><i class="fas fa-paper-plane"></i> Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add News -->
+<div class="modal-overlay" id="modal-addNews">
+  <div class="modal">
+    <h2><i class="fas fa-newspaper" style="color:var(--primary);margin-right:8px"></i>Add News</h2>
+    <div class="form-group" style="margin-bottom:14px"><label>Title *</label><input type="text" id="news_title" placeholder="News headline"></div>
+    <div class="form-group" style="margin-bottom:14px"><label>Content *</label><textarea id="news_content" rows="4" placeholder="News content..."></textarea></div>
+    <div class="form-group" style="margin-bottom:14px"><label>Image URL (optional)</label><input type="text" id="news_img" placeholder="https://..."></div>
+    <div class="form-group"><label>Publish?</label><select id="news_pub"><option value="true">Yes</option><option value="false">Draft</option></select></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addNews')">Cancel</button>
+      <button class="btn btn-primary" onclick="addNews()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Gallery -->
+<div class="modal-overlay" id="modal-addGallery">
+  <div class="modal">
+    <h2><i class="fas fa-images" style="color:var(--primary);margin-right:8px"></i>Upload to Gallery</h2>
+    <div class="form-group" style="margin-bottom:14px"><label>Title *</label><input type="text" id="gal_title" placeholder="Photo title"></div>
+    <div class="form-group" style="margin-bottom:14px"><label>Category</label><input type="text" id="gal_cat" placeholder="e.g. Events, Campus, Sports"></div>
+    <div class="form-group" style="margin-bottom:14px"><label>Photo Upload</label><input type="file" id="gal_file" accept="image/*"></div>
+    <div class="form-group"><label>Or Image URL</label><input type="text" id="gal_url" placeholder="https://... (agar file upload nahi kar rahe)"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addGallery')">Cancel</button>
+      <button class="btn btn-primary" onclick="addGallery()"><i class="fas fa-upload"></i> Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Material -->
+<div class="modal-overlay" id="modal-addMaterial">
+  <div class="modal">
+    <h2><i class="fas fa-book-open" style="color:var(--primary);margin-right:8px"></i>Upload Study Material</h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>Title *</label><input type="text" id="mat_title" placeholder="Material title"></div>
+      <div class="form-group"><label>Subject *</label><input type="text" id="mat_subject" placeholder="Subject naam"></div>
+      <div class="form-group"><label>Type</label><select id="mat_type"><option>PDF</option><option>Video</option><option>Notes</option><option>Assignment</option><option>Link</option></select></div>
+      <div class="form-group"><label>Course *</label><select id="mat_course"><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option></select></div>
+      <div class="form-group"><label>Semester *</label><select id="mat_sem"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+      <div class="form-group full"><label>File Upload (PDF, Video etc.)</label><input type="file" id="mat_file"></div>
+      <div class="form-group full"><label>Or External Link</label><input type="text" id="mat_link" placeholder="YouTube / Drive link"></div>
+      <div class="form-group full"><label>Description</label><textarea id="mat_desc" placeholder="Brief description..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addMaterial')">Cancel</button>
+      <button class="btn btn-primary" onclick="addMaterial()"><i class="fas fa-upload"></i> Upload</button>
     </div>
   </div>
 </div>
 
 <script>
+// ── AUTH ───────────────────────────────────────
 const token = localStorage.getItem('adminToken');
-if (!token) window.location.href = '/admin-panel';
+if (!token) window.location.href = '/admin-panel/index.html';
+const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+let loadedPages = {};
 
-const adminInfo = JSON.parse(localStorage.getItem('adminInfo') || '{}');
-if (adminInfo.name) {
-  document.getElementById('adminName').textContent = adminInfo.name;
-  document.getElementById('adminRole').textContent = adminInfo.role || 'admin';
-  document.getElementById('adminAvatar').textContent = adminInfo.name.charAt(0).toUpperCase();
-  document.getElementById('adminRoleBadge').textContent = (adminInfo.role || 'admin').toUpperCase();
-}
-
-// Set today's date for attendance
-document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
-
-function apiCall(url, method = 'GET', body = null) {
-  const opts = { method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } };
-  if (body) opts.body = JSON.stringify(body);
-  return fetch(url, opts).then(r => {
-    if (r.status === 401) { logout(); throw new Error('Unauthorized'); }
-    return r.json();
-  });
-}
-
-function showPage(name) {
+// ── NAV ────────────────────────────────────────
+function showPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  event?.target?.classList.add('active');
-  if (name === 'students') loadStudents();
-  else if (name === 'results') loadResults();
-  else if (name === 'fees') loadFees();
-  else if (name === 'notices') loadNotices();
-  else if (name === 'inquiries') loadInquiries();
+  if (el) el.classList.add('active');
+  if (window.innerWidth <= 768) closeSidebar();
+  if (!loadedPages[name]) { loadedPages[name] = true; loadPage(name); }
 }
 
-function logout() {
-  localStorage.removeItem('adminToken');
-  localStorage.removeItem('adminInfo');
-  window.location.href = '/admin-panel';
-}
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
-
-function escHtml(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function showModalAlert(elId, msg, type='error') {
-  const el = document.getElementById(elId);
-  el.className = `alert ${type}`;
-  el.textContent = msg;
+function loadPage(name) {
+  const loaders = { students: loadStudents, faculty: loadFaculty, results: loadResults, fees: loadFees, notices: loadNotices, news: loadNews, gallery: loadGallery, materials: loadMaterials, inquiries: loadInquiries };
+  if (loaders[name]) loaders[name]();
 }
 
-// ── DASHBOARD ─────────────────────────────────
-async function loadDashboard() {
+// ── SIDEBAR ───────────────────────────────────
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+// ── MODAL ─────────────────────────────────────
+function openModal(id) { document.getElementById('modal-' + id).classList.add('show'); }
+function closeModal(id) { document.getElementById('modal-' + id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
+
+// ── ALERT ─────────────────────────────────────
+function showAlert(msg, type = 'success') {
+  const el = document.getElementById('globalAlert');
+  el.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+  el.className = `alert ${type} show`;
+  setTimeout(() => el.className = 'alert', 4000);
+}
+
+// ── INIT ──────────────────────────────────────
+async function init() {
+  const d = new Date();
+  document.getElementById('dateChip').textContent = d.toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
   try {
-    const data = await apiCall('/api/admin/stats');
-    document.getElementById('statStudents').textContent = data.stats.totalStudents;
-    document.getElementById('statActive').textContent = data.stats.activeStudents;
-    document.getElementById('statInquiries').textContent = data.stats.newInquiries;
-    document.getElementById('statUnpaid').textContent = data.stats.unpaidFees;
-    document.getElementById('newInquiryBadge').textContent = data.stats.newInquiries;
+    const res = await fetch('/api/admin/stats', { headers: H });
+    const data = await res.json();
+    if (!res.ok) { logout(); return; }
+    const s = data.stats;
+    document.getElementById('s_students').textContent = s.totalStudents;
+    document.getElementById('s_active').textContent = s.activeStudents;
+    document.getElementById('s_faculty').textContent = s.totalFaculty;
+    document.getElementById('s_due').textContent = s.unpaidFees;
+    document.getElementById('s_notices').textContent = s.totalNotices;
+    document.getElementById('s_inq').textContent = s.newInquiries;
+    document.getElementById('inqBadge').textContent = s.newInquiries;
 
-    // Recent inquiries
-    const inqEl = document.getElementById('dashInquiries');
-    if (!data.recentInquiries?.length) {
-      inqEl.innerHTML = '<div class="empty-state"><p>Koi inquiry nahi.</p></div>';
-    } else {
-      inqEl.innerHTML = `<table><thead><tr><th>Naam</th><th>Phone</th><th>Course</th><th>Status</th></tr></thead><tbody>
-        ${data.recentInquiries.map(i => `<tr>
-          <td>${escHtml(i.name)}</td>
-          <td>${escHtml(i.phone)}</td>
-          <td>${escHtml(i.course||'—')}</td>
-          <td><span class="badge badge-${i.status?.toLowerCase().replace(' ','-')}">${i.status}</span></td>
-        </tr>`).join('')}
-      </tbody></table>`;
-    }
+    // Admin info from token
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      document.getElementById('adminAvatar').textContent = 'A';
+    } catch {}
 
     // Recent students
-    const stuEl = document.getElementById('dashStudents');
-    if (!data.recentStudents?.length) {
-      stuEl.innerHTML = '<div class="empty-state"><p>Koi student nahi.</p></div>';
+    if (data.recentStudents?.length) {
+      document.getElementById('recentStudents').innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Course</th><th>Enrollment</th></tr></thead>
+        <tbody>${data.recentStudents.map(s=>`<tr><td>${s.name}</td><td>${s.course}</td><td style="font-family:monospace">${s.enrollmentNo||'—'}</td></tr>`).join('')}</tbody>
+      </table></div>`;
     } else {
-      stuEl.innerHTML = `<table><thead><tr><th>Naam</th><th>Course</th><th>Status</th></tr></thead><tbody>
-        ${data.recentStudents.map(s => `<tr>
-          <td>${escHtml(s.name)}</td>
-          <td>${escHtml(s.course)}</td>
-          <td><span class="badge badge-${s.isActive?'active':'inactive'}">${s.isActive?'Active':'Inactive'}</span></td>
-        </tr>`).join('')}
-      </tbody></table>`;
+      document.getElementById('recentStudents').innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>No students yet</p></div>';
+    }
+
+    // Recent inquiries
+    if (data.recentInquiries?.length) {
+      document.getElementById('recentInquiries').innerHTML = `<div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Course</th><th>Status</th></tr></thead>
+        <tbody>${data.recentInquiries.map(i=>`<tr><td>${i.name}</td><td>${i.course||'—'}</td><td><span class="badge ${i.status==='New'?'blue':'green'}">${i.status}</span></td></tr>`).join('')}</tbody>
+      </table></div>`;
+    } else {
+      document.getElementById('recentInquiries').innerHTML = '<div class="empty-state"><i class="fas fa-envelope"></i><p>No inquiries yet</p></div>';
     }
   } catch (err) { console.error(err); }
 }
 
 // ── STUDENTS ──────────────────────────────────
+let studentTimer;
+function searchStudents() { clearTimeout(studentTimer); studentTimer = setTimeout(loadStudents, 400); }
+
 async function loadStudents() {
-  const el = document.getElementById('studentsContent');
-  const search = document.getElementById('studentSearch').value;
-  const course = document.getElementById('studentCourse').value;
-  const isActive = document.getElementById('studentStatus').value;
+  const search = document.getElementById('studentSearch')?.value || '';
+  const course = document.getElementById('studentCourse')?.value || '';
+  const isActive = document.getElementById('studentStatus')?.value || '';
+  const params = new URLSearchParams();
+  if (search) params.set('search', search);
+  if (course) params.set('course', course);
+  if (isActive) params.set('isActive', isActive);
   try {
-    const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (course) params.set('course', course);
-    if (isActive) params.set('isActive', isActive);
-    const data = await apiCall(`/api/admin/students?${params}`);
-
-    if (!data.students?.length) {
-      el.innerHTML = '<div class="empty-state"><div class="emoji">👨‍🎓</div><p>Koi student nahi mila.</p></div>'; return;
-    }
-    el.innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Total: ${data.total} students</p>
-    <table><thead><tr><th>Naam</th><th>Email</th><th>Phone</th><th>Course</th><th>Sem</th><th>Enrollment</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>${data.students.map(s => `<tr>
-      <td><strong>${escHtml(s.name)}</strong></td>
-      <td>${escHtml(s.email)}</td>
-      <td>${escHtml(s.phone)}</td>
-      <td>${escHtml(s.course)}</td>
-      <td>${s.semester||'—'}</td>
-      <td>${escHtml(s.enrollmentNo||'—')}</td>
-      <td><span class="badge badge-${s.isActive?'active':'inactive'}">${s.isActive?'Active':'Inactive'}</span></td>
-      <td><div class="action-btns">
-        <button class="btn btn-sm btn-primary" onclick="toggleStudentStatus('${s._id}', ${!s.isActive})">${s.isActive?'Deactivate':'Activate'}</button>
-      </div></td>
-    </tr>`).join('')}</tbody></table>`;
-  } catch (err) {
-    el.innerHTML = '<div class="empty-state"><p>Load nahi hua. Retry karo.</p></div>';
-  }
+    const res = await fetch(`/api/admin/students?${params}`, { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('studentsTable');
+    if (!data.students?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-user-graduate"></i><p>Koi student nahi mila</p></div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Enrollment</th><th>Course</th><th>Sem</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${data.students.map(s=>`<tr>
+        <td><strong>${s.name}</strong><br><span style="font-size:11px;color:var(--muted)">${s.email}</span></td>
+        <td style="font-family:monospace;font-size:12px">${s.enrollmentNo||'—'}</td>
+        <td>${s.course}</td>
+        <td>Sem ${s.semester||1}</td>
+        <td>${s.phone}</td>
+        <td><span class="badge ${s.isActive?'green':'red'}">${s.isActive?'Active':'Inactive'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline" onclick="editStudent('${s._id}')"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteStudent('${s._id}','${s.name}')"><i class="fas fa-ban"></i></button>
+        </td>
+      </tr>`).join('')}
+      </tbody></table>
+      <div style="font-size:12px;color:var(--muted);padding:10px">Total: ${data.total} students</div>
+    </div>`;
+  } catch(e) { document.getElementById('studentsTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
 }
 
-async function saveStudent() {
+async function addStudent() {
   const body = {
-    name: document.getElementById('sName').value,
-    email: document.getElementById('sEmail').value,
-    phone: document.getElementById('sPhone').value,
-    course: document.getElementById('sCourse').value,
-    enrollmentNo: document.getElementById('sEnrollment').value,
-    semester: Number(document.getElementById('sSemester').value),
-    session: document.getElementById('sSession').value,
-    rollNo: document.getElementById('sRollNo').value,
-    fatherName: document.getElementById('sFather').value,
-    password: document.getElementById('sPassword').value
+    name: document.getElementById('s_name').value.trim(),
+    email: document.getElementById('s_email').value.trim(),
+    phone: document.getElementById('s_phone').value.trim(),
+    password: document.getElementById('s_pass').value,
+    course: document.getElementById('s_course').value,
+    semester: Number(document.getElementById('s_sem').value),
+    gender: document.getElementById('s_gender').value,
+    admissionYear: Number(document.getElementById('s_year').value),
+    session: document.getElementById('s_session').value,
+    fatherName: document.getElementById('s_father').value,
+    address: document.getElementById('s_address').value
   };
-  if (!body.name||!body.email||!body.phone||!body.password) {
-    showModalAlert('studentModalAlert','Saare starred fields bharo.'); return;
-  }
+  if (!body.name || !body.email || !body.phone || !body.password || !body.course)
+    return showAlert('Saare starred fields zaroori hain', 'error');
   try {
-    const data = await apiCall('/api/admin/students','POST',body);
-    if (data.success) { closeModal('studentModal'); loadStudents(); }
-    else showModalAlert('studentModalAlert', data.error||'Error hua.');
-  } catch (err) { showModalAlert('studentModalAlert','Server error.'); }
+    const res = await fetch('/api/admin/students', { method: 'POST', headers: H, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) return showAlert(data.error, 'error');
+    showAlert(data.message);
+    closeModal('addStudent');
+    loadedPages.students = false; loadStudents();
+  } catch(e) { showAlert('Error: ' + e.message, 'error'); }
 }
 
-async function toggleStudentStatus(id, status) {
-  await apiCall(`/api/admin/students/${id}`, 'PUT', { isActive: status });
-  loadStudents();
+async function deleteStudent(id, name) {
+  if (!confirm(`"${name}" ko deactivate karna hai?`)) return;
+  const res = await fetch(`/api/admin/students/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message || data.error, res.ok ? 'success' : 'error');
+  if (res.ok) loadStudents();
+}
+
+function editStudent(id) { showAlert('Edit feature — coming soon!', 'success'); }
+
+// ── FACULTY ───────────────────────────────────
+async function loadFaculty() {
+  try {
+    const search = document.getElementById('facultySearch')?.value || '';
+    const res = await fetch(`/api/admin/faculty?search=${search}`, { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('facultyTable');
+    if (!data.faculty?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><p>Koi faculty nahi hai</p></div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Department</th><th>Designation</th><th>Subjects</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>${data.faculty.map(f=>`<tr>
+        <td><strong>${f.name}</strong><br><span style="font-size:11px;color:var(--muted)">${f.email}</span></td>
+        <td>${f.department||'—'}</td>
+        <td>${f.designation||'—'}</td>
+        <td style="font-size:12px">${(f.subjects||[]).join(', ')||'—'}</td>
+        <td><span class="badge ${f.isActive?'green':'red'}">${f.isActive?'Active':'Inactive'}</span></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteFaculty('${f._id}','${f.name}')"><i class="fas fa-ban"></i></button></td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+  } catch(e) { document.getElementById('facultyTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
+}
+
+async function addFaculty() {
+  const body = {
+    name: document.getElementById('f_name').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    phone: document.getElementById('f_phone').value.trim(),
+    password: document.getElementById('f_pass').value,
+    department: document.getElementById('f_dept').value,
+    designation: document.getElementById('f_desig').value,
+    subjects: document.getElementById('f_subjects').value.split(',').map(s=>s.trim()).filter(Boolean)
+  };
+  if (!body.name || !body.email || !body.password) return showAlert('Name, email, password zaroori', 'error');
+  const res = await fetch('/api/admin/faculty', { method: 'POST', headers: H, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert(data.message); closeModal('addFaculty');
+  loadedPages.faculty = false; loadFaculty();
+}
+
+async function deleteFaculty(id, name) {
+  if (!confirm(`"${name}" ko deactivate karna hai?`)) return;
+  const res = await fetch(`/api/admin/faculty/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadFaculty();
 }
 
 // ── RESULTS ───────────────────────────────────
 async function loadResults() {
-  const el = document.getElementById('resultsContent');
-  const course = document.getElementById('resultCourse').value;
-  const semester = document.getElementById('resultSem').value;
+  const course = document.getElementById('resultCourse')?.value || '';
+  const semester = document.getElementById('resultSem')?.value || '';
+  const params = new URLSearchParams();
+  if (course) params.set('course', course);
+  if (semester) params.set('semester', semester);
   try {
-    const params = new URLSearchParams();
-    if (course) params.set('course', course);
-    if (semester) params.set('semester', semester);
-    const data = await apiCall(`/api/admin/results?${params}`);
-    if (!data.results?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">📊</div><p>Koi result nahi.</p></div>'; return; }
-    el.innerHTML = `<table><thead><tr><th>Student</th><th>Course</th><th>Sem</th><th>Session</th><th>%</th><th>Grade</th><th>Result</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>${data.results.map(r=>`<tr>
-      <td><strong>${escHtml(r.name)}</strong><br><small style="color:var(--muted)">${escHtml(r.enrollmentNo)}</small></td>
-      <td>${escHtml(r.course)}</td><td>Sem ${r.semester}</td><td>${escHtml(r.session)}</td>
-      <td>${r.percentage?.toFixed(1)||'—'}%</td>
-      <td><strong>${escHtml(r.grade||'—')}</strong></td>
-      <td><span class="badge badge-${r.result?.toLowerCase()}">${r.result}</span></td>
-      <td>${r.isPublished?'<span class="badge badge-active">Published</span>':'<span class="badge badge-inactive">Draft</span>'}</td>
-      <td><div class="action-btns">
-        ${!r.isPublished?`<button class="btn btn-sm btn-success" onclick="publishResult('${r._id}')">Publish</button>`:''}
-        <button class="btn btn-sm btn-danger" onclick="deleteResult('${r._id}')">Delete</button>
-      </div></td>
-    </tr>`).join('')}</tbody></table>`;
-  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+    const res = await fetch(`/api/admin/results?${params}`, { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('resultsTable');
+    if (!data.results?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Koi result nahi hai</p></div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Student</th><th>Subject</th><th>Sem</th><th>Marks</th><th>Grade</th><th>Status</th><th>Published</th><th>Action</th></tr></thead>
+      <tbody>${data.results.map(r=>`<tr>
+        <td>${r.student?.name||'—'}<br><span style="font-size:11px;color:var(--muted)">${r.student?.enrollmentNo||'—'}</span></td>
+        <td>${r.subject||'—'}</td>
+        <td>${r.semester}</td>
+        <td>${r.marksObtained||0}/${r.maxMarks||100}</td>
+        <td><span class="badge blue">${r.grade||'—'}</span></td>
+        <td><span class="badge ${r.isPassed?'green':'red'}">${r.isPassed?'Pass':'Fail'}</span></td>
+        <td>${r.isPublished?'<span class="badge green">Yes</span>':'<span class="badge yellow">Draft</span>'}</td>
+        <td>
+          ${!r.isPublished?`<button class="btn btn-sm btn-success" onclick="publishResult('${r._id}')">Publish</button>`:''}
+          <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteResult('${r._id}')"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+  } catch(e) { document.getElementById('resultsTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
 }
 
-function calcPercentage() {
-  const total = Number(document.getElementById('rTotal').value);
-  const obtained = Number(document.getElementById('rObtained').value);
-  if (total > 0) {
-    const pct = ((obtained/total)*100).toFixed(1);
-    document.getElementById('rPercentage').value = pct + '%';
-    document.getElementById('rGrade').value = pct>=90?'A+':pct>=80?'A':pct>=70?'B+':pct>=60?'B':pct>=50?'C':'F';
-    document.getElementById('rResult').value = pct >= 33 ? 'Pass' : 'Fail';
-  }
-}
-
-async function saveResult() {
-  const enrollmentNo = document.getElementById('rEnrollment').value.trim();
-  if (!enrollmentNo) { showModalAlert('resultModalAlert','Enrollment number daalo.'); return; }
+async function addResult() {
+  const enroll = document.getElementById('r_enroll').value.trim();
+  const obtained = Number(document.getElementById('r_obtained').value);
+  const max = Number(document.getElementById('r_max').value) || 100;
   // Find student by enrollment
-  try {
-    const sData = await apiCall(`/api/admin/students?search=${enrollmentNo}`);
-    const student = sData.students?.[0];
-    if (!student) { showModalAlert('resultModalAlert','Student nahi mila is enrollment number se.'); return; }
+  const sRes = await fetch(`/api/admin/students?search=${enroll}`, { headers: H });
+  const sData = await sRes.json();
+  const student = sData.students?.find(s => s.enrollmentNo === enroll);
+  if (!student) return showAlert(`Student nahi mila enrollment "${enroll}"`, 'error');
 
-    const body = {
-      student: student._id,
-      enrollmentNo, name: document.getElementById('rName').value || student.name,
-      course: document.getElementById('rCourse').value,
-      semester: Number(document.getElementById('rSemester').value),
-      session: document.getElementById('rSession').value,
-      examType: document.getElementById('rExamType').value,
-      totalMarks: Number(document.getElementById('rTotal').value),
-      obtainedMarks: Number(document.getElementById('rObtained').value),
-      percentage: parseFloat(document.getElementById('rPercentage').value),
-      grade: document.getElementById('rGrade').value,
-      result: document.getElementById('rResult').value,
-      isPublished: document.getElementById('rPublish').value === 'true',
-      publishedAt: document.getElementById('rPublish').value === 'true' ? new Date() : null
-    };
-    const data = await apiCall('/api/admin/results','POST',body);
-    if (data.success) { closeModal('resultModal'); loadResults(); }
-    else showModalAlert('resultModalAlert', data.error||'Error hua.');
-  } catch(err){ showModalAlert('resultModalAlert','Server error.'); }
+  const body = {
+    student: student._id,
+    subject: document.getElementById('r_subject').value,
+    examType: document.getElementById('r_examType').value,
+    semester: Number(document.getElementById('r_sem').value),
+    maxMarks: max,
+    marksObtained: obtained,
+    grade: document.getElementById('r_grade').value,
+    session: document.getElementById('r_session').value,
+    isPassed: obtained >= max * 0.33,
+    isPublished: document.getElementById('r_publish').value === 'true',
+    course: student.course
+  };
+  const res = await fetch('/api/admin/results', { method: 'POST', headers: H, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert('Result add ho gaya!'); closeModal('addResult');
+  loadedPages.results = false; loadResults();
+}
+
+async function uploadBulkResults() {
+  try {
+    const json = JSON.parse(document.getElementById('bulkResultJson').value);
+    if (!Array.isArray(json)) return showAlert('Valid JSON array chahiye', 'error');
+    // Resolve enrollments to student IDs
+    const resolved = [];
+    for (const r of json) {
+      if (r.enrollmentNo) {
+        const sRes = await fetch(`/api/admin/students?search=${r.enrollmentNo}`, { headers: H });
+        const sData = await sRes.json();
+        const student = sData.students?.find(s => s.enrollmentNo === r.enrollmentNo);
+        if (student) { r.student = student._id; delete r.enrollmentNo; }
+      }
+      resolved.push(r);
+    }
+    const res = await fetch('/api/admin/results/bulk', { method: 'POST', headers: H, body: JSON.stringify({ results: resolved }) });
+    const data = await res.json();
+    if (!res.ok) return showAlert(data.error, 'error');
+    showAlert(data.message); closeModal('bulkResult');
+    loadedPages.results = false; loadResults();
+  } catch(e) { showAlert('JSON parse error: ' + e.message, 'error'); }
 }
 
 async function publishResult(id) {
-  await apiCall(`/api/admin/results/${id}/publish`,'PUT');
-  loadResults();
+  const res = await fetch(`/api/admin/results/${id}/publish`, { method: 'PUT', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadResults();
 }
+
 async function deleteResult(id) {
-  if (!confirm('Yeh result delete karna chahte ho?')) return;
-  await apiCall(`/api/admin/results/${id}`,'DELETE');
-  loadResults();
+  if (!confirm('Result delete karna hai?')) return;
+  const res = await fetch(`/api/admin/results/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadResults();
 }
 
 // ── FEES ──────────────────────────────────────
 async function loadFees() {
-  const el = document.getElementById('feesContent');
-  const search = document.getElementById('feeSearch').value;
-  const status = document.getElementById('feeStatus').value;
+  const status = document.getElementById('feeStatus')?.value || '';
   try {
-    const params = new URLSearchParams();
-    if (search) params.set('search',search);
-    if (status) params.set('status',status);
-    const data = await apiCall(`/api/admin/fees?${params}`);
-    if (!data.fees?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">💰</div><p>Koi fee record nahi.</p></div>'; return; }
-    el.innerHTML = `<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Total Collected: ₹${(data.totalCollected||0).toLocaleString('en-IN')}</p>
-    <table><thead><tr><th>Student</th><th>Course</th><th>Fee Type</th><th>Total</th><th>Paid</th><th>Due</th><th>Status</th><th>Action</th></tr></thead>
-    <tbody>${data.fees.map(f=>`<tr>
-      <td><strong>${escHtml(f.name)}</strong><br><small style="color:var(--muted)">${escHtml(f.enrollmentNo)}</small></td>
-      <td>${escHtml(f.course)}</td><td>${escHtml(f.feeType)}</td>
-      <td>₹${f.totalAmount?.toLocaleString('en-IN')}</td>
-      <td>₹${f.paidAmount?.toLocaleString('en-IN')}</td>
-      <td>₹${(f.dueAmount||0).toLocaleString('en-IN')}</td>
-      <td><span class="badge badge-${f.status?.toLowerCase()}">${f.status}</span></td>
-      <td><button class="btn btn-sm btn-success" onclick="markFeePaid('${f._id}')">Mark Paid</button></td>
-    </tr>`).join('')}</tbody></table>`;
-  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+    const res = await fetch(`/api/admin/fees?status=${status}`, { headers: H });
+    const data = await res.json();
+    document.getElementById('feeCollected').textContent = '₹' + Number(data.summary?.totalCollected||0).toLocaleString('en-IN');
+    document.getElementById('feeDue').textContent = '₹' + Number(data.summary?.totalDue||0).toLocaleString('en-IN');
+    const el = document.getElementById('feesTable');
+    if (!data.fees?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Koi record nahi</p></div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Student</th><th>Fee Type</th><th>Paid</th><th>Due</th><th>Mode</th><th>Date</th></tr></thead>
+      <tbody>${data.fees.map(f=>`<tr>
+        <td>${f.student?.name||'—'}<br><span style="font-size:11px;color:var(--muted)">${f.student?.enrollmentNo||'—'}</span></td>
+        <td>${f.feeType||'—'}</td>
+        <td style="color:var(--success);font-weight:600">₹${Number(f.paidAmount||0).toLocaleString('en-IN')}</td>
+        <td style="color:${(f.dueAmount||0)>0?'var(--danger)':'var(--success)'};font-weight:600">₹${Number(f.dueAmount||0).toLocaleString('en-IN')}</td>
+        <td><span class="badge blue">${f.paymentMode||'Online'}</span></td>
+        <td>${new Date(f.createdAt).toLocaleDateString('en-IN')}</td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+  } catch(e) { document.getElementById('feesTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
 }
 
-async function saveFee() {
+async function addFee() {
+  const enroll = document.getElementById('fee_enroll').value.trim();
+  const sRes = await fetch(`/api/admin/students?search=${enroll}`, { headers: H });
+  const sData = await sRes.json();
+  const student = sData.students?.find(s => s.enrollmentNo === enroll);
+  if (!student) return showAlert(`Student nahi mila enrollment "${enroll}"`, 'error');
   const body = {
-    enrollmentNo: document.getElementById('fEnrollment').value,
-    name: document.getElementById('fName').value,
-    course: document.getElementById('fCourse').value,
-    semester: Number(document.getElementById('fSemester').value),
-    session: document.getElementById('fSession').value,
-    feeType: document.getElementById('fType').value,
-    totalAmount: Number(document.getElementById('fTotal').value),
-    paidAmount: Number(document.getElementById('fPaid').value)||0,
-    dueDate: document.getElementById('fDueDate').value,
-    paymentMode: document.getElementById('fMode').value||undefined,
-    transactionId: document.getElementById('fTxn').value
+    student: student._id,
+    feeType: document.getElementById('fee_type').value,
+    paidAmount: Number(document.getElementById('fee_paid').value) || 0,
+    dueAmount: Number(document.getElementById('fee_due').value) || 0,
+    paymentMode: document.getElementById('fee_mode').value,
+    transactionId: document.getElementById('fee_txn').value
   };
-  if (!body.name||!body.totalAmount) { showModalAlert('feeModalAlert','Naam aur amount zaroori hai.'); return; }
-  // Get student ID
-  try {
-    const sData = await apiCall(`/api/admin/students?search=${body.enrollmentNo}`);
-    body.student = sData.students?.[0]?._id;
-    if (!body.student) { showModalAlert('feeModalAlert','Student nahi mila.'); return; }
-    const data = await apiCall('/api/admin/fees','POST',body);
-    if (data.success) { closeModal('feeModal'); loadFees(); }
-    else showModalAlert('feeModalAlert', data.error||'Error.');
-  } catch(err){ showModalAlert('feeModalAlert','Server error.'); }
-}
-
-async function markFeePaid(id) {
-  await apiCall(`/api/admin/fees/${id}`,'PUT',{ status:'Paid', paidAt: new Date(), paymentMode:'Cash' });
-  loadFees();
+  const res = await fetch('/api/admin/fees', { method: 'POST', headers: H, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert(data.message); closeModal('addFee');
+  loadedPages.fees = false; loadFees();
 }
 
 // ── NOTICES ───────────────────────────────────
 async function loadNotices() {
-  const el = document.getElementById('noticesContent');
   try {
-    const data = await apiCall('/api/admin/notices');
-    if (!data.notices?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">📢</div><p>Koi notice nahi.</p></div>'; return; }
-    el.innerHTML = data.notices.map(n=>`
-      <div class="card" style="border-left:4px solid ${n.isPinned?'var(--accent)':'var(--primary)'}">
-        <div class="card-header">
+    const res = await fetch('/api/admin/notices', { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('noticesContent');
+    if (!data.notices?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>Koi notice nahi</p></div>'; return; }
+    el.innerHTML = data.notices.map(n => `
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
           <div>
-            <h3>${n.isPinned?'📌 ':''}${escHtml(n.title)}</h3>
-            <small style="color:var(--muted)">${n.category} • ${n.targetAudience} • ${new Date(n.createdAt).toLocaleDateString('en-IN')}</small>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+              ${n.isPinned?'<span class="badge yellow">📌 Pinned</span>':''}
+              <span class="badge blue">${n.category||'General'}</span>
+              <span class="badge purple">${n.targetAudience}</span>
+            </div>
+            <div style="font-size:15px;font-weight:700">${n.title}</div>
+            <div style="font-size:13px;color:var(--text);margin-top:4px">${n.content}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">${new Date(n.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
           </div>
-          <div class="action-btns">
-            <button class="btn btn-sm btn-danger" onclick="deleteNotice('${n._id}')">Delete</button>
-          </div>
+          <button class="btn btn-sm btn-danger" onclick="deleteNotice('${n._id}')"><i class="fas fa-trash"></i></button>
         </div>
-        <p style="font-size:14px;color:var(--text)">${escHtml(n.content)}</p>
-      </div>
-    `).join('');
-  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+      </div>`).join('');
+  } catch(e) {}
 }
 
-async function saveNotice() {
+async function addNotice() {
   const body = {
-    title: document.getElementById('nTitle').value,
-    content: document.getElementById('nContent').value,
-    category: document.getElementById('nCategory').value,
-    targetAudience: document.getElementById('nTarget').value,
-    isPinned: document.getElementById('nPinned').value==='true',
-    expiresAt: document.getElementById('nExpiry').value||null
+    title: document.getElementById('n_title').value.trim(),
+    content: document.getElementById('n_content').value.trim(),
+    category: document.getElementById('n_cat').value,
+    targetAudience: document.getElementById('n_target').value,
+    isPinned: document.getElementById('n_pin').value === 'true',
+    expiresAt: document.getElementById('n_expires').value || null
   };
-  if (!body.title||!body.content) { showModalAlert('noticeModalAlert','Title aur content zaroori hai.'); return; }
-  try {
-    const data = await apiCall('/api/admin/notices','POST',body);
-    if (data.success) { closeModal('noticeModal'); loadNotices(); }
-    else showModalAlert('noticeModalAlert', data.error||'Error.');
-  } catch(err){ showModalAlert('noticeModalAlert','Server error.'); }
+  if (!body.title || !body.content) return showAlert('Title aur content zaroori', 'error');
+  const res = await fetch('/api/admin/notices', { method: 'POST', headers: H, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert(data.message); closeModal('addNotice');
+  loadedPages.notices = false; loadNotices();
 }
 
 async function deleteNotice(id) {
-  if (!confirm('Yeh notice delete karna chahte ho?')) return;
-  await apiCall(`/api/admin/notices/${id}`,'DELETE');
-  loadNotices();
+  if (!confirm('Notice delete karna hai?')) return;
+  const res = await fetch(`/api/admin/notices/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadNotices();
+}
+
+// ── NEWS ──────────────────────────────────────
+async function loadNews() {
+  try {
+    const res = await fetch('/api/admin/news', { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('newsContent');
+    if (!data.news?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Koi news nahi</p></div>'; return; }
+    el.innerHTML = data.news.map(n => `
+      <div class="card" style="margin-bottom:12px;display:flex;gap:14px;align-items:flex-start">
+        ${n.imageUrl?`<img src="${n.imageUrl}" style="width:80px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0" onerror="this.style.display='none'">`:''}
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700">${n.title}</div>
+          <div style="font-size:13px;color:var(--text);margin:4px 0">${n.content?.substring(0,120)}${n.content?.length>120?'...':''}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+            <span class="badge ${n.isPublished?'green':'yellow'}">${n.isPublished?'Published':'Draft'}</span>
+            <span style="font-size:11px;color:var(--muted)">${new Date(n.createdAt).toLocaleDateString('en-IN')}</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="deleteNews('${n._id}')"><i class="fas fa-trash"></i></button>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function addNews() {
+  const body = { title: document.getElementById('news_title').value.trim(), content: document.getElementById('news_content').value.trim(), imageUrl: document.getElementById('news_img').value, isPublished: document.getElementById('news_pub').value === 'true' };
+  if (!body.title || !body.content) return showAlert('Title aur content zaroori', 'error');
+  const res = await fetch('/api/admin/news', { method: 'POST', headers: H, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert(data.message); closeModal('addNews');
+  loadedPages.news = false; loadNews();
+}
+
+async function deleteNews(id) {
+  if (!confirm('News delete karna hai?')) return;
+  const res = await fetch(`/api/admin/news/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadNews();
+}
+
+// ── GALLERY ───────────────────────────────────
+async function loadGallery() {
+  try {
+    const res = await fetch('/api/admin/gallery', { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('galleryContent');
+    if (!data.gallery?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><p>Koi photo nahi</p></div>'; return; }
+    el.innerHTML = `<div class="gallery-grid">${data.gallery.map(g=>`
+      <div class="gallery-item">
+        <img src="${g.imageUrl}" alt="${g.title}" onerror="this.src='https://via.placeholder.com/160x160?text=Error'">
+        <button class="del-btn" onclick="deleteGallery('${g._id}')"><i class="fas fa-trash"></i></button>
+        <div class="caption">${g.title}</div>
+      </div>`).join('')}</div>`;
+  } catch(e) {}
+}
+
+async function addGallery() {
+  const file = document.getElementById('gal_file').files[0];
+  const urlInput = document.getElementById('gal_url').value;
+  const title = document.getElementById('gal_title').value.trim();
+  const category = document.getElementById('gal_cat').value;
+  if (!title) return showAlert('Title zaroori hai', 'error');
+
+  const fd = new FormData();
+  fd.append('title', title);
+  fd.append('category', category);
+  if (file) fd.append('image', file);
+  else fd.append('imageUrl', urlInput);
+
+  const res = await fetch('/api/admin/gallery', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert(data.message); closeModal('addGallery');
+  loadedPages.gallery = false; loadGallery();
+}
+
+async function deleteGallery(id) {
+  if (!confirm('Photo delete karna hai?')) return;
+  const res = await fetch(`/api/admin/gallery/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadGallery();
+}
+
+// ── STUDY MATERIAL ────────────────────────────
+async function loadMaterials() {
+  const course = document.getElementById('matCourse')?.value || '';
+  const sem = document.getElementById('matSem')?.value || '';
+  const params = new URLSearchParams();
+  if (course) params.set('course', course);
+  if (sem) params.set('semester', sem);
+  try {
+    const res = await fetch(`/api/admin/materials?${params}`, { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('materialsContent');
+    if (!data.materials?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>Koi material nahi</p></div>'; return; }
+    const icons = { PDF: 'pdf fas fa-file-pdf', Video: 'video fas fa-video', Link: 'link fas fa-link', Notes: 'pdf fas fa-sticky-note', Assignment: 'link fas fa-tasks' };
+    el.innerHTML = data.materials.map(m => {
+      const [cls, ico] = (icons[m.type]||'link fas fa-file').split(' ');
+      return `<div class="mat-item">
+        <div class="mat-icon ${cls}"><i class="fas ${ico.replace('fas ','')}"></i></div>
+        <div style="flex:1">
+          <div class="mat-title">${m.title}</div>
+          <div class="mat-sub">${m.subject} • ${m.course} • Sem ${m.semester} • <span class="badge blue" style="font-size:10px">${m.type}</span></div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="deleteMaterial('${m._id}')"><i class="fas fa-trash"></i></button>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+async function addMaterial() {
+  const file = document.getElementById('mat_file').files[0];
+  const fd = new FormData();
+  fd.append('title', document.getElementById('mat_title').value);
+  fd.append('subject', document.getElementById('mat_subject').value);
+  fd.append('type', document.getElementById('mat_type').value);
+  fd.append('course', document.getElementById('mat_course').value);
+  fd.append('semester', document.getElementById('mat_sem').value);
+  fd.append('externalLink', document.getElementById('mat_link').value);
+  fd.append('description', document.getElementById('mat_desc').value);
+  if (file) fd.append('file', file);
+
+  const res = await fetch('/api/admin/materials', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: fd });
+  const data = await res.json();
+  if (!res.ok) return showAlert(data.error, 'error');
+  showAlert(data.message); closeModal('addMaterial');
+  loadedPages.materials = false; loadMaterials();
+}
+
+async function deleteMaterial(id) {
+  if (!confirm('Material delete karna hai?')) return;
+  const res = await fetch(`/api/admin/materials/${id}`, { method: 'DELETE', headers: H });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
+  if (res.ok) loadMaterials();
+}
+
+// ── ATTENDANCE ────────────────────────────────
+let attStudents = [];
+async function loadStudentsForAttendance() {
+  const course = document.getElementById('attCourse').value;
+  const sem = document.getElementById('attSem').value;
+  const res = await fetch(`/api/admin/students?course=${course}&isActive=true&limit=100`, { headers: H });
+  const data = await res.json();
+  const students = (data.students || []).filter(s => String(s.semester) === sem);
+  attStudents = students;
+  const el = document.getElementById('attendanceStudents');
+  if (!students.length) { el.innerHTML = '<p style="color:var(--muted)">Koi student nahi mila</p>'; document.getElementById('attSaveBtn').style.display = 'none'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse">
+    <thead><tr><th style="padding:8px;text-align:left;background:#f8fafc">Name</th><th style="padding:8px;text-align:left;background:#f8fafc">Enrollment</th><th style="padding:8px;text-align:center;background:#f8fafc">Present</th><th style="padding:8px;text-align:center;background:#f8fafc">Absent</th><th style="padding:8px;text-align:center;background:#f8fafc">Late</th></tr></thead>
+    <tbody>${students.map(s=>`<tr>
+      <td style="padding:8px">${s.name}</td>
+      <td style="padding:8px;font-family:monospace;font-size:12px">${s.enrollmentNo||'—'}</td>
+      <td style="padding:8px;text-align:center"><input type="radio" name="att_${s._id}" value="Present" checked></td>
+      <td style="padding:8px;text-align:center"><input type="radio" name="att_${s._id}" value="Absent"></td>
+      <td style="padding:8px;text-align:center"><input type="radio" name="att_${s._id}" value="Late"></td>
+    </tr>`).join('')}
+    </tbody></table>`;
+  document.getElementById('attSaveBtn').style.display = 'block';
+}
+
+async function saveAttendance() {
+  const date = document.getElementById('attDate').value;
+  const subject = document.getElementById('attSubject').value.trim();
+  if (!date || !subject) return showAlert('Date aur subject daalo', 'error');
+  const records = attStudents.map(s => ({
+    student: s._id,
+    date,
+    subject,
+    status: document.querySelector(`input[name="att_${s._id}"]:checked`)?.value || 'Present'
+  }));
+  const res = await fetch('/api/admin/attendance', { method: 'POST', headers: H, body: JSON.stringify(records) });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
 }
 
 // ── INQUIRIES ─────────────────────────────────
 async function loadInquiries() {
-  const el = document.getElementById('inquiriesContent');
-  const status = document.getElementById('inquiryFilter').value;
+  const status = document.getElementById('inqStatus')?.value || '';
   try {
-    const params = status ? `?status=${encodeURIComponent(status)}` : '';
-    const data = await apiCall(`/api/admin/inquiries${params}`);
-    if (!data.inquiries?.length) { el.innerHTML='<div class="empty-state"><div class="emoji">📩</div><p>Koi inquiry nahi.</p></div>'; return; }
-    el.innerHTML = `<table><thead><tr><th>Naam</th><th>Phone</th><th>Email</th><th>Course</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead>
-    <tbody>${data.inquiries.map(i=>`<tr>
-      <td><strong>${escHtml(i.name)}</strong></td>
-      <td><a href="tel:+91${escHtml(i.phone)}" style="color:var(--primary)">${escHtml(i.phone)}</a></td>
-      <td>${i.email?`<a href="mailto:${escHtml(i.email)}" style="color:var(--primary)">${escHtml(i.email)}</a>`:'—'}</td>
-      <td>${escHtml(i.course||'—')}</td>
-      <td style="max-width:200px;font-size:12px">${escHtml((i.message||'').substring(0,80))}${(i.message||'').length>80?'…':''}</td>
-      <td><span class="badge badge-${i.status?.toLowerCase().replace(' ','-')}">${i.status}</span></td>
-      <td><select onchange="updateInquiry('${i._id}', this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;font-family:inherit;">
-        <option ${i.status==='New'?'selected':''}>New</option>
-        <option ${i.status==='Contacted'?'selected':''}>Contacted</option>
-        <option ${i.status==='Admitted'?'selected':''}>Admitted</option>
-        <option ${i.status==='Not Interested'?'selected':''} value="Not Interested">Not Interested</option>
-      </select>
-      <a href="https://wa.me/91${i.phone}?text=${encodeURIComponent('Hello '+i.name+', KIMT se contact kar rahe hain.')}" target="_blank" class="btn btn-sm btn-success" style="text-decoration:none;margin-left:4px">WhatsApp</a>
-      </td>
-    </tr>`).join('')}</tbody></table>`;
-  } catch(err){ el.innerHTML='<div class="empty-state"><p>Load nahi hua.</p></div>'; }
+    const res = await fetch(`/api/admin/inquiries?status=${status}`, { headers: H });
+    const data = await res.json();
+    const el = document.getElementById('inquiriesTable');
+    if (!data.inquiries?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-envelope"></i><p>Koi inquiry nahi</p></div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Name</th><th>Phone</th><th>Course</th><th>Message</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody>${data.inquiries.map(i=>`<tr>
+        <td><strong>${i.name}</strong><br><span style="font-size:11px;color:var(--muted)">${i.email||''}</span></td>
+        <td>${i.phone||'—'}</td>
+        <td>${i.course||'—'}</td>
+        <td style="max-width:200px;font-size:12px">${(i.message||'').substring(0,60)}${i.message?.length>60?'...':''}</td>
+        <td><span class="badge ${i.status==='New'?'blue':i.status==='Admitted'?'green':'yellow'}">${i.status||'New'}</span></td>
+        <td>${new Date(i.createdAt).toLocaleDateString('en-IN')}</td>
+        <td>
+          <select onchange="updateInquiry('${i._id}',this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+            <option ${i.status==='New'?'selected':''}>New</option>
+            <option ${i.status==='Contacted'?'selected':''}>Contacted</option>
+            <option ${i.status==='Admitted'?'selected':''}>Admitted</option>
+            <option ${i.status==='Rejected'?'selected':''}>Rejected</option>
+          </select>
+        </td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+  } catch(e) {}
 }
 
 async function updateInquiry(id, status) {
-  await apiCall(`/api/admin/inquiries/${id}`,'PUT',{status});
-  document.getElementById('newInquiryBadge').textContent = '…';
-  loadDashboard();
+  const res = await fetch(`/api/admin/inquiries/${id}`, { method: 'PUT', headers: H, body: JSON.stringify({ status }) });
+  const data = await res.json();
+  showAlert(data.message, res.ok ? 'success' : 'error');
 }
 
-// ── ATTENDANCE ────────────────────────────────
-async function loadStudentsForAttendance() {
-  const course = document.getElementById('attCourse').value;
-  const subject = document.getElementById('attSubject').value;
-  const date = document.getElementById('attDate').value;
-  if (!subject || !date) { alert('Subject aur date bharo.'); return; }
-
-  const data = await apiCall(`/api/admin/students?course=${course}&isActive=true`);
-  const students = data.students || [];
-  if (!students.length) { document.getElementById('attendanceTable').innerHTML = '<div class="empty-state"><p>Is course mein koi student nahi.</p></div>'; return; }
-
-  document.getElementById('attendanceTable').innerHTML = `
-    <p style="margin-bottom:12px;font-size:13px;color:var(--muted)">📅 ${date} | ${subject} | ${students.length} students</p>
-    <div style="display:flex;gap:10px;margin-bottom:14px">
-      <button class="btn btn-success btn-sm" onclick="markAll('Present')">✅ Mark All Present</button>
-      <button class="btn btn-danger btn-sm" onclick="markAll('Absent')">❌ Mark All Absent</button>
-    </div>
-    <table>
-      <thead><tr><th>Naam</th><th>Enrollment</th><th>Status</th></tr></thead>
-      <tbody id="attTableBody">
-        ${students.map(s=>`<tr>
-          <td>${escHtml(s.name)}</td>
-          <td>${escHtml(s.enrollmentNo||'—')}</td>
-          <td>
-            <select data-student="${s._id}" class="att-select" style="padding:5px 10px;border-radius:7px;border:1px solid var(--border);font-family:inherit;">
-              <option value="Present">Present ✅</option>
-              <option value="Absent">Absent ❌</option>
-              <option value="Late">Late ⏰</option>
-            </select>
-          </td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    <div style="margin-top:16px">
-      <button class="btn btn-primary" onclick="submitAttendance('${subject}','${date}')">💾 Save Attendance</button>
-    </div>
-  `;
+// ── LOGOUT ────────────────────────────────────
+function logout() {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminInfo');
+  window.location.href = '/admin-panel/index.html';
 }
 
-function markAll(status) {
-  document.querySelectorAll('.att-select').forEach(sel => sel.value = status);
-}
-
-async function submitAttendance(subject, date) {
-  const records = [];
-  document.querySelectorAll('.att-select').forEach(sel => {
-    records.push({ student: sel.dataset.student, subject, date, status: sel.value, course: document.getElementById('attCourse').value });
-  });
-  try {
-    const data = await apiCall('/api/admin/attendance','POST',records);
-    if (data.success) alert('✅ ' + data.message);
-    else alert('Error: ' + data.error);
-  } catch(err){ alert('Server error.'); }
-}
-
-// Init
-loadDashboard();
+// ── START ─────────────────────────────────────
+init();
 </script>
 </body>
 </html>
