@@ -388,7 +388,7 @@
 <!-- Add Student -->
 <div class="modal-overlay" id="modal-addStudent">
   <div class="modal">
-    <h2><i class="fas fa-user-graduate" style="color:var(--primary);margin-right:8px"></i>Add New Student</h2>
+    <h2 id="studentModalTitle"><i class="fas fa-user-graduate" style="color:var(--primary);margin-right:8px"></i>Add New Student</h2>
     <div class="form-grid">
       <div class="form-group"><label>Full Name *</label><input type="text" id="s_name" placeholder="Student naam"></div>
       <div class="form-group"><label>Email *</label><input type="email" id="s_email" placeholder="email@example.com"></div>
@@ -406,8 +406,8 @@
     </div>
     <p style="font-size:12px;color:var(--success);margin-top:10px">✅ Enrollment number automatically generate hoga</p>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('addStudent')">Cancel</button>
-      <button class="btn btn-primary" onclick="addStudent()"><i class="fas fa-save"></i> Add Student</button>
+      <button class="btn btn-outline" onclick="closeStudentModal()">Cancel</button>
+      <button class="btn btn-primary" id="studentSaveBtn" onclick="addStudent()"><i class="fas fa-save"></i> Add Student</button>
     </div>
   </div>
 </div>
@@ -592,8 +592,15 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
 
 // ── MODAL ─────────────────────────────────────
-function openModal(id) { document.getElementById('modal-' + id).classList.add('show'); }
+function openModal(id) {
+  if (id === 'addStudent' && !editingStudentId) resetStudentForm();
+  document.getElementById('modal-' + id).classList.add('show');
+}
 function closeModal(id) { document.getElementById('modal-' + id).classList.remove('show'); }
+function closeStudentModal() {
+  closeModal('addStudent');
+  resetStudentForm();
+}
 document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
 
 // ── ALERT ─────────────────────────────────────
@@ -651,6 +658,7 @@ async function init() {
 
 // ── STUDENTS ──────────────────────────────────
 let studentTimer;
+let editingStudentId = null;
 function searchStudents() { clearTimeout(studentTimer); studentTimer = setTimeout(loadStudents, 400); }
 
 async function loadStudents() {
@@ -677,7 +685,7 @@ async function loadStudents() {
         <td><span class="badge ${s.isActive?'green':'red'}">${s.isActive?'Active':'Inactive'}</span></td>
         <td>
           <button class="btn btn-sm btn-outline" onclick="editStudent('${s._id}')"><i class="fas fa-pen"></i></button>
-          <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteStudent('${s._id}','${s.name}')"><i class="fas fa-ban"></i></button>
+          <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteStudent('${s._id}','${encodeURIComponent(s.name||'Student')}')" title="Delete permanently"><i class="fas fa-trash"></i></button>
         </td>
       </tr>`).join('')}
       </tbody></table>
@@ -686,41 +694,151 @@ async function loadStudents() {
   } catch(e) { document.getElementById('studentsTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
 }
 
-async function addStudent() {
+function resetStudentForm() {
+  editingStudentId = null;
+  const title = document.getElementById('studentModalTitle');
+  const btn = document.getElementById('studentSaveBtn');
+  if (title) title.innerHTML = '<i class="fas fa-user-graduate" style="color:var(--primary);margin-right:8px"></i>Add New Student';
+  if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Add Student';
+  if (btn) btn.setAttribute('onclick', 'addStudent()');
+
+  ['s_name','s_email','s_phone','s_session','s_father','s_address'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('s_pass').value = 'Student@123';
+  document.getElementById('s_pass').placeholder = 'Initial password';
+  document.getElementById('s_course').value = '';
+  document.getElementById('s_sem').value = '1';
+  document.getElementById('s_gender').value = '';
+  document.getElementById('s_year').value = new Date().getFullYear();
+  document.getElementById('s_course').disabled = false;
+  document.getElementById('s_year').disabled = false;
+}
+
+function getStudentFormBody(isEdit = false) {
   const body = {
     name: document.getElementById('s_name').value.trim(),
     email: document.getElementById('s_email').value.trim(),
     phone: document.getElementById('s_phone').value.trim(),
-    password: document.getElementById('s_pass').value,
     course: document.getElementById('s_course').value,
     semester: Number(document.getElementById('s_sem').value),
     gender: document.getElementById('s_gender').value,
     admissionYear: Number(document.getElementById('s_year').value),
-    session: document.getElementById('s_session').value,
-    fatherName: document.getElementById('s_father').value,
-    address: document.getElementById('s_address').value
+    session: document.getElementById('s_session').value.trim(),
+    fatherName: document.getElementById('s_father').value.trim(),
+    address: document.getElementById('s_address').value.trim()
   };
-  if (!body.name || !body.email || !body.phone || !body.password || !body.course)
+
+  const password = document.getElementById('s_pass').value;
+  if (!isEdit || password) body.password = password;
+
+  return body;
+}
+
+async function addStudent() {
+  const body = getStudentFormBody(false);
+
+  if (!body.name || !body.email || !body.phone || !body.password || !body.course) {
     return showAlert('Saare starred fields zaroori hain', 'error');
+  }
+
   try {
-    const res = await fetch('/api/admin/students', { method: 'POST', headers: H, body: JSON.stringify(body) });
+    const res = await fetch('/api/admin/students', {
+      method: 'POST',
+      headers: H,
+      body: JSON.stringify(body)
+    });
     const data = await res.json();
-    if (!res.ok) return showAlert(data.error, 'error');
-    showAlert(data.message);
-    closeModal('addStudent');
-    loadedPages.students = false; loadStudents();
-  } catch(e) { showAlert('Error: ' + e.message, 'error'); }
+    if (!res.ok) return showAlert(data.error || 'Student add nahi hua', 'error');
+
+    showAlert(data.message || 'Student add ho gaya');
+    closeStudentModal();
+    loadedPages.students = false;
+    loadStudents();
+    init();
+  } catch(e) {
+    showAlert('Error: ' + e.message, 'error');
+  }
+}
+
+async function editStudent(id) {
+  try {
+    const res = await fetch(`/api/admin/students/${id}`, { headers: H });
+    const data = await res.json();
+    if (!res.ok || !data.student) return showAlert(data.error || 'Student load nahi hua', 'error');
+
+    const s = data.student;
+    editingStudentId = id;
+
+    document.getElementById('studentModalTitle').innerHTML = '<i class="fas fa-user-edit" style="color:var(--primary);margin-right:8px"></i>Edit Student';
+    const btn = document.getElementById('studentSaveBtn');
+    btn.innerHTML = '<i class="fas fa-save"></i> Update Student';
+    btn.setAttribute('onclick', 'updateStudent()');
+
+    document.getElementById('s_name').value = s.name || '';
+    document.getElementById('s_email').value = s.email || '';
+    document.getElementById('s_phone').value = s.phone || '';
+    document.getElementById('s_pass').value = '';
+    document.getElementById('s_pass').placeholder = 'Blank chhodo to password same rahega';
+    document.getElementById('s_course').value = s.course || '';
+    document.getElementById('s_sem').value = String(s.semester || 1);
+    document.getElementById('s_gender').value = s.gender || '';
+    document.getElementById('s_year').value = s.admissionYear || new Date().getFullYear();
+    document.getElementById('s_session').value = s.session || '';
+    document.getElementById('s_father').value = s.fatherName || '';
+    document.getElementById('s_address').value = s.address || '';
+
+    // Enrollment auto-generated hai, edit mode me course/year lock rakho
+    document.getElementById('s_course').disabled = true;
+    document.getElementById('s_year').disabled = true;
+
+    openModal('addStudent');
+  } catch(e) {
+    showAlert('Error: ' + e.message, 'error');
+  }
+}
+
+async function updateStudent() {
+  if (!editingStudentId) return showAlert('Edit mode active nahi hai', 'error');
+
+  const body = getStudentFormBody(true);
+  if (!body.name || !body.email || !body.phone || !body.course) {
+    return showAlert('Name, Email, Phone aur Course zaroori hain', 'error');
+  }
+
+  try {
+    const res = await fetch(`/api/admin/students/${editingStudentId}`, {
+      method: 'PUT',
+      headers: H,
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) return showAlert(data.error || 'Student update nahi hua', 'error');
+
+    showAlert(data.message || 'Student update ho gaya');
+    closeStudentModal();
+    loadedPages.students = false;
+    loadStudents();
+    init();
+  } catch(e) {
+    showAlert('Error: ' + e.message, 'error');
+  }
 }
 
 async function deleteStudent(id, name) {
-  if (!confirm(`"${name}" ko deactivate karna hai?`)) return;
+  name = decodeURIComponent(name || 'Student');
+  const ok = confirm(`⚠️ Delete Student Permanently?\n\nStudent: ${name}\n\nYe student database se permanently delete ho jayega. Is action ko undo nahi kar sakte.`);
+  if (!ok) return;
+
   const res = await fetch(`/api/admin/students/${id}`, { method: 'DELETE', headers: H });
   const data = await res.json();
   showAlert(data.message || data.error, res.ok ? 'success' : 'error');
-  if (res.ok) loadStudents();
+  if (res.ok) {
+    loadedPages.students = false;
+    loadStudents();
+    init();
+  }
 }
-
-function editStudent(id) { showAlert('Edit feature — coming soon!', 'success'); }
 
 // ── FACULTY ───────────────────────────────────
 async function loadFaculty() {
@@ -738,7 +856,7 @@ async function loadFaculty() {
         <td>${f.designation||'—'}</td>
         <td style="font-size:12px">${(f.subjects||[]).join(', ')||'—'}</td>
         <td><span class="badge ${f.isActive?'green':'red'}">${f.isActive?'Active':'Inactive'}</span></td>
-        <td><button class="btn btn-sm btn-danger" onclick="deleteFaculty('${f._id}','${f.name}')"><i class="fas fa-ban"></i></button></td>
+        <td><button class="btn btn-sm btn-danger" onclick="deleteFaculty('${f._id}','${f.name}')" title="Delete permanently"><i class="fas fa-trash"></i></button></td>
       </tr>`).join('')}
       </tbody></table></div>`;
   } catch(e) { document.getElementById('facultyTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }

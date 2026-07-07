@@ -115,20 +115,43 @@ router.post('/students', async (req, res) => {
 
 router.put('/students/:id', async (req, res) => {
   try {
-    const student = await Student.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    // Enrollment number ko edit ke time change nahi hone dena
+    delete req.body.enrollmentNo;
+    delete req.body._id;
+    delete req.body.createdAt;
+    delete req.body.updatedAt;
+
+    // Agar password blank aaye to purana password same rahe
+    if (!req.body.password) delete req.body.password;
+
+    const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+
     if (!student) return res.status(404).json({ error: 'Student nahi mila.' });
+
     res.json({ success: true, message: 'Student update ho gaya!', student });
   } catch (err) {
-    res.status(500).json({ error: 'Update nahi hua.' });
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'Email ya phone already exists.' });
+    }
+    res.status(500).json({ error: 'Update nahi hua: ' + err.message });
   }
 });
 
 router.delete('/students/:id', async (req, res) => {
   try {
-    await Student.findByIdAndUpdate(req.params.id, { isActive: false });
-    res.json({ success: true, message: 'Student deactivate ho gaya.' });
+    const student = await Student.findByIdAndDelete(req.params.id);
+
+    if (!student) return res.status(404).json({ error: 'Student nahi mila.' });
+
+    res.json({
+      success: true,
+      message: `Student "${student.name}" permanently delete ho gaya.`
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Delete nahi hua.' });
+    res.status(500).json({ error: 'Delete nahi hua: ' + err.message });
   }
 });
 
