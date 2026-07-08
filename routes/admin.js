@@ -219,7 +219,19 @@ router.get('/results', async (req, res) => {
 
 router.post('/results', async (req, res) => {
   try {
-    const result = await Result.create({ ...req.body, publishedBy: req.admin._id });
+    const body = { ...req.body };
+    // Auto-fill enrollmentNo/name/course from the student record so the
+    // frontend only ever has to send the student id + result details.
+    if (body.student && (!body.enrollmentNo || !body.name || !body.course)) {
+      const st = await Student.findById(body.student);
+      if (st) {
+        body.enrollmentNo = body.enrollmentNo || st.enrollmentNo;
+        body.name = body.name || st.name;
+        body.course = body.course || st.course;
+        body.session = body.session || st.session;
+      }
+    }
+    const result = await Result.create({ ...body, publishedBy: req.admin._id });
     res.status(201).json({ success: true, message: 'Result add ho gaya!', result });
   } catch (err) {
     res.status(500).json({ error: 'Result add nahi hua: ' + err.message });
@@ -294,7 +306,18 @@ router.get('/fees', async (req, res) => {
 
 router.post('/fees', async (req, res) => {
   try {
-    const fee = await Fee.create(req.body);
+    const body = { ...req.body };
+    // Auto-fill enrollmentNo/name/course from the student record so the
+    // frontend only ever has to send the student id + fee details.
+    if (body.student && (!body.enrollmentNo || !body.name || !body.course)) {
+      const st = await Student.findById(body.student);
+      if (st) {
+        body.enrollmentNo = body.enrollmentNo || st.enrollmentNo;
+        body.name = body.name || st.name;
+        body.course = body.course || st.course;
+      }
+    }
+    const fee = await Fee.create(body);
     res.status(201).json({ success: true, message: 'Fee record add ho gaya!', fee });
   } catch (err) {
     res.status(500).json({ error: 'Fee add nahi hua: ' + err.message });

@@ -16,7 +16,7 @@ const resultSchema = new mongoose.Schema({
   course: { type: String, required: true },
   semester: { type: Number, required: true },
   session: { type: String, required: true }, // "2024-25"
-  examType: { type: String, enum: ['Mid Term', 'End Term', 'Practical', 'Internal'], default: 'End Term' },
+  examType: { type: String, enum: ['Mid Semester', 'End Semester', 'Practical', 'Internal'], default: 'End Semester' },
 
   subjects: [subjectSchema],
 
