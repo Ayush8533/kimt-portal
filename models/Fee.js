@@ -9,7 +9,7 @@ const feeSchema = new mongoose.Schema({
   session: { type: String },
 
   // Fee breakdown
-  feeType: { type: String, enum: ['Tuition Fee', 'Exam Fee', 'Library Fee', 'Hostel Fee', 'Sports Fee', 'Other'], default: 'Tuition Fee' },
+  feeType: { type: String, enum: ['Total', 'Tuition Fee', 'Exam Fee', 'Library Fee', 'Hostel Fee', 'Sports Fee', 'Other'], default: 'Tuition Fee' },
   totalAmount: { type: Number, required: true },
   paidAmount: { type: Number, default: 0 },
   dueAmount: { type: Number },
