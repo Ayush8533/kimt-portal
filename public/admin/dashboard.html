@@ -887,49 +887,52 @@ async function deleteFaculty(id, name) {
   showAlert(data.message, res.ok ? 'success' : 'error');
   if (res.ok) loadFaculty();
 }
-
-// ── RESULTS ───────────────────────────────────
 async function loadResults() {
   const course = document.getElementById('resultCourse')?.value || '';
   const semester = document.getElementById('resultSem')?.value || '';
   const params = new URLSearchParams();
   if (course) params.set('course', course);
   if (semester) params.set('semester', semester);
+
   try {
     const res = await fetch(`/api/admin/results?${params}`, { headers: H });
     const data = await res.json();
     const el = document.getElementById('resultsTable');
-    if (!data.results?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Koi result nahi hai</p></div>'; return; }
+
+    if (!data.results?.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Koi result nahi hai</p></div>';
+      return;
+    }
+
     el.innerHTML = `<div class="table-wrap"><table>
       <thead><tr><th>Student</th><th>Subject</th><th>Sem</th><th>Marks</th><th>Grade</th><th>Status</th><th>Published</th><th>Action</th></tr></thead>
-      <tbody>${data.results.map(r=>`<tr>
-        <td>${r.student?.name||'—'}<br><span style="font-size:11px;color:var(--muted)">${r.student?.enrollmentNo||'—'}</span></td>
-        <td>${r.subject||'—'}</td>
-        <td>${r.semester}</td>
-        <td>${r.marksObtained||0}/${r.maxMarks||100}</td>
-        <td><span class="badge blue">${r.grade||'—'}</span></td>
-        <td><span class="badge ${r.isPassed?'green':'red'}">${r.isPassed?'Pass':'Fail'}</span></td>
-        <td>${r.isPublished?'<span class="badge green">Yes</span>':'<span class="badge yellow">Draft</span>'}</td>
-        <td>
-          ${!r.isPublished?`<button class="btn btn-sm btn-success" onclick="publishResult('${r._id}')">Publish</button>`:''}
-          <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteResult('${r._id}')"><i class="fas fa-trash"></i></button>
-        </td>
-      </tr>`).join('')}
+      <tbody>${data.results.map(r => {
+        const sub = r.subjects?.[0] || {};
+        const subjectName = sub.name || r.subject || '—';
+        const obtained = sub.obtainedMarks ?? r.obtainedMarks ?? r.marksObtained ?? 0;
+        const max = sub.maxMarks ?? r.totalMarks ?? r.maxMarks ?? 100;
+        const grade = sub.grade || r.grade || '—';
+        const passStatus = sub.status || r.result || (Number(obtained) >= Number(max) * 0.33 ? 'Pass' : 'Fail');
+
+        return `<tr>
+          <td>${r.student?.name || r.name || '—'}<br><span style="font-size:11px;color:var(--muted)">${r.student?.enrollmentNo || r.enrollmentNo || '—'}</span></td>
+          <td>${subjectName}</td>
+          <td>${r.semester}</td>
+          <td>${obtained}/${max}</td>
+          <td><span class="badge blue">${grade}</span></td>
+          <td><span class="badge ${passStatus === 'Pass' ? 'green' : 'red'}">${passStatus}</span></td>
+          <td>${r.isPublished ? '<span class="badge green">Yes</span>' : '<span class="badge yellow">Draft</span>'}</td>
+          <td>
+            ${!r.isPublished ? `<button class="btn btn-sm btn-success" onclick="publishResult('${r._id}')">Publish</button>` : ''}
+            <button class="btn btn-sm btn-danger" style="margin-left:4px" onclick="deleteResult('${r._id}')"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
+      }).join('')}
       </tbody></table></div>`;
-  } catch(e) { document.getElementById('resultsTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
+  } catch(e) {
+    document.getElementById('resultsTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>';
+  }
 }
-
-async function addResult() {
-  const enroll = document.getElementById('r_enroll').value.trim();
-  if (!enroll) return showAlert('Enrollment No. bharna zaroori hai', 'error');
-  const subject = document.getElementById('r_subject').value.trim();
-  if (!subject) return showAlert('Subject bharna zaroori hai', 'error');
-  const obtained = Number(document.getElementById('r_obtained').value);
-  const max = Number(document.getElementById('r_max').value) || 100;
-  const grade = document.getElementById('r_grade').value;
-  const session = document.getElementById('r_session').value.trim();
-  if (!session) return showAlert('Session bharna zaroori hai (e.g. 2025-26)', 'error');
-
   // Find student by enrollment
   const sRes = await fetch(`/api/admin/students?search=${enroll}`, { headers: H });
   const sData = await sRes.json();
@@ -964,7 +967,7 @@ async function addResult() {
   if (!res.ok) return showAlert(data.error, 'error');
   showAlert('Result add ho gaya!'); closeModal('addResult');
   loadedPages.results = false; loadResults();
-}
+
 
 async function uploadBulkResults() {
   try {
