@@ -149,6 +149,24 @@
       .att-ring-wrap{flex-direction:column;}
       .att-stats{grid-template-columns:1fr 1fr 1fr;}
     }
+
+
+    /* Invertis-style external result */
+    .result-portal-card{background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)}
+    .result-titlebar{background:linear-gradient(90deg,#0ea5e9,#db2777);color:#fff;font-weight:800;font-size:18px;padding:12px 16px}
+    .result-filters{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:22px;align-items:end;padding:18px;background:rgba(255,255,255,.78);border-bottom:1px solid var(--border)}
+    .result-filters label{font-size:13px;font-weight:800;color:#111827;margin-bottom:7px;display:block}
+    .result-filters select{width:100%;padding:9px 10px;border:1px solid #b8c3d4;border-radius:2px;background:#fff;font-size:14px}
+    .show-result-btn{padding:10px 32px;border:0;border-radius:22px;background:#10a51d;color:#fff;font-weight:800;box-shadow:0 4px 0 #077411;cursor:pointer}
+    .marksheet{margin:16px;border:1px solid #334155;background:rgba(255,255,255,.88);overflow-x:auto}
+    .marksheet-head{background:#d9d9d9;text-align:center;font-size:18px;font-weight:900;padding:9px;border-left:3px solid #ef4444;border-right:3px solid #ef4444}
+    .student-result-info{display:grid;grid-template-columns:1.1fr 1fr 120px;gap:18px;padding:12px 14px;align-items:start}
+    .result-kv{display:grid;grid-template-columns:155px 12px 1fr;gap:6px;font-size:13.5px;line-height:1.55}.result-kv b{font-weight:800}
+    .result-photo{width:95px;height:110px;border:1px solid #888;object-fit:cover;background:#f8fafc;justify-self:center}
+    .marks-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:850px}.marks-table th{background:#087ca3;color:#fff;padding:8px;border:1px solid #b5b5b5}.marks-table td{padding:8px;text-align:center;border:1px solid #c7c7c7}.marks-table tbody tr:nth-child(even){background:#f3dddd}.marks-table tbody tr:nth-child(odd){background:#fff}
+    .result-summary-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:14px}.result-summary-table th,.result-summary-table td{padding:7px 10px;text-align:left}.result-summary-table th{font-weight:900}.result-summary-table td{border-top:1px solid rgba(148,163,184,.35)}
+    @media(max-width:900px){.result-filters{grid-template-columns:1fr}.student-result-info{grid-template-columns:1fr}.result-photo{justify-self:start}.result-kv{grid-template-columns:130px 12px 1fr}.marksheet{margin:8px}.result-titlebar{font-size:16px}}
+
   </style>
 </head>
 <body>
@@ -301,43 +319,10 @@
         <!-- Edit Mode -->
         <div id="profileEditMode" style="display:none">
           <div class="info-grid">
-            <div class="info-item"><label>Full Name</label><input type="text" id="e_name" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item"><label>Email</label><input type="email" id="e_email" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item"><label>Phone</label><input type="tel" id="e_phone" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item"><label>Date of Birth</label><input type="date" id="e_dob" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item"><label>Gender</label>
-              <select id="e_gender" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b">
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="info-item"><label>Course</label>
-              <select id="e_course" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b">
-                <option value="BCA">BCA</option>
-                <option value="MCA">MCA</option>
-                <option value="B.Tech">B.Tech</option>
-                <option value="BBA">BBA</option>
-                <option value="MBA">MBA</option>
-              </select>
-            </div>
-            <div class="info-item"><label>Semester</label>
-              <select id="e_sem" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b">
-                <option value="1">Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-                <option value="5">Semester 5</option>
-                <option value="6">Semester 6</option>
-                <option value="7">Semester 7</option>
-                <option value="8">Semester 8</option>
-              </select>
-            </div>
-            <div class="info-item"><label>Session</label><input type="text" id="e_session" placeholder="e.g. 2025-26" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item"><label>Father's Name</label><input type="text" id="e_father" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item"><label>Mother's Name</label><input type="text" id="e_mother" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
-            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input type="text" id="e_address" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Phone</label><input type="tel" id="e_phone" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
+            <div class="info-item"><label>Father's Name</label><input type="text" id="e_father" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
+            <div class="info-item"><label>Mother's Name</label><input type="text" id="e_mother" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
+            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input type="text" id="e_address" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
           </div>
           <div style="display:flex;gap:10px;margin-top:16px">
             <button onclick="saveProfile()" style="padding:9px 20px;background:var(--success);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit"><i class="fas fa-save"></i> Save</button>
@@ -350,8 +335,15 @@
 
   <!-- RESULT PAGE -->
   <div class="page" id="page-result">
-    <div class="topbar"><div><h1>My Results</h1><p>Semester-wise results</p></div></div>
-    <div class="card">
+    <div class="topbar"><div><h1>My Results</h1><p>External result format</p></div></div>
+    <div class="result-portal-card">
+      <div class="result-titlebar">Student External Result</div>
+      <div class="result-filters">
+        <div><label>Type</label><select id="resType"><option>Main</option><option>Re-Appear</option><option>Special</option></select></div>
+        <div><label>Academic Year</label><select id="resYear"></select></div>
+        <div><label>Semester/Year</label><select id="resSemester"><option value="">Select</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">VI</option></select></div>
+        <button class="show-result-btn" onclick="renderSelectedResult()">Show</button>
+      </div>
       <div id="resultContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading results...</p></div></div>
     </div>
   </div>
@@ -571,14 +563,7 @@ function toggleEditProfile() {
   document.getElementById('profileEditMode').style.display = editMode ? '' : 'none';
   document.getElementById('editProfileBtn').innerHTML = editMode ? '<i class="fas fa-times"></i> Cancel' : '<i class="fas fa-pen"></i> Edit';
   if (editMode && studentData) {
-    document.getElementById('e_name').value = studentData.name || '';
-    document.getElementById('e_email').value = studentData.email || '';
     document.getElementById('e_phone').value = studentData.phone || '';
-    document.getElementById('e_dob').value = studentData.dob ? new Date(studentData.dob).toISOString().slice(0,10) : '';
-    document.getElementById('e_gender').value = studentData.gender || '';
-    document.getElementById('e_course').value = studentData.course || 'BCA';
-    document.getElementById('e_sem').value = studentData.semester || '1';
-    document.getElementById('e_session').value = studentData.session || '';
     document.getElementById('e_father').value = studentData.fatherName || '';
     document.getElementById('e_mother').value = studentData.motherName || '';
     document.getElementById('e_address').value = studentData.address || '';
@@ -587,68 +572,111 @@ function toggleEditProfile() {
 
 async function saveProfile() {
   const body = {
-    name: document.getElementById('e_name').value.trim(),
-    email: document.getElementById('e_email').value.trim(),
-    phone: document.getElementById('e_phone').value.trim(),
-    dob: document.getElementById('e_dob').value,
-    gender: document.getElementById('e_gender').value,
-    course: document.getElementById('e_course').value,
-    semester: document.getElementById('e_sem').value,
-    session: document.getElementById('e_session').value.trim(),
-    fatherName: document.getElementById('e_father').value.trim(),
-    motherName: document.getElementById('e_mother').value.trim(),
-    address: document.getElementById('e_address').value.trim()
+    phone: document.getElementById('e_phone').value,
+    fatherName: document.getElementById('e_father').value,
+    motherName: document.getElementById('e_mother').value,
+    address: document.getElementById('e_address').value
   };
   try {
     const res = await fetch('/api/student/profile', { method: 'PUT', headers, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) return alert(data.error);
     studentData = data.student;
-
-    document.getElementById('v_name').textContent = data.student.name || '—';
-    document.getElementById('v_email').textContent = data.student.email || '—';
-    document.getElementById('v_phone').textContent = data.student.phone || '—';
-    document.getElementById('v_dob').textContent = data.student.dob ? new Date(data.student.dob).toLocaleDateString('en-IN') : '—';
-    document.getElementById('v_gender').textContent = data.student.gender || '—';
-    document.getElementById('v_course').textContent = data.student.course || '—';
-    document.getElementById('v_sem').textContent = data.student.semester ? `Semester ${data.student.semester}` : '—';
-    document.getElementById('v_session').textContent = data.student.session || '—';
+    document.getElementById('v_phone').textContent = data.student.phone;
     document.getElementById('v_father').textContent = data.student.fatherName || '—';
     document.getElementById('v_mother').textContent = data.student.motherName || '—';
     document.getElementById('v_address').textContent = data.student.address || '—';
-
-    // Sidebar / header also reflect new name & course
-    document.getElementById('sidebarName').textContent = data.student.name;
-    document.getElementById('sidebarCourse').textContent = `${data.student.course} • Sem ${data.student.semester}`;
-    document.getElementById('profileName').textContent = data.student.name;
-    document.getElementById('profileCourse').textContent = `${data.student.course} • Semester ${data.student.semester}`;
-
     toggleEditProfile();
     alert('Profile update ho gaya! ✅');
   } catch (err) { alert('Update failed.'); }
 }
 
 // ── RESULTS ───────────────────────────────────
+let allStudentResults = [];
+
+function romanSem(n) {
+  return ({1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI'}[Number(n)] || n || '—');
+}
+function safe(v, fallback='—') { return (v === undefined || v === null || v === '') ? fallback : v; }
+function resultPhoto() {
+  if (studentData?.photoUrl) return studentData.photoUrl;
+  if (studentData?.photo) return studentData.photo.startsWith('http') ? studentData.photo : `/uploads/students/${studentData.photo}`;
+  return '';
+}
+function populateResultFilters(results) {
+  const yearSel = document.getElementById('resYear');
+  const semSel = document.getElementById('resSemester');
+  const years = [...new Set(results.map(r => r.session).filter(Boolean))].sort().reverse();
+  yearSel.innerHTML = years.length ? years.map(y => `<option>${y}</option>`).join('') : '<option value="">No Result</option>';
+  const sems = [...new Set(results.map(r => Number(r.semester)).filter(Boolean))].sort((a,b)=>b-a);
+  semSel.innerHTML = '<option value="">Select</option>' + sems.map(s => `<option value="${s}">${romanSem(s)}</option>`).join('');
+  if (sems.length) semSel.value = sems[0];
+}
+function renderSelectedResult() {
+  const type = document.getElementById('resType')?.value || 'Main';
+  const session = document.getElementById('resYear')?.value || '';
+  const semester = Number(document.getElementById('resSemester')?.value || 0);
+  const el = document.getElementById('resultContent');
+  const rows = allStudentResults.filter(r =>
+    (!session || r.session === session) &&
+    (!semester || Number(r.semester) === semester) &&
+    (!r.examType || r.examType === type || (type === 'Main' && ['End Semester','End Term','Main'].includes(r.examType)))
+  );
+  if (!rows.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Is selection ka result nahi mila</p></div>'; return;
+  }
+  const totalObt = rows.reduce((s,r)=>s + Number(r.marksObtained || 0), 0);
+  const totalMax = rows.reduce((s,r)=>s + Number(r.maxMarks || 0), 0);
+  const percentage = totalMax ? ((totalObt / totalMax) * 100).toFixed(2) : '0.00';
+  const pass = rows.every(r => r.isPassed !== false);
+  const photo = resultPhoto();
+  el.innerHTML = `<div class="marksheet">
+    <div class="marksheet-head">${type.toUpperCase()} RESULT</div>
+    <div class="student-result-info">
+      <div class="result-kv">
+        <b>Institute Name</b><span>:</span><span>KIMT Bareilly</span>
+        <b>Program Name</b><span>:</span><span>${safe(studentData?.course)}</span>
+        <b>Program Code</b><span>:</span><span>${safe(studentData?.course)}-${String(semester).padStart(3,'0')}</span>
+        <b>Student ID</b><span>:</span><span>${safe(studentData?._id || studentData?.id)}</span>
+        <b>Name of Student</b><span>:</span><span>${safe(studentData?.name).toUpperCase()}</span>
+        <b>Mother's Name</b><span>:</span><span>${safe(studentData?.motherName).toUpperCase()}</span>
+        <b>Percentage</b><span>:</span><span>${percentage}</span>
+      </div>
+      <div class="result-kv">
+        <b>Enrollment No</b><span>:</span><span>${safe(studentData?.enrollmentNo)}</span>
+        <b>Roll No</b><span>:</span><span>${safe(studentData?.rollNo)}</span>
+        <b>Father's Name</b><span>:</span><span>${safe(studentData?.fatherName).toUpperCase()}</span>
+        <b>Gender</b><span>:</span><span>${safe(studentData?.gender)}</span>
+      </div>
+      ${photo ? `<img class="result-photo" src="${photo}" alt="Student Photo">` : '<div class="result-photo"></div>'}
+    </div>
+    <table class="marks-table">
+      <thead><tr><th>Code</th><th>Name</th><th>IntOB</th><th>IntTotal</th><th>ExtOB</th><th>ExtTotal</th><th>TotalOB</th><th>TotalMark</th></tr></thead>
+      <tbody>${rows.map(r => `<tr>
+        <td>${safe(r.subjectCode)}</td><td>${safe(r.subject).toUpperCase()}</td>
+        <td>${Number(r.internalObtained || 0)}</td><td>${Number(r.internalTotal || 0)}</td>
+        <td>${Number(r.externalObtained || 0)}</td><td>${Number(r.externalTotal || 0)}</td>
+        <td>${Number(r.marksObtained || 0)}</td><td>${Number(r.maxMarks || 0)}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <table class="result-summary-table">
+      <thead><tr><th>Session</th><th>Program-Semester</th><th>TotalObt/Max</th><th>Status</th><th>COP</th></tr></thead>
+      <tbody><tr><td>${session}</td><td>${romanSem(semester)} Semester</td><td>${totalObt}/${totalMax}</td><td>${pass ? 'Pass' : 'Fail'}</td><td></td></tr></tbody>
+    </table>
+  </div>`;
+}
+
 async function loadResults() {
   try {
     const res = await fetch('/api/student/results', { headers });
     const data = await res.json();
     const el = document.getElementById('resultContent');
-    if (!data.results || !data.results.length) {
+    allStudentResults = data.results || [];
+    if (!allStudentResults.length) {
       el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Abhi koi result publish nahi hua</p></div>'; return;
     }
-    el.innerHTML = `<div class="table-wrap"><table>
-      <thead><tr><th>Semester</th><th>Subject</th><th>Max Marks</th><th>Obtained</th><th>Grade</th><th>Status</th></tr></thead>
-      <tbody>${data.results.map(r => `
-        <tr>
-          <td>Sem ${r.semester}</td>
-          <td>${r.subject || r.examType || '—'}</td>
-          <td>${r.maxMarks || '—'}</td>
-          <td>${r.marksObtained || '—'}</td>
-          <td><span class="badge blue">${r.grade || '—'}</span></td>
-          <td><span class="badge ${r.isPassed ? 'green' : 'red'}">${r.isPassed ? 'Pass' : 'Fail'}</span></td>
-        </tr>`).join('')}
-      </tbody></table></div>`;
+    populateResultFilters(allStudentResults);
+    renderSelectedResult();
   } catch (err) {
     document.getElementById('resultContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Results load nahi hue</p></div>';
   }

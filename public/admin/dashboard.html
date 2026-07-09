@@ -438,16 +438,19 @@
     <h2><i class="fas fa-award" style="color:var(--primary);margin-right:8px"></i>Add Result</h2>
     <div class="form-grid">
       <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="r_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
-      <div class="form-group"><label>Subject *</label><input type="text" id="r_subject" placeholder="Subject naam"></div>
-      <div class="form-group"><label>Exam Type</label><input type="text" id="r_examType" placeholder="e.g. End Semester" value="End Semester"></div>
-      <div class="form-group"><label>Semester *</label><select id="r_sem"><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select></div>
-      <div class="form-group"><label>Max Marks</label><input type="number" id="r_max" value="100"></div>
-      <div class="form-group"><label>Marks Obtained *</label><input type="number" id="r_obtained" placeholder="Marks"></div>
+      <div class="form-group"><label>Type</label><select id="r_examType"><option>Main</option><option>Re-Appear</option><option>Special</option></select></div>
+      <div class="form-group"><label>Academic Year / Session *</label><input type="text" id="r_session" placeholder="e.g. 2026-27"></div>
+      <div class="form-group"><label>Semester *</label><select id="r_sem"><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">VI</option></select></div>
+      <div class="form-group"><label>Subject Code</label><input type="text" id="r_subjectCode" placeholder="e.g. BCA601"></div>
+      <div class="form-group"><label>Subject Name *</label><input type="text" id="r_subject" placeholder="e.g. DATA SCIENCE"></div>
+      <div class="form-group"><label>Internal Obtained</label><input type="number" id="r_int_ob" placeholder="e.g. 31"></div>
+      <div class="form-group"><label>Internal Total</label><input type="number" id="r_int_total" placeholder="e.g. 50"></div>
+      <div class="form-group"><label>External Obtained</label><input type="number" id="r_ext_ob" placeholder="e.g. 49"></div>
+      <div class="form-group"><label>External Total</label><input type="number" id="r_ext_total" placeholder="e.g. 100"></div>
+      <div class="form-group"><label>Total Obtained *</label><input type="number" id="r_obtained" placeholder="Auto / e.g. 80"></div>
+      <div class="form-group"><label>Total Marks</label><input type="number" id="r_max" placeholder="Auto / e.g. 150"></div>
       <div class="form-group"><label>Grade</label><input type="text" id="r_grade" placeholder="e.g. A, B, O, F"></div>
-      <div class="form-group"><label>Session</label><input type="text" id="r_session" placeholder="e.g. 2025-26"></div>
-      <div class="form-group"><label>Publish Now?</label>
-        <select id="r_publish"><option value="true">Yes — Publish</option><option value="false">No — Draft</option></select>
-      </div>
+      <div class="form-group"><label>Publish Now?</label><select id="r_publish"><option value="true">Yes — Publish</option><option value="false">No — Draft</option></select></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('addResult')">Cancel</button>
@@ -904,9 +907,9 @@ async function loadResults() {
       <thead><tr><th>Student</th><th>Subject</th><th>Sem</th><th>Marks</th><th>Grade</th><th>Status</th><th>Published</th><th>Action</th></tr></thead>
       <tbody>${data.results.map(r=>`<tr>
         <td>${r.student?.name||'—'}<br><span style="font-size:11px;color:var(--muted)">${r.student?.enrollmentNo||'—'}</span></td>
-        <td>${r.subject||'—'}</td>
+        <td>${r.subjectCode?`<b>${r.subjectCode}</b><br>`:''}${r.subject||'—'}</td>
         <td>${r.semester}</td>
-        <td>${r.marksObtained||0}/${r.maxMarks||100}</td>
+        <td>${r.marksObtained ?? 0}/${r.maxMarks ?? 100}</td>
         <td><span class="badge blue">${r.grade||'—'}</span></td>
         <td><span class="badge ${r.isPassed?'green':'red'}">${r.isPassed?'Pass':'Fail'}</span></td>
         <td>${r.isPublished?'<span class="badge green">Yes</span>':'<span class="badge yellow">Draft</span>'}</td>
@@ -922,35 +925,34 @@ async function loadResults() {
 async function addResult() {
   const enroll = document.getElementById('r_enroll').value.trim();
   if (!enroll) return showAlert('Enrollment No. bharna zaroori hai', 'error');
-
   const subject = document.getElementById('r_subject').value.trim();
   if (!subject) return showAlert('Subject bharna zaroori hai', 'error');
-
-  const obtained = Number(document.getElementById('r_obtained').value);
-  if (Number.isNaN(obtained)) return showAlert('Marks obtained bharna zaroori hai', 'error');
-
-  const max = Number(document.getElementById('r_max').value) || 100;
   const session = document.getElementById('r_session').value.trim();
   if (!session) return showAlert('Session bharna zaroori hai (e.g. 2026-27)', 'error');
 
-  // Find student by enrollment
-  const sRes = await fetch(`/api/admin/students?search=${encodeURIComponent(enroll)}`, { headers: H });
-  const sData = await sRes.json();
-  const student = sData.students?.find(s => s.enrollmentNo === enroll);
-  if (!student) return showAlert(`Student nahi mila enrollment "${enroll}"`, 'error');
+  const intOb = Number(document.getElementById('r_int_ob').value || 0);
+  const intTotal = Number(document.getElementById('r_int_total').value || 0);
+  const extOb = Number(document.getElementById('r_ext_ob').value || 0);
+  const extTotal = Number(document.getElementById('r_ext_total').value || 0);
+  const obtainedInput = document.getElementById('r_obtained').value;
+  const maxInput = document.getElementById('r_max').value;
+  const obtained = obtainedInput !== '' ? Number(obtainedInput) : (intOb + extOb);
+  const max = maxInput !== '' ? Number(maxInput) : (intTotal + extTotal || 100);
 
   const body = {
-    student: student._id,
-    enrollmentNo: student.enrollmentNo,
-    name: student.name,
-    course: student.course,
-    subject,
-    examType: document.getElementById('r_examType').value.trim() || 'End Semester',
+    enrollmentNo: enroll,
+    examType: document.getElementById('r_examType').value,
     semester: Number(document.getElementById('r_sem').value),
-    maxMarks: max,
-    marksObtained: obtained,
-    grade: document.getElementById('r_grade').value.trim(),
     session,
+    subjectCode: document.getElementById('r_subjectCode').value.trim(),
+    subject,
+    internalObtained: intOb,
+    internalTotal: intTotal,
+    externalObtained: extOb,
+    externalTotal: extTotal,
+    marksObtained: obtained,
+    maxMarks: max,
+    grade: document.getElementById('r_grade').value.trim(),
     isPublished: document.getElementById('r_publish').value === 'true'
   };
 
