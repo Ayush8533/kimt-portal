@@ -1029,24 +1029,35 @@ async function loadFees() {
 }
 
 async function addFee() {
-  const enroll = document.getElementById('fee_enroll').value.trim();
-  const sRes = await fetch(`/api/admin/students?search=${enroll}`, { headers: H });
-  const sData = await sRes.json();
-  const student = sData.students?.find(s => s.enrollmentNo === enroll);
-  if (!student) return showAlert(`Student nahi mila enrollment "${enroll}"`, 'error');
+  const enrollmentNo = document.getElementById('fee_enroll').value.trim();
+
+  if (!enrollmentNo) {
+    return showAlert('Enrollment No. bharna zaroori hai.', 'error');
+  }
+
   const body = {
-    student: student._id,
+    enrollmentNo: enrollmentNo,
     feeType: document.getElementById('fee_type').value,
     paidAmount: Number(document.getElementById('fee_paid').value) || 0,
     dueAmount: Number(document.getElementById('fee_due').value) || 0,
     paymentMode: document.getElementById('fee_mode').value,
-    transactionId: document.getElementById('fee_txn').value
+    transactionId: document.getElementById('fee_txn').value.trim()
   };
-  const res = await fetch('/api/admin/fees', { method: 'POST', headers: H, body: JSON.stringify(body) });
+
+  const res = await fetch('/api/admin/fees', {
+    method: 'POST',
+    headers: H,
+    body: JSON.stringify(body)
+  });
+
   const data = await res.json();
+
   if (!res.ok) return showAlert(data.error, 'error');
-  showAlert(data.message); closeModal('addFee');
-  loadedPages.fees = false; loadFees();
+
+  showAlert(data.message);
+  closeModal('addFee');
+  loadedPages.fees = false;
+  loadFees();
 }
 
 // ── NOTICES ───────────────────────────────────

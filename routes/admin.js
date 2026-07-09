@@ -366,10 +366,59 @@ router.get('/fees', async (req, res) => {
 
 router.post('/fees', async (req, res) => {
   try {
-    const fee = await Fee.create(req.body);
-    res.status(201).json({ success: true, message: 'Fee record add ho gaya!', fee });
+    const {
+      enrollmentNo,
+      feeType,
+      paidAmount,
+      dueAmount,
+      paymentMode,
+      transactionId
+    } = req.body;
+
+    if (!enrollmentNo) {
+      return res.status(400).json({ error: 'Enrollment No. missing hai.' });
+    }
+
+    const student = await Student.findOne({
+      enrollmentNo: enrollmentNo.trim()
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        error: 'Is enrollment number ka student nahi mila.'
+      });
+    }
+
+    const paid = Number(paidAmount) || 0;
+    const due = Number(dueAmount) || 0;
+    const total = paid + due;
+
+    const fee = await Fee.create({
+      student: student._id,
+      name: student.name,
+      enrollmentNo: student.enrollmentNo,
+      course: student.course,
+      semester: student.semester,
+      session: student.session,
+
+      feeType: feeType || 'Tuition Fee',
+      paidAmount: paid,
+      dueAmount: due,
+      totalAmount: total,
+      paymentMode: paymentMode || 'Cash',
+      transactionId: transactionId || ''
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Fee record add ho gaya!',
+      fee
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'Fee add nahi hua: ' + err.message });
+    res.status(500).json({
+      error: 'Fee add nahi hua: ' + err.message
+    });
   }
 });
 
