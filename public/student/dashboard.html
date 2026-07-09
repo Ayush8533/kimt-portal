@@ -301,10 +301,43 @@
         <!-- Edit Mode -->
         <div id="profileEditMode" style="display:none">
           <div class="info-grid">
-            <div class="info-item"><label>Phone</label><input type="tel" id="e_phone" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
-            <div class="info-item"><label>Father's Name</label><input type="text" id="e_father" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
-            <div class="info-item"><label>Mother's Name</label><input type="text" id="e_mother" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
-            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input type="text" id="e_address" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
+            <div class="info-item"><label>Full Name</label><input type="text" id="e_name" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Email</label><input type="email" id="e_email" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Phone</label><input type="tel" id="e_phone" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Date of Birth</label><input type="date" id="e_dob" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Gender</label>
+              <select id="e_gender" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b">
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="info-item"><label>Course</label>
+              <select id="e_course" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b">
+                <option value="BCA">BCA</option>
+                <option value="MCA">MCA</option>
+                <option value="B.Tech">B.Tech</option>
+                <option value="BBA">BBA</option>
+                <option value="MBA">MBA</option>
+              </select>
+            </div>
+            <div class="info-item"><label>Semester</label>
+              <select id="e_sem" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b">
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+                <option value="7">Semester 7</option>
+                <option value="8">Semester 8</option>
+              </select>
+            </div>
+            <div class="info-item"><label>Session</label><input type="text" id="e_session" placeholder="e.g. 2025-26" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Father's Name</label><input type="text" id="e_father" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item"><label>Mother's Name</label><input type="text" id="e_mother" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
+            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input type="text" id="e_address" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:#1e293b"></div>
           </div>
           <div style="display:flex;gap:10px;margin-top:16px">
             <button onclick="saveProfile()" style="padding:9px 20px;background:var(--success);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit"><i class="fas fa-save"></i> Save</button>
@@ -538,7 +571,14 @@ function toggleEditProfile() {
   document.getElementById('profileEditMode').style.display = editMode ? '' : 'none';
   document.getElementById('editProfileBtn').innerHTML = editMode ? '<i class="fas fa-times"></i> Cancel' : '<i class="fas fa-pen"></i> Edit';
   if (editMode && studentData) {
+    document.getElementById('e_name').value = studentData.name || '';
+    document.getElementById('e_email').value = studentData.email || '';
     document.getElementById('e_phone').value = studentData.phone || '';
+    document.getElementById('e_dob').value = studentData.dob ? new Date(studentData.dob).toISOString().slice(0,10) : '';
+    document.getElementById('e_gender').value = studentData.gender || '';
+    document.getElementById('e_course').value = studentData.course || 'BCA';
+    document.getElementById('e_sem').value = studentData.semester || '1';
+    document.getElementById('e_session').value = studentData.session || '';
     document.getElementById('e_father').value = studentData.fatherName || '';
     document.getElementById('e_mother').value = studentData.motherName || '';
     document.getElementById('e_address').value = studentData.address || '';
@@ -547,20 +587,42 @@ function toggleEditProfile() {
 
 async function saveProfile() {
   const body = {
-    phone: document.getElementById('e_phone').value,
-    fatherName: document.getElementById('e_father').value,
-    motherName: document.getElementById('e_mother').value,
-    address: document.getElementById('e_address').value
+    name: document.getElementById('e_name').value.trim(),
+    email: document.getElementById('e_email').value.trim(),
+    phone: document.getElementById('e_phone').value.trim(),
+    dob: document.getElementById('e_dob').value,
+    gender: document.getElementById('e_gender').value,
+    course: document.getElementById('e_course').value,
+    semester: document.getElementById('e_sem').value,
+    session: document.getElementById('e_session').value.trim(),
+    fatherName: document.getElementById('e_father').value.trim(),
+    motherName: document.getElementById('e_mother').value.trim(),
+    address: document.getElementById('e_address').value.trim()
   };
   try {
     const res = await fetch('/api/student/profile', { method: 'PUT', headers, body: JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) return alert(data.error);
     studentData = data.student;
-    document.getElementById('v_phone').textContent = data.student.phone;
+
+    document.getElementById('v_name').textContent = data.student.name || '—';
+    document.getElementById('v_email').textContent = data.student.email || '—';
+    document.getElementById('v_phone').textContent = data.student.phone || '—';
+    document.getElementById('v_dob').textContent = data.student.dob ? new Date(data.student.dob).toLocaleDateString('en-IN') : '—';
+    document.getElementById('v_gender').textContent = data.student.gender || '—';
+    document.getElementById('v_course').textContent = data.student.course || '—';
+    document.getElementById('v_sem').textContent = data.student.semester ? `Semester ${data.student.semester}` : '—';
+    document.getElementById('v_session').textContent = data.student.session || '—';
     document.getElementById('v_father').textContent = data.student.fatherName || '—';
     document.getElementById('v_mother').textContent = data.student.motherName || '—';
     document.getElementById('v_address').textContent = data.student.address || '—';
+
+    // Sidebar / header also reflect new name & course
+    document.getElementById('sidebarName').textContent = data.student.name;
+    document.getElementById('sidebarCourse').textContent = `${data.student.course} • Sem ${data.student.semester}`;
+    document.getElementById('profileName').textContent = data.student.name;
+    document.getElementById('profileCourse').textContent = `${data.student.course} • Semester ${data.student.semester}`;
+
     toggleEditProfile();
     alert('Profile update ho gaya! ✅');
   } catch (err) { alert('Update failed.'); }
