@@ -167,6 +167,9 @@
     .result-summary-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:14px}.result-summary-table th,.result-summary-table td{padding:7px 10px;text-align:left}.result-summary-table th{font-weight:900}.result-summary-table td{border-top:1px solid rgba(148,163,184,.35)}
     @media(max-width:900px){.result-filters{grid-template-columns:1fr}.student-result-info{grid-template-columns:1fr}.result-photo{justify-self:start}.result-kv{grid-template-columns:130px 12px 1fr}.marksheet{margin:8px}.result-titlebar{font-size:16px}}
 
+
+    .profile-edit-input { width:100%; padding:8px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; background:#fff !important; color:var(--text) !important; outline:none; }
+    .profile-edit-input:focus { border-color:var(--primary); }
   </style>
 </head>
 <body>
@@ -319,14 +322,22 @@
         <!-- Edit Mode -->
         <div id="profileEditMode" style="display:none">
           <div class="info-grid">
-            <div class="info-item"><label>Phone</label><input type="tel" id="e_phone" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
-            <div class="info-item"><label>Father's Name</label><input type="text" id="e_father" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
-            <div class="info-item"><label>Mother's Name</label><input type="text" id="e_mother" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
-            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input type="text" id="e_address" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit"></div>
+            <div class="info-item"><label>Full Name</label><input class="profile-edit-input" type="text" id="e_name"></div>
+            <div class="info-item"><label>Email</label><input class="profile-edit-input" type="email" id="e_email"></div>
+            <div class="info-item"><label>Phone</label><input class="profile-edit-input" type="tel" id="e_phone"></div>
+            <div class="info-item"><label>Date of Birth</label><input class="profile-edit-input" type="date" id="e_dob"></div>
+            <div class="info-item"><label>Gender</label><select class="profile-edit-input" id="e_gender"><option value="">Select Gender</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div class="info-item"><label>Course</label><select class="profile-edit-input" id="e_course" onchange="toggleProfileOtherCourse()"><option value="">Select Course</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option><option>MSc</option><option>ParaMedical</option><option>Vocational</option><option value="Other">Other</option></select></div>
+            <div class="info-item" id="e_other_course_box" style="display:none"><label>Other Course</label><input class="profile-edit-input" type="text" id="e_other_course" placeholder="Apna course likho"></div>
+            <div class="info-item"><label>Semester</label><select class="profile-edit-input" id="e_semester"><option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option><option value="4">Semester 4</option><option value="5">Semester 5</option><option value="6">Semester 6</option><option value="7">Semester 7</option><option value="8">Semester 8</option></select></div>
+            <div class="info-item"><label>Session</label><input class="profile-edit-input" type="text" id="e_session" placeholder="2026-27"></div>
+            <div class="info-item"><label>Father's Name</label><input class="profile-edit-input" type="text" id="e_father"></div>
+            <div class="info-item"><label>Mother's Name</label><input class="profile-edit-input" type="text" id="e_mother"></div>
+            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input class="profile-edit-input" type="text" id="e_address"></div>
           </div>
           <div style="display:flex;gap:10px;margin-top:16px">
             <button onclick="saveProfile()" style="padding:9px 20px;background:var(--success);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit"><i class="fas fa-save"></i> Save</button>
-            <button onclick="toggleEditProfile()" style="padding:9px 20px;background:#f1f5f9;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
+            <button onclick="toggleEditProfile()" style="padding:9px 20px;background:#f1f5f9;color:var(--text);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
           </div>
         </div>
       </div>
@@ -557,38 +568,106 @@ async function uploadPhoto(input) {
 }
 // ── EDIT PROFILE ───────────────────────────────
 let editMode = false;
+
+function formatDateForInput(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toISOString().slice(0, 10);
+}
+
+function toggleProfileOtherCourse() {
+  const course = document.getElementById('e_course').value;
+  const box = document.getElementById('e_other_course_box');
+  const input = document.getElementById('e_other_course');
+  if (course === 'Other') {
+    box.style.display = '';
+    input.required = true;
+  } else {
+    box.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+}
+
+function updateProfileUI(student) {
+  document.getElementById('sidebarName').textContent = student.name || 'Student';
+  document.getElementById('sidebarCourse').textContent = `${student.course || '—'} • Sem ${student.semester || '—'}`;
+  document.getElementById('profileName').textContent = student.name || '—';
+  document.getElementById('profileCourse').textContent = `${student.course || '—'} • Semester ${student.semester || '—'}`;
+  document.getElementById('v_name').textContent = student.name || '—';
+  document.getElementById('v_email').textContent = student.email || '—';
+  document.getElementById('v_phone').textContent = student.phone || '—';
+  document.getElementById('v_dob').textContent = student.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—';
+  document.getElementById('v_gender').textContent = student.gender || '—';
+  document.getElementById('v_course').textContent = student.course || '—';
+  document.getElementById('v_sem').textContent = student.semester ? `Semester ${student.semester}` : '—';
+  document.getElementById('v_session').textContent = student.session || '—';
+  document.getElementById('v_father').textContent = student.fatherName || '—';
+  document.getElementById('v_mother').textContent = student.motherName || '—';
+  document.getElementById('v_address').textContent = student.address || '—';
+}
+
 function toggleEditProfile() {
   editMode = !editMode;
   document.getElementById('profileViewMode').style.display = editMode ? 'none' : '';
   document.getElementById('profileEditMode').style.display = editMode ? '' : 'none';
   document.getElementById('editProfileBtn').innerHTML = editMode ? '<i class="fas fa-times"></i> Cancel' : '<i class="fas fa-pen"></i> Edit';
+
   if (editMode && studentData) {
+    const predefinedCourses = ['BCA','MCA','B.Tech','BBA','MBA','B.Com','BA','MA','BSc','MSc','ParaMedical','Vocational'];
+    document.getElementById('e_name').value = studentData.name || '';
+    document.getElementById('e_email').value = studentData.email || '';
     document.getElementById('e_phone').value = studentData.phone || '';
+    document.getElementById('e_dob').value = formatDateForInput(studentData.dob);
+    document.getElementById('e_gender').value = studentData.gender || '';
+    document.getElementById('e_course').value = predefinedCourses.includes(studentData.course) ? studentData.course : 'Other';
+    document.getElementById('e_other_course').value = predefinedCourses.includes(studentData.course) ? '' : (studentData.course || '');
+    document.getElementById('e_semester').value = studentData.semester || 1;
+    document.getElementById('e_session').value = studentData.session || '';
     document.getElementById('e_father').value = studentData.fatherName || '';
     document.getElementById('e_mother').value = studentData.motherName || '';
     document.getElementById('e_address').value = studentData.address || '';
+    toggleProfileOtherCourse();
   }
 }
 
 async function saveProfile() {
+  const selectedCourse = document.getElementById('e_course').value;
+  const customCourse = document.getElementById('e_other_course').value.trim();
+  const finalCourse = selectedCourse === 'Other' ? customCourse : selectedCourse;
+
+  if (!document.getElementById('e_name').value.trim()) return alert('Full name bharna zaroori hai.');
+  if (!document.getElementById('e_email').value.trim()) return alert('Email bharna zaroori hai.');
+  if (!document.getElementById('e_phone').value.trim()) return alert('Phone bharna zaroori hai.');
+  if (!finalCourse) return alert('Course select/enter karo.');
+
   const body = {
-    phone: document.getElementById('e_phone').value,
-    fatherName: document.getElementById('e_father').value,
-    motherName: document.getElementById('e_mother').value,
-    address: document.getElementById('e_address').value
+    name: document.getElementById('e_name').value.trim(),
+    email: document.getElementById('e_email').value.trim(),
+    phone: document.getElementById('e_phone').value.trim(),
+    dob: document.getElementById('e_dob').value,
+    gender: document.getElementById('e_gender').value,
+    course: finalCourse,
+    semester: document.getElementById('e_semester').value,
+    session: document.getElementById('e_session').value.trim(),
+    fatherName: document.getElementById('e_father').value.trim(),
+    motherName: document.getElementById('e_mother').value.trim(),
+    address: document.getElementById('e_address').value.trim()
   };
+
   try {
     const res = await fetch('/api/student/profile', { method: 'PUT', headers, body: JSON.stringify(body) });
     const data = await res.json();
-    if (!res.ok) return alert(data.error);
+    if (!res.ok) return alert(data.error || 'Update failed.');
     studentData = data.student;
-    document.getElementById('v_phone').textContent = data.student.phone;
-    document.getElementById('v_father').textContent = data.student.fatherName || '—';
-    document.getElementById('v_mother').textContent = data.student.motherName || '—';
-    document.getElementById('v_address').textContent = data.student.address || '—';
+    localStorage.setItem('studentInfo', JSON.stringify(data.student));
+    updateProfileUI(data.student);
     toggleEditProfile();
     alert('Profile update ho gaya! ✅');
-  } catch (err) { alert('Update failed.'); }
+  } catch (err) {
+    alert('Update failed.');
+  }
 }
 
 // ── RESULTS ───────────────────────────────────
@@ -606,22 +685,53 @@ function resultPhoto() {
 function populateResultFilters(results) {
   const yearSel = document.getElementById('resYear');
   const semSel = document.getElementById('resSemester');
-  const years = [...new Set(results.map(r => r.session).filter(Boolean))].sort().reverse();
-  yearSel.innerHTML = years.length ? years.map(y => `<option>${y}</option>`).join('') : '<option value="">No Result</option>';
-  const sems = [...new Set(results.map(r => Number(r.semester)).filter(Boolean))].sort((a,b)=>b-a);
-  semSel.innerHTML = '<option value="">Select</option>' + sems.map(s => `<option value="${s}">${romanSem(s)}</option>`).join('');
-  if (sems.length) semSel.value = sems[0];
+
+  const years = [...new Set(
+    results
+      .map(r => String(r.session || '').trim())
+      .filter(Boolean)
+  )].sort().reverse();
+
+  yearSel.innerHTML = '<option value="">Select Academic Year</option>' +
+    years.map(y => `<option value="${y}">${y}</option>`).join('');
+
+  const sems = [...new Set(
+    results
+      .map(r => Number(r.semester))
+      .filter(Boolean)
+  )].sort((a, b) => a - b);
+
+  semSel.innerHTML = '<option value="">Select Semester</option>' +
+    sems.map(s => `<option value="${s}">${romanSem(s)}</option>`).join('');
+
+  // Page load par koi result auto-select / auto-show nahi hoga.
+  yearSel.value = '';
+  semSel.value = '';
 }
+
 function renderSelectedResult() {
   const type = document.getElementById('resType')?.value || 'Main';
-  const session = document.getElementById('resYear')?.value || '';
+  const session = String(document.getElementById('resYear')?.value || '').trim();
   const semester = Number(document.getElementById('resSemester')?.value || 0);
   const el = document.getElementById('resultContent');
-  const rows = allStudentResults.filter(r =>
-    (!session || r.session === session) &&
-    (!semester || Number(r.semester) === semester) &&
-    (!r.examType || r.examType === type || (type === 'Main' && ['End Semester','End Term','Main'].includes(r.examType)))
-  );
+
+  if (!session || !semester) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Pehle Academic Year aur Semester select karke Show dabaiye.</p></div>';
+    return;
+  }
+
+  const rows = allStudentResults.filter(r => {
+    const rSession = String(r.session || '').trim();
+    const rSem = Number(r.semester);
+    const rType = String(r.examType || 'Main').trim();
+
+    const typeMatch =
+      rType === type ||
+      (type === 'Main' && ['Main', 'End Semester', 'End Term'].includes(rType));
+
+    return rSession === session && rSem === semester && typeMatch;
+  });
+
   if (!rows.length) {
     el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Is selection ka result nahi mila</p></div>'; return;
   }
@@ -676,7 +786,7 @@ async function loadResults() {
       el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Abhi koi result publish nahi hua</p></div>'; return;
     }
     populateResultFilters(allStudentResults);
-    renderSelectedResult();
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Academic Year aur Semester select karke Show button dabaiye.</p></div>';
   } catch (err) {
     document.getElementById('resultContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Results load nahi hue</p></div>';
   }

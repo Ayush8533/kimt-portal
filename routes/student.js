@@ -133,80 +133,59 @@ router.get('/profile', (req, res) => {
 
 
 router.put('/profile', async (req, res) => {
-
   try {
+    const {
+      name,
+      email,
+      phone,
+      address,
+      fatherName,
+      motherName,
+      dob,
+      gender,
+      course,
+      semester,
+      session
+    } = req.body;
 
-    const allowed = [
+    const student = await Student.findById(req.student._id);
 
-      'phone',
+    if (!student) {
+      return res.status(404).json({
+        error: 'Student nahi mila.'
+      });
+    }
 
-      'address',
+    student.name = name;
+    student.email = email;
+    student.phone = phone;
+    student.address = address;
+    student.fatherName = fatherName;
+    student.motherName = motherName;
+    student.dob = dob || undefined;
+    student.gender = gender;
+    student.course = course;
+    student.semester = Number(semester);
+    student.session = session;
 
-      'fatherName',
+    await student.save();
 
-      'motherName'
-
-    ];
-
-
-    const updates = {};
-
-
-    allowed.forEach((field) => {
-
-      if (req.body[field] !== undefined) {
-
-        updates[field] = req.body[field];
-
-      }
-
-    });
-
-
-    const student =
-      await Student.findByIdAndUpdate(
-
-        req.student._id,
-
-        updates,
-
-        {
-          new: true
-        }
-
-      );
-
+    const updatedStudent = await Student.findById(req.student._id).select('-password');
 
     res.json({
-
       success: true,
-
       message: 'Profile update ho gaya!',
-
-      student: student
-
+      student: updatedStudent
     });
-
 
   } catch (err) {
-
-    console.error(
-      'PROFILE UPDATE ERROR:',
-      err
-    );
-
+    console.error('PROFILE UPDATE ERROR:', err);
 
     res.status(500).json({
-
-      error:
-        'Profile update nahi hua.'
-
+      error: 'Profile update nahi hua.'
     });
-
   }
-
 });
-
 
 // ==========================================
 // PROFILE PHOTO UPLOAD

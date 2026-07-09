@@ -19,11 +19,17 @@ const resultSchema = new mongoose.Schema({
   subject: { type: String, required: true, trim: true },
   semester: { type: Number, required: true },
   session: { type: String, required: true, trim: true },
-  examType: {
-    type: String,
-    enum: ['Mid Term', 'End Term', 'End Semester', 'Practical', 'Internal'],
-    default: 'End Semester'
-  },
+ examType: {
+  type: String,
+  enum: ['Main', 'Re-Appear', 'Special', 'Mid Term', 'End Term', 'End Semester', 'Practical', 'Internal'],
+  default: 'Main'
+},
+
+subjectCode: { type: String },
+internalObtained: { type: Number, default: 0 },
+internalTotal: { type: Number, default: 0 },
+externalObtained: { type: Number, default: 0 },
+externalTotal: { type: Number, default: 0 },
 
   maxMarks: { type: Number, default: 100 },
   marksObtained: { type: Number, required: true },

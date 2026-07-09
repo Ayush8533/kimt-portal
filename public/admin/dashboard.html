@@ -395,10 +395,11 @@
       <div class="form-group"><label>Phone *</label><input type="tel" id="s_phone" placeholder="10-digit number"></div>
       <div class="form-group"><label>Password *</label><input type="text" id="s_pass" placeholder="Initial password" value="Student@123"></div>
       <div class="form-group"><label>Course *</label>
-        <select id="s_course"><option value="">Select</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option></select>
+        <select id="s_course"><option value="">Select</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option><option>MSc</option><option>ParaMedical</option><option>Vocational</option></select>
       </div>
       <div class="form-group"><label>Semester</label><select id="s_sem"><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select></div>
       <div class="form-group"><label>Gender</label><select id="s_gender"><option value="">Select</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+      <div class="form-group"><label>Date of Birth</label><input type="date" id="s_dob"></div>
       <div class="form-group"><label>Admission Year</label><input type="number" id="s_year" value="2026" min="2020" max="2030"></div>
       <div class="form-group"><label>Session</label><input type="text" id="s_session" placeholder="e.g. 2025-26"></div>
       <div class="form-group"><label>Father's Name</label><input type="text" id="s_father" placeholder="Father naam"></div>
@@ -485,7 +486,7 @@
     <h2><i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>Add Fee Record</h2>
     <div class="form-grid">
       <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="fee_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
-      <div class="form-group"><label>Fee Type</label><select id="fee_type"><option>Tuition Fee</option><option>Exam Fee</option><option>Library Fee</option><option>Hostel Fee</option><option>Other</option></select></div>
+      <div class="form-group"><label>Fee Type</label><select id="fee_type"><option>Total Fee <option>Institute Fee</option><option>Tuition Fee</option><option>Exam Fee</option><option>Library Fee</option><option>Hostel Fee</option><option>Other</option></select></div>
       <div class="form-group"><label>Paid Amount ₹</label><input type="number" id="fee_paid" placeholder="0"></div>
       <div class="form-group"><label>Due Amount ₹</label><input type="number" id="fee_due" placeholder="0"></div>
       <div class="form-group"><label>Payment Mode</label><select id="fee_mode"><option>Online</option><option>Cash</option><option>Cheque</option><option>DD</option></select></div>
@@ -705,7 +706,7 @@ function resetStudentForm() {
   if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Add Student';
   if (btn) btn.setAttribute('onclick', 'addStudent()');
 
-  ['s_name','s_email','s_phone','s_session','s_father','s_address'].forEach(id => {
+  ['s_name','s_email','s_phone','s_session','s_father','s_address','s_dob'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
   document.getElementById('s_pass').value = 'Student@123';
@@ -726,6 +727,7 @@ function getStudentFormBody(isEdit = false) {
     course: document.getElementById('s_course').value,
     semester: Number(document.getElementById('s_sem').value),
     gender: document.getElementById('s_gender').value,
+    dob: document.getElementById('s_dob').value,
     admissionYear: Number(document.getElementById('s_year').value),
     session: document.getElementById('s_session').value.trim(),
     fatherName: document.getElementById('s_father').value.trim(),
@@ -786,6 +788,7 @@ async function editStudent(id) {
     document.getElementById('s_course').value = s.course || '';
     document.getElementById('s_sem').value = String(s.semester || 1);
     document.getElementById('s_gender').value = s.gender || '';
+    document.getElementById('s_dob').value = s.dob ? new Date(s.dob).toISOString().slice(0, 10) : '';
     document.getElementById('s_year').value = s.admissionYear || new Date().getFullYear();
     document.getElementById('s_session').value = s.session || '';
     document.getElementById('s_father').value = s.fatherName || '';

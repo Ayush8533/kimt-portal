@@ -154,15 +154,32 @@
           <label>Email Address *</label>
           <input type="email" id="signupEmail" placeholder="apna@email.com">
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date of Birth *</label>
+            <input type="date" id="signupDOB">
+          </div>
+          <div class="form-group">
+            <label>Gender *</label>
+            <select id="signupGender">
+              <option value="">-- Gender select karo --</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
         <div class="form-group">
           <label>Course *</label>
-          <select id="signupCourse">
+          <select id="signupCourse" onchange="toggleOtherCourse()">
             <option value="">-- Course select karo --</option>
             <option>BCA</option><option>MCA</option><option>B.Tech</option>
             <option>BBA</option><option>MBA</option><option>B.Com</option>
             <option>BA</option><option>MA</option><option>BSc</option>
             <option>MSc</option><option>ParaMedical</option><option>Vocational</option>
+            <option value="Other">Other</option>
           </select>
+          <input type="text" id="otherCourse" placeholder="Agar course list me nahi hai to yahan likho" style="display:none;margin-top:10px;">
         </div>
         <div class="form-group">
           <label>Password * (min 6 characters)</label>
@@ -229,14 +246,32 @@
     }
   }
 
+  function toggleOtherCourse() {
+    const selectedCourse = document.getElementById('signupCourse').value;
+    const otherCourse = document.getElementById('otherCourse');
+
+    if (selectedCourse === 'Other') {
+      otherCourse.style.display = 'block';
+      otherCourse.focus();
+    } else {
+      otherCourse.style.display = 'none';
+      otherCourse.value = '';
+    }
+  }
+
   async function doSignup() {
     const name = document.getElementById('signupName').value.trim();
     const phone = document.getElementById('signupPhone').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
-    const course = document.getElementById('signupCourse').value;
+    const dob = document.getElementById('signupDOB').value;
+    const gender = document.getElementById('signupGender').value;
+    const selectedCourse = document.getElementById('signupCourse').value;
+    const otherCourse = document.getElementById('otherCourse').value.trim();
+    const course = selectedCourse === 'Other' ? otherCourse : selectedCourse;
     const password = document.getElementById('signupPassword').value;
 
-    if (!name || !phone || !email || !course || !password) return showAlert('Saare starred (*) fields bharo.');
+    if (!name || !phone || !email || !dob || !gender || !course || !password) return showAlert('Saare starred (*) fields bharo.');
+    if (selectedCourse === 'Other' && !otherCourse) return showAlert('Apna course name likho.');
     if (!/^[6-9]\d{9}$/.test(phone)) return showAlert('Valid 10-digit phone number daalo.');
     if (password.length < 6) return showAlert('Password kam se kam 6 characters ka hona chahiye.');
 
@@ -247,7 +282,7 @@
       const res = await fetch('/api/auth/student/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone, email, course, password })
+        body: JSON.stringify({ name, phone, email, dob, gender, course, password })
       });
       const data = await res.json();
       if (!res.ok) { showAlert(data.error || 'Registration failed.'); return; }

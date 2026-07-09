@@ -16,9 +16,9 @@ function signToken(id, role) {
 // ── STUDENT SIGNUP ────────────────────────────
 router.post('/student/signup', async (req, res) => {
   try {
-    const { name, phone, email, course, password, admissionYear } = req.body;
+    const { name, phone, email, course, dob, gender, password, admissionYear } = req.body;
 
-    if (!name || !phone || !email || !course || !password)
+    if (!name || !phone || !email || !course || !dob || !gender || !password)
       return res.status(400).json({ error: 'Saare fields zaroori hain.' });
 
     if (password.length < 6)
@@ -38,6 +38,8 @@ router.post('/student/signup', async (req, res) => {
       phone,
       email,
       course,
+      dob,
+      gender,
       password,
       admissionYear: year,
       enrollmentNo,       // ← auto generated
@@ -57,6 +59,8 @@ router.post('/student/signup', async (req, res) => {
         name: student.name,
         email: student.email,
         course: student.course,
+        dob: student.dob,
+        gender: student.gender,
         enrollmentNo: student.enrollmentNo,
         semester: student.semester
       }
@@ -95,6 +99,8 @@ router.post('/student/login', async (req, res) => {
         name: student.name,
         email: student.email,
         course: student.course,
+        dob: student.dob,
+        gender: student.gender,
         enrollmentNo: student.enrollmentNo,
         semester: student.semester,
         photo: student.photo

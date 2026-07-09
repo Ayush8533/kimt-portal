@@ -220,40 +220,57 @@ router.get('/results', async (req, res) => {
 router.post('/results', async (req, res) => {
   try {
     const {
-      student,
       enrollmentNo,
-      name,
-      course,
       subject,
+      subjectCode,
       examType,
       semester,
+      session,
       maxMarks,
       marksObtained,
       grade,
-      session,
+      internalObtained,
+      internalTotal,
+      externalObtained,
+      externalTotal,
       isPublished
     } = req.body;
 
-    if (!student) return res.status(400).json({ error: 'Student ID missing hai.' });
     if (!enrollmentNo) return res.status(400).json({ error: 'Enrollment No. missing hai.' });
-    if (!name) return res.status(400).json({ error: 'Student name missing hai.' });
     if (!subject) return res.status(400).json({ error: 'Subject missing hai.' });
     if (!session) return res.status(400).json({ error: 'Session missing hai.' });
+
+    const foundStudent = await Student.findOne({
+      enrollmentNo: enrollmentNo.trim()
+    });
+
+    if (!foundStudent) {
+      return res.status(404).json({ error: 'Is enrollment number ka student nahi mila.' });
+    }
 
     const max = Number(maxMarks) || 100;
     const obtained = Number(marksObtained) || 0;
     const percent = max > 0 ? (obtained / max) * 100 : 0;
     const passed = obtained >= max * 0.33;
+    const publishNow = isPublished === true || isPublished === 'true';
 
     const result = await Result.create({
-      student,
-      enrollmentNo,
-      name,
-      course,
+      student: foundStudent._id,
+      enrollmentNo: foundStudent.enrollmentNo,
+      name: foundStudent.name,
+      course: foundStudent.course,
+
       subject: subject.trim(),
-      examType: examType || 'End Semester',
+      subjectCode: subjectCode || '',
+      examType: examType || 'Main',
       semester: Number(semester),
       session: session.trim(),
+
+      internalObtained: Number(internalObtained) || 0,
+      internalTotal: Number(internalTotal) || 0,
+      externalObtained: Number(externalObtained) || 0,
+      externalTotal: Number(externalTotal) || 0,
+
       maxMarks: max,
       marksObtained: obtained,
       totalMarks: max,
@@ -262,16 +279,24 @@ router.post('/results', async (req, res) => {
       grade: grade || (percent >= 75 ? 'A' : percent >= 60 ? 'B' : percent >= 45 ? 'C' : passed ? 'D' : 'F'),
       isPassed: passed,
       result: passed ? 'Pass' : 'Fail',
-      isPublished: isPublished === true || isPublished === 'true',
-      publishedAt: (isPublished === true || isPublished === 'true') ? new Date() : undefined,
+      isPublished: publishNow,
+      publishedAt: publishNow ? new Date() : undefined,
       publishedBy: req.admin._id
     });
 
-    res.status(201).json({ success: true, message: 'Result add ho gaya!', result });
+    res.status(201).json({
+      success: true,
+      message: 'Result add ho gaya!',
+      result
+    });
+
   } catch (err) {
-    res.status(500).json({ error: 'Result add nahi hua: ' + err.message });
+    res.status(500).json({
+      error: 'Result add nahi hua: ' + err.message
+    });
   }
 });
+
 
 // Bulk result upload
 router.post('/results/bulk', async (req, res) => {
