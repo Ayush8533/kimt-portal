@@ -136,31 +136,26 @@ router.put('/profile', async (req, res) => {
 
   try {
 
-    const allowed = [
-
-      'phone',
-
-      'address',
-
-      'fatherName',
-
-      'motherName'
-
-    ];
-
-
+    // Student profile se aane wale fields ko save karo.
+    // Frontend me DOB kabhi `dob` aur kabhi `dateOfBirth` naam se aa sakta hai,
+    // isliye dono ko support kiya gaya hai.
     const updates = {};
 
+    if (req.body.name !== undefined) updates.name = req.body.name;
+    if (req.body.fullName !== undefined) updates.name = req.body.fullName;
+    if (req.body.phone !== undefined) updates.phone = req.body.phone;
+    if (req.body.address !== undefined) updates.address = req.body.address;
+    if (req.body.fatherName !== undefined) updates.fatherName = req.body.fatherName;
+    if (req.body.motherName !== undefined) updates.motherName = req.body.motherName;
+    if (req.body.gender !== undefined) updates.gender = req.body.gender;
+    if (req.body.course !== undefined) updates.course = req.body.course;
+    if (req.body.semester !== undefined) updates.semester = req.body.semester;
+    if (req.body.session !== undefined) updates.session = req.body.session;
 
-    allowed.forEach((field) => {
-
-      if (req.body[field] !== undefined) {
-
-        updates[field] = req.body[field];
-
-      }
-
-    });
+    const dobValue = req.body.dob !== undefined ? req.body.dob : req.body.dateOfBirth;
+    if (dobValue !== undefined) {
+      updates.dob = dobValue ? new Date(dobValue) : null;
+    }
 
 
     const student =
