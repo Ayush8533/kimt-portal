@@ -217,25 +217,56 @@ router.get('/results', async (req, res) => {
   }
 });
 
-// Recompute isPassed server-side from marks so it's always correct,
-// even if the client didn't send it (or sent it wrong).
-function withComputedResult(r) {
-  const maxMarks = Number(r.maxMarks) || 100;
-  const marksObtained = Number(r.marksObtained) || 0;
-  return {
-    ...r,
-    maxMarks,
-    marksObtained,
-    isPassed: marksObtained >= maxMarks * 0.33
-  };
-}
-
 router.post('/results', async (req, res) => {
   try {
+    const {
+      student,
+      enrollmentNo,
+      name,
+      course,
+      subject,
+      examType,
+      semester,
+      maxMarks,
+      marksObtained,
+      grade,
+      session,
+      isPublished
+    } = req.body;
+
+    if (!student) return res.status(400).json({ error: 'Student ID missing hai.' });
+    if (!enrollmentNo) return res.status(400).json({ error: 'Enrollment No. missing hai.' });
+    if (!name) return res.status(400).json({ error: 'Student name missing hai.' });
+    if (!subject) return res.status(400).json({ error: 'Subject missing hai.' });
+    if (!session) return res.status(400).json({ error: 'Session missing hai.' });
+
+    const max = Number(maxMarks) || 100;
+    const obtained = Number(marksObtained) || 0;
+    const percent = max > 0 ? (obtained / max) * 100 : 0;
+    const passed = obtained >= max * 0.33;
+
     const result = await Result.create({
-      ...withComputedResult(req.body),
+      student,
+      enrollmentNo,
+      name,
+      course,
+      subject: subject.trim(),
+      examType: examType || 'End Semester',
+      semester: Number(semester),
+      session: session.trim(),
+      maxMarks: max,
+      marksObtained: obtained,
+      totalMarks: max,
+      obtainedMarks: obtained,
+      percentage: Number(percent.toFixed(2)),
+      grade: grade || (percent >= 75 ? 'A' : percent >= 60 ? 'B' : percent >= 45 ? 'C' : passed ? 'D' : 'F'),
+      isPassed: passed,
+      result: passed ? 'Pass' : 'Fail',
+      isPublished: isPublished === true || isPublished === 'true',
+      publishedAt: (isPublished === true || isPublished === 'true') ? new Date() : undefined,
       publishedBy: req.admin._id
     });
+
     res.status(201).json({ success: true, message: 'Result add ho gaya!', result });
   } catch (err) {
     res.status(500).json({ error: 'Result add nahi hua: ' + err.message });
@@ -249,7 +280,7 @@ router.post('/results/bulk', async (req, res) => {
     if (!Array.isArray(results) || !results.length)
       return res.status(400).json({ error: 'Results array zaroori hai.' });
     const saved = await Result.insertMany(
-      results.map(r => ({ ...withComputedResult(r), publishedBy: req.admin._id }))
+      results.map(r => ({ ...r, publishedBy: req.admin._id }))
     );
     res.status(201).json({ success: true, message: `${saved.length} results upload ho gaye!`, count: saved.length });
   } catch (err) {

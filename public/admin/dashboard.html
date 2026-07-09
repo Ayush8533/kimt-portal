@@ -439,7 +439,7 @@
     <div class="form-grid">
       <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="r_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
       <div class="form-group"><label>Subject *</label><input type="text" id="r_subject" placeholder="Subject naam"></div>
-      <div class="form-group"><label>Exam Type</label><select id="r_examType"><option>End Semester</option><option>Mid Semester</option><option>Practical</option><option>Internal</option></select></div>
+      <div class="form-group"><label>Exam Type</label><input type="text" id="r_examType" placeholder="e.g. End Semester" value="End Semester"></div>
       <div class="form-group"><label>Semester *</label><select id="r_sem"><option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option><option value="5">Sem 5</option><option value="6">Sem 6</option></select></div>
       <div class="form-group"><label>Max Marks</label><input type="number" id="r_max" value="100"></div>
       <div class="form-group"><label>Marks Obtained *</label><input type="number" id="r_obtained" placeholder="Marks"></div>
@@ -462,7 +462,7 @@
     <h2><i class="fas fa-upload" style="color:var(--primary);margin-right:8px"></i>Bulk Result Upload (JSON)</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:12px">JSON array paste karo. Format:</p>
     <pre style="background:#f8fafc;padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;margin-bottom:12px">[
-  {"enrollmentNo":"KIMT/2026/BCA/001","subject":"DBMS","examType":"End Semester","semester":3,"marksObtained":78,"maxMarks":100,"grade":"B","session":"2025-26","isPublished":true},
+  {"enrollmentNo":"KIMT/2026/BCA/001","subject":"DBMS","semester":3,"marksObtained":78,"maxMarks":100,"grade":"B","session":"2025-26","isPublished":true},
   ...
 ]</pre>
     <div class="form-group">
@@ -482,9 +482,9 @@
     <h2><i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>Add Fee Record</h2>
     <div class="form-grid">
       <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="fee_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
-      <div class="form-group"><label>Fee Type</label><select id="fee_type"><option>Total Fee</option><option>Institute Fee</option><option>Tuition Fee</option><option>Exam Fee</option><option>Library Fee</option><option>Hostel Fee</option><option>Sports Fee</option><option>Other</option></select></div>
-      <div class="form-group"><label>Total Amount ₹ *</label><input type="number" id="fee_total" placeholder="e.g. 50000"></div>
+      <div class="form-group"><label>Fee Type</label><select id="fee_type"><option>Tuition Fee</option><option>Exam Fee</option><option>Library Fee</option><option>Hostel Fee</option><option>Other</option></select></div>
       <div class="form-group"><label>Paid Amount ₹</label><input type="number" id="fee_paid" placeholder="0"></div>
+      <div class="form-group"><label>Due Amount ₹</label><input type="number" id="fee_due" placeholder="0"></div>
       <div class="form-group"><label>Payment Mode</label><select id="fee_mode"><option>Online</option><option>Cash</option><option>Cheque</option><option>DD</option></select></div>
       <div class="form-group"><label>Transaction ID</label><input type="text" id="fee_txn" placeholder="Optional"></div>
     </div>
@@ -922,46 +922,41 @@ async function loadResults() {
 async function addResult() {
   const enroll = document.getElementById('r_enroll').value.trim();
   if (!enroll) return showAlert('Enrollment No. bharna zaroori hai', 'error');
+
   const subject = document.getElementById('r_subject').value.trim();
   if (!subject) return showAlert('Subject bharna zaroori hai', 'error');
+
   const obtained = Number(document.getElementById('r_obtained').value);
+  if (Number.isNaN(obtained)) return showAlert('Marks obtained bharna zaroori hai', 'error');
+
   const max = Number(document.getElementById('r_max').value) || 100;
-  const grade = document.getElementById('r_grade').value;
   const session = document.getElementById('r_session').value.trim();
-  if (!session) return showAlert('Session bharna zaroori hai (e.g. 2025-26)', 'error');
+  if (!session) return showAlert('Session bharna zaroori hai (e.g. 2026-27)', 'error');
 
   // Find student by enrollment
-  const sRes = await fetch(`/api/admin/students?search=${enroll}`, { headers: H });
+  const sRes = await fetch(`/api/admin/students?search=${encodeURIComponent(enroll)}`, { headers: H });
   const sData = await sRes.json();
   const student = sData.students?.find(s => s.enrollmentNo === enroll);
   if (!student) return showAlert(`Student nahi mila enrollment "${enroll}"`, 'error');
 
-  const status = obtained >= max * 0.33 ? 'Pass' : 'Fail';
   const body = {
     student: student._id,
     enrollmentNo: student.enrollmentNo,
     name: student.name,
     course: student.course,
+    subject,
+    examType: document.getElementById('r_examType').value.trim() || 'End Semester',
     semester: Number(document.getElementById('r_sem').value),
+    maxMarks: max,
+    marksObtained: obtained,
+    grade: document.getElementById('r_grade').value.trim(),
     session,
-    examType: document.getElementById('r_examType').value,
-    subjects: [{
-      name: subject,
-      maxMarks: max,
-      obtainedMarks: obtained,
-      grade,
-      status
-    }],
-    totalMarks: max,
-    obtainedMarks: obtained,
-    percentage: max ? Number(((obtained / max) * 100).toFixed(2)) : 0,
-    grade,
-    result: status,
     isPublished: document.getElementById('r_publish').value === 'true'
   };
+
   const res = await fetch('/api/admin/results', { method: 'POST', headers: H, body: JSON.stringify(body) });
   const data = await res.json();
-  if (!res.ok) return showAlert(data.error, 'error');
+  if (!res.ok) return showAlert(data.error || 'Result add nahi hua', 'error');
   showAlert('Result add ho gaya!'); closeModal('addResult');
   loadedPages.results = false; loadResults();
 }
@@ -970,46 +965,17 @@ async function uploadBulkResults() {
   try {
     const json = JSON.parse(document.getElementById('bulkResultJson').value);
     if (!Array.isArray(json)) return showAlert('Valid JSON array chahiye', 'error');
-    // Resolve enrollments to student IDs and shape each row into what the
-    // Result schema actually expects (a `subjects` array, not flat fields).
+    // Resolve enrollments to student IDs
     const resolved = [];
-    const skipped = [];
     for (const r of json) {
-      if (!r.enrollmentNo) { skipped.push(r); continue; }
-      const sRes = await fetch(`/api/admin/students?search=${r.enrollmentNo}`, { headers: H });
-      const sData = await sRes.json();
-      const student = sData.students?.find(s => s.enrollmentNo === r.enrollmentNo);
-      if (!student) { skipped.push(r); continue; }
-
-      const max = Number(r.maxMarks) || 100;
-      const obtained = Number(r.marksObtained) || 0;
-      const status = obtained >= max * 0.33 ? 'Pass' : 'Fail';
-
-      resolved.push({
-        student: student._id,
-        enrollmentNo: student.enrollmentNo,
-        name: student.name,
-        course: r.course || student.course,
-        semester: Number(r.semester) || 1,
-        session: r.session || student.session || '2025-26',
-        examType: r.examType || 'End Semester',
-        subjects: [{
-          name: r.subject,
-          maxMarks: max,
-          obtainedMarks: obtained,
-          grade: r.grade,
-          status
-        }],
-        totalMarks: max,
-        obtainedMarks: obtained,
-        percentage: max ? Number(((obtained / max) * 100).toFixed(2)) : 0,
-        grade: r.grade,
-        result: status,
-        isPublished: !!r.isPublished
-      });
+      if (r.enrollmentNo) {
+        const sRes = await fetch(`/api/admin/students?search=${r.enrollmentNo}`, { headers: H });
+        const sData = await sRes.json();
+        const student = sData.students?.find(s => s.enrollmentNo === r.enrollmentNo);
+        if (student) { r.student = student._id; delete r.enrollmentNo; }
+      }
+      resolved.push(r);
     }
-    if (skipped.length) showAlert(`${skipped.length} row(s) skip hui - enrollment number galat/nahi mila`, 'error');
-    if (!resolved.length) return;
     const res = await fetch('/api/admin/results/bulk', { method: 'POST', headers: H, body: JSON.stringify({ results: resolved }) });
     const data = await res.json();
     if (!res.ok) return showAlert(data.error, 'error');
@@ -1059,21 +1025,15 @@ async function loadFees() {
 
 async function addFee() {
   const enroll = document.getElementById('fee_enroll').value.trim();
-  if (!enroll) return showAlert('Enrollment No. bharna zaroori hai', 'error');
-  const totalAmount = Number(document.getElementById('fee_total').value);
-  if (!totalAmount) return showAlert('Total Amount bharna zaroori hai', 'error');
   const sRes = await fetch(`/api/admin/students?search=${enroll}`, { headers: H });
   const sData = await sRes.json();
   const student = sData.students?.find(s => s.enrollmentNo === enroll);
   if (!student) return showAlert(`Student nahi mila enrollment "${enroll}"`, 'error');
   const body = {
     student: student._id,
-    enrollmentNo: student.enrollmentNo,
-    name: student.name,
-    course: student.course,
     feeType: document.getElementById('fee_type').value,
-    totalAmount,
     paidAmount: Number(document.getElementById('fee_paid').value) || 0,
+    dueAmount: Number(document.getElementById('fee_due').value) || 0,
     paymentMode: document.getElementById('fee_mode').value,
     transactionId: document.getElementById('fee_txn').value
   };
