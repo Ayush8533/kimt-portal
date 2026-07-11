@@ -435,27 +435,74 @@
 
 <!-- Add Result -->
 <div class="modal-overlay" id="modal-addResult">
-  <div class="modal">
-    <h2><i class="fas fa-award" style="color:var(--primary);margin-right:8px"></i>Add Result</h2>
+  <div class="modal" style="max-width:980px">
+    <h2>
+      <i class="fas fa-award" style="color:var(--primary);margin-right:8px"></i>
+      Add Complete Semester Result
+    </h2>
+
     <div class="form-grid">
-      <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="r_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
-      <div class="form-group"><label>Type</label><select id="r_examType"><option>Main</option><option>Re-Appear</option><option>Special</option></select></div>
-      <div class="form-group"><label>Academic Year / Session *</label><input type="text" id="r_session" placeholder="e.g. 2026-27"></div>
-      <div class="form-group"><label>Semester *</label><select id="r_sem"><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">VI</option></select></div>
-      <div class="form-group"><label>Subject Code</label><input type="text" id="r_subjectCode" placeholder="e.g. BCA601"></div>
-      <div class="form-group"><label>Subject Name *</label><input type="text" id="r_subject" placeholder="e.g. DATA SCIENCE"></div>
-      <div class="form-group"><label>Internal Obtained</label><input type="number" id="r_int_ob" placeholder="e.g. 31"></div>
-      <div class="form-group"><label>Internal Total</label><input type="number" id="r_int_total" placeholder="e.g. 50"></div>
-      <div class="form-group"><label>External Obtained</label><input type="number" id="r_ext_ob" placeholder="e.g. 49"></div>
-      <div class="form-group"><label>External Total</label><input type="number" id="r_ext_total" placeholder="e.g. 100"></div>
-      <div class="form-group"><label>Total Obtained *</label><input type="number" id="r_obtained" placeholder="Auto / e.g. 80"></div>
-      <div class="form-group"><label>Total Marks</label><input type="number" id="r_max" placeholder="Auto / e.g. 150"></div>
-      <div class="form-group"><label>Grade</label><input type="text" id="r_grade" placeholder="e.g. A, B, O, F"></div>
-      <div class="form-group"><label>Publish Now?</label><select id="r_publish"><option value="true">Yes — Publish</option><option value="false">No — Draft</option></select></div>
+      <div class="form-group full">
+        <label>Student Enrollment No. *</label>
+        <input type="text" id="r_enroll" placeholder="e.g. KIMT/2026/BCA/001">
+      </div>
+
+      <div class="form-group">
+        <label>Type</label>
+        <select id="r_examType">
+          <option>Main</option>
+          <option>Re-Appear</option>
+          <option>Special</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Academic Year / Session *</label>
+        <input type="text" id="r_session" placeholder="e.g. 2026-27">
+      </div>
+
+      <div class="form-group">
+        <label>Semester *</label>
+        <select id="r_sem">
+          <option value="1">I</option>
+          <option value="2">II</option>
+          <option value="3">III</option>
+          <option value="4">IV</option>
+          <option value="5">V</option>
+          <option value="6">VI</option>
+          <option value="7">VII</option>
+          <option value="8">VIII</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Publish Now?</label>
+        <select id="r_publish">
+          <option value="true">Yes — Publish</option>
+          <option value="false">No — Draft</option>
+        </select>
+      </div>
     </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px;gap:10px">
+      <div>
+        <h3 style="font-size:15px;color:var(--primary)">Subjects & Marks</h3>
+        <p style="font-size:12px;color:var(--muted);margin-top:3px">
+          Saare subjects add karke ek baar me result save karein.
+        </p>
+      </div>
+      <button type="button" class="btn btn-outline" onclick="addResultSubjectRow()">
+        <i class="fas fa-plus"></i> Add Subject
+      </button>
+    </div>
+
+    <div id="resultSubjectRows"></div>
+
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('addResult')">Cancel</button>
-      <button class="btn btn-primary" onclick="addResult()"><i class="fas fa-save"></i> Save Result</button>
+      <button class="btn btn-primary" id="saveResultBtn" onclick="addResult()">
+        <i class="fas fa-save"></i> Save Complete Result
+      </button>
     </div>
   </div>
 </div>
@@ -483,18 +530,67 @@
 <!-- Add Fee -->
 <div class="modal-overlay" id="modal-addFee">
   <div class="modal">
-    <h2><i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>Add Fee Record</h2>
+    <h2>
+      <i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>
+      Add Fee Record
+    </h2>
+
     <div class="form-grid">
-      <div class="form-group full"><label>Student Enrollment No. *</label><input type="text" id="fee_enroll" placeholder="e.g. KIMT/2026/BCA/001"></div>
-      <div class="form-group"><label>Fee Type</label><select id="fee_type"><option>Total Fee <option>Institute Fee</option><option>Tuition Fee</option><option>Exam Fee</option><option>Library Fee</option><option>Hostel Fee</option><option>Other</option></select></div>
-      <div class="form-group"><label>Paid Amount ₹</label><input type="number" id="fee_paid" placeholder="0"></div>
-      <div class="form-group"><label>Due Amount ₹</label><input type="number" id="fee_due" placeholder="0"></div>
-      <div class="form-group"><label>Payment Mode</label><select id="fee_mode"><option>Online</option><option>Cash</option><option>Cheque</option><option>DD</option></select></div>
-      <div class="form-group"><label>Transaction ID</label><input type="text" id="fee_txn" placeholder="Optional"></div>
+      <div class="form-group full">
+        <label>Student Enrollment No. *</label>
+        <input type="text" id="fee_enroll" placeholder="e.g. KIMT/2026/BCA/001">
+      </div>
+
+      <div class="form-group">
+        <label>Fee Type *</label>
+        <select id="fee_type">
+          <option value="Total Fee">Total Fee</option>
+          <option value="Institute Fee">Institute Fee</option>
+          <option value="Tuition Fee">Tuition Fee</option>
+          <option value="Exam Fee">Exam Fee</option>
+          <option value="Library Fee">Library Fee</option>
+          <option value="Hostel Fee">Hostel Fee</option>
+          <option value="Sports Fee">Sports Fee</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Total Amount ₹ *</label>
+        <input type="number" id="fee_total" min="0" placeholder="e.g. 50000">
+      </div>
+
+      <div class="form-group">
+        <label>Paid Amount ₹</label>
+        <input type="number" id="fee_paid" min="0" value="0" placeholder="0">
+      </div>
+
+      <div class="form-group">
+        <label>Due Amount ₹</label>
+        <input type="number" id="fee_due" value="0" readonly>
+      </div>
+
+      <div class="form-group">
+        <label>Payment Mode</label>
+        <select id="fee_mode">
+          <option>Online</option>
+          <option>Cash</option>
+          <option>Cheque</option>
+          <option>DD</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Transaction ID</label>
+        <input type="text" id="fee_txn" placeholder="Optional">
+      </div>
     </div>
+
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('addFee')">Cancel</button>
-      <button class="btn btn-primary" onclick="addFee()"><i class="fas fa-save"></i> Save</button>
+      <button class="btn btn-primary" onclick="addFee()">
+        <i class="fas fa-save"></i> Save
+      </button>
     </div>
   </div>
 </div>
@@ -598,6 +694,7 @@ function closeSidebar() { document.getElementById('sidebar').classList.remove('o
 // ── MODAL ─────────────────────────────────────
 function openModal(id) {
   if (id === 'addStudent' && !editingStudentId) resetStudentForm();
+  if (id === 'addResult' && !document.querySelector('.result-subject-row')) resetResultForm();
   document.getElementById('modal-' + id).classList.add('show');
 }
 function closeModal(id) { document.getElementById('modal-' + id).classList.remove('show'); }
@@ -925,45 +1022,217 @@ async function loadResults() {
   } catch(e) { document.getElementById('resultsTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
 }
 
-async function addResult() {
-  const enroll = document.getElementById('r_enroll').value.trim();
-  if (!enroll) return showAlert('Enrollment No. bharna zaroori hai', 'error');
-  const subject = document.getElementById('r_subject').value.trim();
-  if (!subject) return showAlert('Subject bharna zaroori hai', 'error');
-  const session = document.getElementById('r_session').value.trim();
-  if (!session) return showAlert('Session bharna zaroori hai (e.g. 2026-27)', 'error');
+let resultSubjectCounter = 0;
 
-  const intOb = Number(document.getElementById('r_int_ob').value || 0);
-  const intTotal = Number(document.getElementById('r_int_total').value || 0);
-  const extOb = Number(document.getElementById('r_ext_ob').value || 0);
-  const extTotal = Number(document.getElementById('r_ext_total').value || 0);
-  const obtainedInput = document.getElementById('r_obtained').value;
-  const maxInput = document.getElementById('r_max').value;
-  const obtained = obtainedInput !== '' ? Number(obtainedInput) : (intOb + extOb);
-  const max = maxInput !== '' ? Number(maxInput) : (intTotal + extTotal || 100);
+function resultSubjectRowTemplate(index) {
+  return `
+    <div class="card result-subject-row" data-result-row="${index}"
+         style="padding:16px;margin-bottom:12px;border:1px solid var(--border);box-shadow:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <strong>Subject ${index + 1}</strong>
+        <button type="button" class="btn btn-sm btn-danger"
+                onclick="removeResultSubjectRow(${index})">
+          <i class="fas fa-trash"></i> Remove
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Subject Code</label>
+          <input type="text" class="mr-code" placeholder="e.g. BCA601">
+        </div>
+
+        <div class="form-group">
+          <label>Subject Name *</label>
+          <input type="text" class="mr-subject" placeholder="e.g. DATA STRUCTURES">
+        </div>
+
+        <div class="form-group">
+          <label>Internal Obtained</label>
+          <input type="number" min="0" class="mr-int-ob" value="0"
+                 oninput="calculateResultRow(this)">
+        </div>
+
+        <div class="form-group">
+          <label>Internal Total</label>
+          <input type="number" min="0" class="mr-int-total" value="0"
+                 oninput="calculateResultRow(this)">
+        </div>
+
+        <div class="form-group">
+          <label>External Obtained</label>
+          <input type="number" min="0" class="mr-ext-ob" value="0"
+                 oninput="calculateResultRow(this)">
+        </div>
+
+        <div class="form-group">
+          <label>External Total</label>
+          <input type="number" min="0" class="mr-ext-total" value="100"
+                 oninput="calculateResultRow(this)">
+        </div>
+
+        <div class="form-group">
+          <label>Total Obtained *</label>
+          <input type="number" min="0" class="mr-obtained" value="0">
+        </div>
+
+        <div class="form-group">
+          <label>Total Marks *</label>
+          <input type="number" min="1" class="mr-max" value="100">
+        </div>
+
+        <div class="form-group">
+          <label>Grade</label>
+          <input type="text" class="mr-grade" placeholder="Auto if blank">
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addResultSubjectRow() {
+  const container = document.getElementById('resultSubjectRows');
+  const index = resultSubjectCounter++;
+  container.insertAdjacentHTML('beforeend', resultSubjectRowTemplate(index));
+}
+
+function removeResultSubjectRow(index) {
+  const rows = document.querySelectorAll('.result-subject-row');
+
+  if (rows.length <= 1) {
+    return showAlert('Kam se kam ek subject rehna zaroori hai.', 'error');
+  }
+
+  document.querySelector(`[data-result-row="${index}"]`)?.remove();
+}
+
+function calculateResultRow(input) {
+  const row = input.closest('.result-subject-row');
+  if (!row) return;
+
+  const intOb = Number(row.querySelector('.mr-int-ob').value) || 0;
+  const intTotal = Number(row.querySelector('.mr-int-total').value) || 0;
+  const extOb = Number(row.querySelector('.mr-ext-ob').value) || 0;
+  const extTotal = Number(row.querySelector('.mr-ext-total').value) || 0;
+
+  row.querySelector('.mr-obtained').value = intOb + extOb;
+  row.querySelector('.mr-max').value = intTotal + extTotal || 100;
+}
+
+function resetResultForm() {
+  const ids = ['r_enroll', 'r_session'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  document.getElementById('r_examType').value = 'Main';
+  document.getElementById('r_sem').value = '1';
+  document.getElementById('r_publish').value = 'true';
+
+  resultSubjectCounter = 0;
+  document.getElementById('resultSubjectRows').innerHTML = '';
+  addResultSubjectRow();
+}
+
+async function addResult() {
+  const enrollmentNo = document.getElementById('r_enroll').value.trim();
+  const session = document.getElementById('r_session').value.trim();
+
+  if (!enrollmentNo) {
+    return showAlert('Enrollment No. bharna zaroori hai.', 'error');
+  }
+
+  if (!session) {
+    return showAlert('Session bharna zaroori hai (e.g. 2026-27).', 'error');
+  }
+
+  const rows = [...document.querySelectorAll('.result-subject-row')];
+
+  if (!rows.length) {
+    return showAlert('Kam se kam ek subject add karo.', 'error');
+  }
+
+  const subjects = [];
+
+  for (let index = 0; index < rows.length; index++) {
+    const row = rows[index];
+
+    const subject = row.querySelector('.mr-subject').value.trim();
+    const subjectCode = row.querySelector('.mr-code').value.trim();
+
+    if (!subject) {
+      return showAlert(`Subject ${index + 1} ka naam bharo.`, 'error');
+    }
+
+    const internalObtained = Number(row.querySelector('.mr-int-ob').value) || 0;
+    const internalTotal = Number(row.querySelector('.mr-int-total').value) || 0;
+    const externalObtained = Number(row.querySelector('.mr-ext-ob').value) || 0;
+    const externalTotal = Number(row.querySelector('.mr-ext-total').value) || 0;
+    const marksObtained = Number(row.querySelector('.mr-obtained').value) || 0;
+    const maxMarks = Number(row.querySelector('.mr-max').value) || 0;
+
+    if (maxMarks <= 0) {
+      return showAlert(`${subject}: Total marks 0 se zyada rakho.`, 'error');
+    }
+
+    if (marksObtained < 0 || marksObtained > maxMarks) {
+      return showAlert(
+        `${subject}: Obtained marks total marks se zyada nahi ho sakte.`,
+        'error'
+      );
+    }
+
+    subjects.push({
+      subject,
+      subjectCode,
+      internalObtained,
+      internalTotal,
+      externalObtained,
+      externalTotal,
+      marksObtained,
+      maxMarks,
+      grade: row.querySelector('.mr-grade').value.trim()
+    });
+  }
 
   const body = {
-    enrollmentNo: enroll,
+    enrollmentNo,
     examType: document.getElementById('r_examType').value,
     semester: Number(document.getElementById('r_sem').value),
     session,
-    subjectCode: document.getElementById('r_subjectCode').value.trim(),
-    subject,
-    internalObtained: intOb,
-    internalTotal: intTotal,
-    externalObtained: extOb,
-    externalTotal: extTotal,
-    marksObtained: obtained,
-    maxMarks: max,
-    grade: document.getElementById('r_grade').value.trim(),
-    isPublished: document.getElementById('r_publish').value === 'true'
+    isPublished: document.getElementById('r_publish').value === 'true',
+    subjects
   };
 
-  const res = await fetch('/api/admin/results', { method: 'POST', headers: H, body: JSON.stringify(body) });
-  const data = await res.json();
-  if (!res.ok) return showAlert(data.error || 'Result add nahi hua', 'error');
-  showAlert('Result add ho gaya!'); closeModal('addResult');
-  loadedPages.results = false; loadResults();
+  const button = document.getElementById('saveResultBtn');
+  button.disabled = true;
+  button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+  try {
+    const res = await fetch('/api/admin/results', {
+      method: 'POST',
+      headers: H,
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return showAlert(data.error || 'Result add nahi hua.', 'error');
+    }
+
+    showAlert(data.message || 'Complete result add ho gaya!');
+    closeModal('addResult');
+    resetResultForm();
+    loadedPages.results = false;
+    loadResults();
+  } catch (error) {
+    showAlert('Network error. Result save nahi hua.', 'error');
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<i class="fas fa-save"></i> Save Complete Result';
+  }
 }
 
 async function uploadBulkResults() {
@@ -1028,36 +1297,79 @@ async function loadFees() {
   } catch(e) { document.getElementById('feesTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
 }
 
+function calculateFeeDue() {
+  const total = Number(document.getElementById('fee_total')?.value) || 0;
+  const paid = Number(document.getElementById('fee_paid')?.value) || 0;
+  const due = Math.max(total - paid, 0);
+
+  const dueInput = document.getElementById('fee_due');
+  if (dueInput) dueInput.value = due;
+}
+
+document.addEventListener('input', event => {
+  if (event.target?.id === 'fee_total' || event.target?.id === 'fee_paid') {
+    calculateFeeDue();
+  }
+});
+
 async function addFee() {
   const enrollmentNo = document.getElementById('fee_enroll').value.trim();
+  const totalAmount = Number(document.getElementById('fee_total').value) || 0;
+  const paidAmount = Number(document.getElementById('fee_paid').value) || 0;
 
   if (!enrollmentNo) {
     return showAlert('Enrollment No. bharna zaroori hai.', 'error');
   }
 
+  if (totalAmount <= 0) {
+    return showAlert('Total amount 0 se zyada bharo.', 'error');
+  }
+
+  if (paidAmount < 0 || paidAmount > totalAmount) {
+    return showAlert(
+      'Paid amount 0 aur total amount ke beech hona chahiye.',
+      'error'
+    );
+  }
+
   const body = {
-    enrollmentNo: enrollmentNo,
+    enrollmentNo,
     feeType: document.getElementById('fee_type').value,
-    paidAmount: Number(document.getElementById('fee_paid').value) || 0,
-    dueAmount: Number(document.getElementById('fee_due').value) || 0,
+    totalAmount,
+    paidAmount,
+    dueAmount: Math.max(totalAmount - paidAmount, 0),
     paymentMode: document.getElementById('fee_mode').value,
     transactionId: document.getElementById('fee_txn').value.trim()
   };
 
-  const res = await fetch('/api/admin/fees', {
-    method: 'POST',
-    headers: H,
-    body: JSON.stringify(body)
-  });
+  try {
+    const res = await fetch('/api/admin/fees', {
+      method: 'POST',
+      headers: H,
+      body: JSON.stringify(body)
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!res.ok) return showAlert(data.error, 'error');
+    if (!res.ok) {
+      return showAlert(data.error || 'Fee add nahi hui.', 'error');
+    }
 
-  showAlert(data.message);
-  closeModal('addFee');
-  loadedPages.fees = false;
-  loadFees();
+    showAlert(data.message || 'Fee record add ho gaya!');
+    closeModal('addFee');
+
+    ['fee_enroll', 'fee_total', 'fee_txn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('fee_paid').value = '0';
+    document.getElementById('fee_due').value = '0';
+
+    loadedPages.fees = false;
+    loadFees();
+  } catch (error) {
+    showAlert('Network error. Fee save nahi hui.', 'error');
+  }
 }
 
 // ── NOTICES ───────────────────────────────────

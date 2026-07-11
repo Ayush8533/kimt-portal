@@ -3,275 +3,920 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Attendance — KIMT Student Portal</title>
+  <title>Student Dashboard — KIMT</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    :root{--primary:#0b3c91;--accent:#ffb703;--bg:#f0f4ff;--white:#fff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;}
+    :root {
+      --primary:#0b3c91; --accent:#ffb703; --bg:#f0f4ff;
+      --white:#fff; --text:#1e293b; --muted:#64748b;
+      --border:#e2e8f0; --success:#10b981; --danger:#ef4444;
+      --warning:#f59e0b; --sidebar-w:245px;
+    }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-    .topbar{background:var(--primary);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;}
-    .topbar a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:13px;}
-    .topbar h1{font-size:16px;font-weight:600;flex:1;}
-    .container{max-width:960px;margin:32px auto;padding:0 20px;}
-    .card{background:var(--white);border-radius:14px;padding:24px;box-shadow:0 2px 12px rgba(11,60,145,0.07);margin-bottom:20px;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
 
-    /* Ring */
-    .overview-wrap{display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
-    .ring-wrap{position:relative;width:130px;height:130px;flex-shrink:0;}
-    .ring-wrap svg{width:130px;height:130px;transform:rotate(-90deg);}
-    .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-    .ring-pct{font-size:26px;font-weight:700;}
-    .ring-label{font-size:10px;color:var(--muted);margin-top:2px;}
-    .overview-stats{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-    .ov-stat{text-align:center;padding:14px 10px;border-radius:12px;}
-    .ov-stat.total-bg{background:#f0f4ff;}
-    .ov-stat.present-bg{background:#f0fdf4;}
-    .ov-stat.absent-bg{background:#fef2f2;}
-    .ov-num{font-size:24px;font-weight:700;}
-    .ov-label{font-size:11px;color:var(--muted);margin-top:3px;}
+    /* ── SIDEBAR ── */
+    .sidebar{width:var(--sidebar-w);background:var(--primary);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100;transition:.3s;}
+    .sidebar-logo{padding:20px;border-bottom:1px solid rgba(255,255,255,0.1);}
+    .sidebar-logo img{height:38px;margin-bottom:6px;}
+    .sidebar-logo h2{color:#fff;font-size:13px;font-weight:700;}
+    .sidebar-logo p{color:rgba(255,255,255,0.5);font-size:10px;}
+    .badge-student{display:inline-block;background:var(--accent);color:#000;font-size:9px;font-weight:700;padding:1px 7px;border-radius:8px;margin-top:4px;}
 
-    /* Warning banner */
-    .att-warning{display:none;background:#fff8e1;border:1px solid var(--accent);border-radius:10px;padding:12px 16px;font-size:13px;color:#78350f;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-    .att-danger-banner{display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:13px;color:#991b1b;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .nav-menu{flex:1;padding:12px 0;overflow-y:auto;}
+    .nav-section-title{padding:8px 20px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:.8px;text-transform:uppercase;}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:11px 20px;color:rgba(255,255,255,0.72);cursor:pointer;font-size:13.5px;font-weight:500;transition:.2s;text-decoration:none;border:none;background:none;width:100%;}
+    .nav-item:hover,.nav-item.active{background:rgba(255,255,255,0.12);color:#fff;}
+    .nav-item.active{border-left:3px solid var(--accent);}
+    .nav-icon{font-size:16px;width:20px;text-align:center;}
 
-    /* Filters */
-    .filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
-    .filter-row select,.filter-row input{padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:inherit;color:var(--text);background:#f8fafc;outline:none;}
-    .filter-row select:focus,.filter-row input:focus{border-color:var(--primary);}
-    .btn-filter{padding:8px 18px;background:var(--primary);color:#fff;border:none;border-radius:9px;font-size:13px;cursor:pointer;font-family:inherit;}
+    .sidebar-bottom{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.1);}
+    .student-info{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+    .avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:14px;flex-shrink:0;overflow:hidden;}
+    .avatar img{width:100%;height:100%;object-fit:cover;}
+    .student-name{font-size:12px;font-weight:600;color:#fff;}
+    .student-course{font-size:10px;color:rgba(255,255,255,0.5);}
+    .logout-btn{width:100%;padding:8px;background:rgba(255,255,255,0.1);border:none;border-radius:8px;color:rgba(255,255,255,0.8);font-size:12px;cursor:pointer;font-family:inherit;transition:.2s;}
+    .logout-btn:hover{background:rgba(239,68,68,0.3);color:#fff;}
 
-    /* Subject cards */
-    .subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:20px;}
-    .subject-card{border:1px solid var(--border);border-radius:12px;padding:16px;transition:.2s;cursor:pointer;}
-    .subject-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(11,60,145,0.1);}
-    .subject-card.selected{border-color:var(--primary);background:#f0f4ff;}
-    .subj-name{font-size:13px;font-weight:600;margin-bottom:8px;}
-    .subj-bar-wrap{height:6px;background:#e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:6px;}
-    .subj-bar{height:100%;border-radius:10px;}
-    .subj-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+    /* ── MAIN ── */
+    .main{margin-left:var(--sidebar-w);flex:1;padding:24px;min-height:100vh;}
+    .page{display:none;}
+    .page.active{display:block;}
+
+    /* Top bar */
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+    .topbar h1{font-size:20px;font-weight:700;}
+    .topbar p{font-size:13px;color:var(--muted);margin-top:2px;}
+    .topbar-right{display:flex;align-items:center;gap:10px;}
+    .time-chip{background:var(--white);border:1px solid var(--border);padding:7px 14px;border-radius:20px;font-size:12px;color:var(--muted);}
+
+    /* Cards */
+    .card{background:var(--white);border-radius:14px;padding:20px;box-shadow:0 2px 12px rgba(11,60,145,0.07);}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+    .stat-card{background:var(--white);border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(11,60,145,0.07);border-left:4px solid var(--primary);}
+    .stat-card.green{border-color:var(--success);}
+    .stat-card.yellow{border-color:var(--warning);}
+    .stat-card.red{border-color:var(--danger);}
+    .stat-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+    .stat-value{font-size:26px;font-weight:700;color:var(--text);margin:4px 0;}
+    .stat-sub{font-size:11px;color:var(--muted);}
 
     /* Table */
-    .table-wrap{overflow-x:auto;}
+    .table-wrap{overflow-x:auto;margin-top:16px;}
     table{width:100%;border-collapse:collapse;}
-    th{background:#f8fafc;font-size:11px;font-weight:700;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.4px;}
+    th{background:#f8fafc;font-size:12px;font-weight:600;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
     td{padding:11px 14px;font-size:13px;border-bottom:1px solid #f1f5f9;}
     tr:last-child td{border:none;}
     tr:hover td{background:#fafbff;}
+
     .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
     .badge.green{background:#dcfce7;color:#166534;}
     .badge.red{background:#fee2e2;color:#991b1b;}
     .badge.yellow{background:#fef9c3;color:#854d0e;}
+    .badge.blue{background:#dbeafe;color:#1e40af;}
 
-    .empty-state{text-align:center;padding:56px 24px;color:var(--muted);}
-    .empty-state i{font-size:52px;margin-bottom:14px;opacity:.3;}
-    .empty-state h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--text);}
+    /* Section header */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .section-header h2{font-size:16px;font-weight:600;}
 
-    .section-title{font-size:15px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-    .section-title i{color:var(--primary);}
+    /* Notice cards */
+    .notice-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;border-left:4px solid var(--primary);}
+    .notice-item.urgent{border-left-color:var(--danger);}
+    .notice-item.pinned{border-left-color:var(--accent);}
+    .notice-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .notice-meta{font-size:11px;color:var(--muted);}
 
-    @media(max-width:600px){
-      .overview-stats{grid-template-columns:1fr 1fr 1fr;}
-      .subject-grid{grid-template-columns:1fr 1fr;}
-      td,th{padding:8px 10px;font-size:12px;}
+    /* Profile page */
+    .profile-grid{display:grid;grid-template-columns:280px 1fr;gap:20px;}
+    .photo-card{text-align:center;}
+    .photo-wrap{width:130px;height:130px;border-radius:50%;border:4px solid var(--primary);margin:0 auto 14px;overflow:hidden;background:#f0f4ff;}
+    .photo-wrap img{width:100%;height:100%;object-fit:cover;}
+    .photo-name{font-size:16px;font-weight:700;}
+    .photo-course{font-size:13px;color:var(--muted);margin-top:2px;}
+    .photo-upload-btn{display:block;margin:12px auto 0;padding:8px 18px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .info-item label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;}
+    .info-item p{font-size:14px;font-weight:500;margin-top:3px;}
+
+    /* Attendance ring */
+    .att-ring-wrap{display:flex;align-items:center;gap:24px;margin-bottom:20px;}
+    .ring-svg{width:110px;height:110px;flex-shrink:0;}
+    .att-stats{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .att-stat{text-align:center;padding:10px;background:#f8fafc;border-radius:10px;}
+    .att-stat-num{font-size:20px;font-weight:700;}
+    .att-stat-label{font-size:10px;color:var(--muted);margin-top:2px;}
+
+    /* Study material */
+    .material-item{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;transition:.2s;}
+    .material-item:hover{border-color:var(--primary);background:#fafbff;}
+    .material-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .material-icon.pdf{background:#fee2e2;color:#dc2626;}
+    .material-icon.video{background:#dbeafe;color:#2563eb;}
+    .material-icon.link{background:#dcfce7;color:#16a34a;}
+    .material-title{font-size:13px;font-weight:600;flex:1;}
+    .material-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+    .material-btn{padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none;}
+
+    /* Fee */
+    .fee-summary-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px;}
+    .fee-sum-box{padding:16px;border-radius:12px;text-align:center;}
+    .fee-sum-box.paid{background:#dcfce7;}
+    .fee-sum-box.due{background:#fee2e2;}
+    .fee-sum-box.total{background:#dbeafe;}
+    .fee-sum-amount{font-size:22px;font-weight:700;}
+    .fee-sum-label{font-size:11px;color:var(--muted);margin-top:3px;}
+
+    /* Mobile */
+    .menu-toggle{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 11px;font-size:16px;cursor:pointer;}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:90;}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:48px 24px;color:var(--muted);}
+    .empty-state i{font-size:48px;margin-bottom:12px;opacity:.35;}
+    .empty-state p{font-size:14px;}
+
+    @media(max-width:768px){
+      .sidebar{left:-100%;}.sidebar.open{left:0;}
+      .menu-toggle{display:block;}
+      .overlay.show{display:block;}
+      .main{margin-left:0;padding:16px;padding-top:56px;}
+      .stats-grid{grid-template-columns:1fr 1fr;}
+      .profile-grid{grid-template-columns:1fr;}
+      .info-grid{grid-template-columns:1fr;}
+      .fee-summary-row{grid-template-columns:1fr;}
+      .att-ring-wrap{flex-direction:column;}
+      .att-stats{grid-template-columns:1fr 1fr 1fr;}
     }
+
+
+    /* Invertis-style external result */
+    .result-portal-card{background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.08)}
+    .result-titlebar{background:linear-gradient(90deg,#0ea5e9,#db2777);color:#fff;font-weight:800;font-size:18px;padding:12px 16px}
+    .result-filters{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:22px;align-items:end;padding:18px;background:rgba(255,255,255,.78);border-bottom:1px solid var(--border)}
+    .result-filters label{font-size:13px;font-weight:800;color:#111827;margin-bottom:7px;display:block}
+    .result-filters select{width:100%;padding:9px 10px;border:1px solid #b8c3d4;border-radius:2px;background:#fff;font-size:14px}
+    .show-result-btn{padding:10px 32px;border:0;border-radius:22px;background:#10a51d;color:#fff;font-weight:800;box-shadow:0 4px 0 #077411;cursor:pointer}
+    .marksheet{margin:16px;border:1px solid #334155;background:rgba(255,255,255,.88);overflow-x:auto}
+    .marksheet-head{background:#d9d9d9;text-align:center;font-size:18px;font-weight:900;padding:9px;border-left:3px solid #ef4444;border-right:3px solid #ef4444}
+    .student-result-info{display:grid;grid-template-columns:1.1fr 1fr 120px;gap:18px;padding:12px 14px;align-items:start}
+    .result-kv{display:grid;grid-template-columns:155px 12px 1fr;gap:6px;font-size:13.5px;line-height:1.55}.result-kv b{font-weight:800}
+    .result-photo{width:95px;height:110px;border:1px solid #888;object-fit:cover;background:#f8fafc;justify-self:center}
+    .marks-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:850px}.marks-table th{background:#087ca3;color:#fff;padding:8px;border:1px solid #b5b5b5}.marks-table td{padding:8px;text-align:center;border:1px solid #c7c7c7}.marks-table tbody tr:nth-child(even){background:#f3dddd}.marks-table tbody tr:nth-child(odd){background:#fff}
+    .result-summary-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:14px}.result-summary-table th,.result-summary-table td{padding:7px 10px;text-align:left}.result-summary-table th{font-weight:900}.result-summary-table td{border-top:1px solid rgba(148,163,184,.35)}
+    @media(max-width:900px){.result-filters{grid-template-columns:1fr}.student-result-info{grid-template-columns:1fr}.result-photo{justify-self:start}.result-kv{grid-template-columns:130px 12px 1fr}.marksheet{margin:8px}.result-titlebar{font-size:16px}}
+
+
+    .profile-edit-input { width:100%; padding:8px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; font-family:inherit; background:#fff !important; color:var(--text) !important; outline:none; }
+    .profile-edit-input:focus { border-color:var(--primary); }
   </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="/student/dashboard.html"><i class="fas fa-arrow-left"></i> Dashboard</a>
-  <h1><i class="fas fa-calendar-check" style="margin-right:8px"></i>Attendance</h1>
+<button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <img src="/images/logo.jpg" alt="KIMT student portal logo" onerror="this.style.display='none'">
+    <h2>Student Portal</h2>
+    <p>KIMT Bareilly</p>
+    <span class="badge-student">Student</span>
+  </div>
+
+  <nav class="nav-menu">
+    <div class="nav-section-title">Main</div>
+    <a class="nav-item active" onclick="showPage('home',this)">
+      <i class="nav-icon fas fa-home"></i> Dashboard
+    </a>
+    <a class="nav-item" onclick="showPage('profile',this)">
+      <i class="nav-icon fas fa-user"></i> My Profile
+    </a>
+
+    <div class="nav-section-title">Academics</div>
+    <a class="nav-item" onclick="showPage('result',this)">
+      <i class="nav-icon fas fa-award"></i> Results
+    </a>
+    <a class="nav-item" onclick="showPage('attendance',this)">
+      <i class="nav-icon fas fa-calendar-check"></i> Attendance
+    </a>
+    <a class="nav-item" onclick="showPage('material',this)">
+      <i class="nav-icon fas fa-book-open"></i> Study Material
+    </a>
+
+    <div class="nav-section-title">Finance</div>
+    <a class="nav-item" onclick="showPage('fees',this)">
+      <i class="nav-icon fas fa-credit-card"></i> Fee History
+    </a>
+
+    <div class="nav-section-title">Info</div>
+    <a class="nav-item" onclick="showPage('notices',this)">
+      <i class="nav-icon fas fa-bell"></i> Notices
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="student-info">
+      <div class="avatar" id="sidebarAvatar"><i class="fas fa-user"></i></div>
+      <div>
+        <div class="student-name" id="sidebarName">Loading...</div>
+        <div class="student-course" id="sidebarCourse"></div>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
 </div>
 
-<div class="container">
+<!-- MAIN CONTENT -->
+<div class="main">
 
-  <!-- OVERVIEW -->
-  <div class="card">
-    <div class="section-title"><i class="fas fa-chart-pie"></i> Overall Attendance</div>
-    <div class="overview-wrap">
-      <div class="ring-wrap">
-        <svg viewBox="0 0 36 36">
-          <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e2e8f0" stroke-width="3"/>
-          <circle id="ringCircle" cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" stroke-width="3"
-            stroke-dasharray="0 100" stroke-linecap="round"/>
-        </svg>
-        <div class="ring-center">
-          <div class="ring-pct" id="ringPct">0%</div>
-          <div class="ring-label">Overall</div>
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home">
+    <div class="topbar">
+      <div>
+        <h1 id="greetMsg">Good Morning! 👋</h1>
+        <p id="greetName">Loading your dashboard...</p>
+      </div>
+      <div class="topbar-right">
+        <span class="time-chip" id="clockChip"></span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Fee Paid</div>
+        <div class="stat-value" id="sumFeePaid">—</div>
+        <div class="stat-sub">Total paid amount</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Fee Due</div>
+        <div class="stat-value" id="sumFeeDue">—</div>
+        <div class="stat-sub">Remaining balance</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Attendance</div>
+        <div class="stat-value" id="sumAttendance">—</div>
+        <div class="stat-sub">Overall percentage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Results</div>
+        <div class="stat-value" id="sumResults">—</div>
+        <div class="stat-sub">Published results</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <h2><i class="fas fa-bell" style="color:var(--primary);margin-right:8px"></i>Recent Notices</h2>
+        <a onclick="showPage('notices',null)" style="font-size:13px;color:var(--primary);cursor:pointer">View All</a>
+      </div>
+      <div id="homeNotices"><div class="empty-state"><i class="fas fa-bell-slash"></i><p>No notices right now</p></div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="page" id="page-profile">
+    <div class="topbar"><div><h1>My Profile</h1><p>Apni details dekho aur update karo</p></div></div>
+    <div class="profile-grid">
+      <div class="card photo-card">
+        <div class="photo-wrap">
+          <img id="profilePhoto" src="" alt="Student profile photo on KIMT dashboard" onerror="this.src='https://ui-avatars.com/api/?name=Student&background=0b3c91&color=fff&size=130'">
+        </div>
+        <div class="photo-name" id="profileName">—</div>
+        <div class="photo-course" id="profileCourse">—</div>
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
+        <button class="photo-upload-btn" onclick="document.getElementById('photoInput').click()">
+          <i class="fas fa-camera"></i> Change Photo
+        </button>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--muted)">Enrollment No.</div>
+          <div style="font-size:15px;font-weight:700;margin-top:2px" id="profileEnroll">—</div>
         </div>
       </div>
-      <div class="overview-stats">
-        <div class="ov-stat total-bg"><div class="ov-num" id="ovTotal" style="color:var(--primary)">0</div><div class="ov-label">Total Classes</div></div>
-        <div class="ov-stat present-bg"><div class="ov-num" id="ovPresent" style="color:var(--success)">0</div><div class="ov-label">Present</div></div>
-        <div class="ov-stat absent-bg"><div class="ov-num" id="ovAbsent" style="color:var(--danger)">0</div><div class="ov-label">Absent</div></div>
+
+      <div class="card">
+        <div class="section-header">
+          <h2>Personal Information</h2>
+          <button onclick="toggleEditProfile()" id="editProfileBtn" style="padding:7px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+            <i class="fas fa-pen"></i> Edit
+          </button>
+        </div>
+
+        <!-- View Mode -->
+        <div id="profileViewMode" class="info-grid">
+          <div class="info-item"><label>Full Name</label><p id="v_name">—</p></div>
+          <div class="info-item"><label>Email</label><p id="v_email">—</p></div>
+          <div class="info-item"><label>Phone</label><p id="v_phone">—</p></div>
+          <div class="info-item"><label>Date of Birth</label><p id="v_dob">—</p></div>
+          <div class="info-item"><label>Gender</label><p id="v_gender">—</p></div>
+          <div class="info-item"><label>Course</label><p id="v_course">—</p></div>
+          <div class="info-item"><label>Semester</label><p id="v_sem">—</p></div>
+          <div class="info-item"><label>Session</label><p id="v_session">—</p></div>
+          <div class="info-item"><label>Father's Name</label><p id="v_father">—</p></div>
+          <div class="info-item"><label>Mother's Name</label><p id="v_mother">—</p></div>
+          <div class="info-item" style="grid-column:1/-1"><label>Address</label><p id="v_address">—</p></div>
+        </div>
+
+        <!-- Edit Mode -->
+        <div id="profileEditMode" style="display:none">
+          <div class="info-grid">
+            <div class="info-item"><label>Full Name</label><input class="profile-edit-input" type="text" id="e_name"></div>
+            <div class="info-item"><label>Email</label><input class="profile-edit-input" type="email" id="e_email"></div>
+            <div class="info-item"><label>Phone</label><input class="profile-edit-input" type="tel" id="e_phone"></div>
+            <div class="info-item"><label>Date of Birth</label><input class="profile-edit-input" type="date" id="e_dob"></div>
+            <div class="info-item"><label>Gender</label><select class="profile-edit-input" id="e_gender"><option value="">Select Gender</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div class="info-item"><label>Course</label><select class="profile-edit-input" id="e_course" onchange="toggleProfileOtherCourse()"><option value="">Select Course</option><option>BCA</option><option>MCA</option><option>B.Tech</option><option>BBA</option><option>MBA</option><option>B.Com</option><option>BA</option><option>MA</option><option>BSc</option><option>MSc</option><option>ParaMedical</option><option>Vocational</option><option value="Other">Other</option></select></div>
+            <div class="info-item" id="e_other_course_box" style="display:none"><label>Other Course</label><input class="profile-edit-input" type="text" id="e_other_course" placeholder="Apna course likho"></div>
+            <div class="info-item"><label>Semester</label><select class="profile-edit-input" id="e_semester"><option value="1">Semester 1</option><option value="2">Semester 2</option><option value="3">Semester 3</option><option value="4">Semester 4</option><option value="5">Semester 5</option><option value="6">Semester 6</option><option value="7">Semester 7</option><option value="8">Semester 8</option></select></div>
+            <div class="info-item"><label>Session</label><input class="profile-edit-input" type="text" id="e_session" placeholder="2026-27"></div>
+            <div class="info-item"><label>Father's Name</label><input class="profile-edit-input" type="text" id="e_father"></div>
+            <div class="info-item"><label>Mother's Name</label><input class="profile-edit-input" type="text" id="e_mother"></div>
+            <div class="info-item" style="grid-column:1/-1"><label>Address</label><input class="profile-edit-input" type="text" id="e_address"></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button onclick="saveProfile()" style="padding:9px 20px;background:var(--success);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit"><i class="fas fa-save"></i> Save</button>
+            <button onclick="toggleEditProfile()" style="padding:9px 20px;background:#f1f5f9;color:var(--text);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">Cancel</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- WARNING BANNERS -->
-  <div id="warningBanner" style="display:none;background:#fff8e1;border:1px solid var(--accent);border-radius:10px;padding:12px 16px;font-size:13px;color:#78350f;margin-bottom:20px;display:none;align-items:center;gap:10px;">
-    <i class="fas fa-exclamation-triangle"></i>
-    <span>⚠️ Teri attendance 75% ke neeche ja rahi hai! Classes attend karna zaroori hai.</span>
-  </div>
-  <div id="dangerBanner" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:13px;color:#991b1b;margin-bottom:20px;align-items:center;gap:10px;">
-    <i class="fas fa-times-circle"></i>
-    <span>🚨 CRITICAL: Teri attendance 60% se bhi kam hai! Turant karyawayi zaroori hai.</span>
-  </div>
-
-  <!-- SUBJECT BREAKDOWN -->
-  <div class="card">
-    <div class="section-title"><i class="fas fa-book"></i> Subject-wise Breakdown</div>
-    <div class="subject-grid" id="subjectGrid">
-      <div style="text-align:center;padding:24px;color:var(--muted);grid-column:1/-1"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+  <!-- RESULT PAGE -->
+  <div class="page" id="page-result">
+    <div class="topbar"><div><h1>My Results</h1><p>External result format</p></div></div>
+    <div class="result-portal-card">
+      <div class="result-titlebar">Student External Result</div>
+      <div class="result-filters">
+        <div><label>Type</label><select id="resType"><option>Main</option><option>Re-Appear</option><option>Special</option></select></div>
+        <div><label>Academic Year</label><select id="resYear"></select></div>
+        <div><label>Semester/Year</label><select id="resSemester"><option value="">Select</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">VI</option></select></div>
+        <button class="show-result-btn" onclick="renderSelectedResult()">Show</button>
+      </div>
+      <div id="resultContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading results...</p></div></div>
     </div>
   </div>
 
-  <!-- DETAILED RECORDS -->
-  <div class="card">
-    <div class="section-title"><i class="fas fa-list"></i> Detailed Records</div>
-    <div class="filter-row">
-      <select id="filterSubject" onchange="applyFilter()">
-        <option value="">All Subjects</option>
-      </select>
-      <select id="filterStatus" onchange="applyFilter()">
-        <option value="">All Status</option>
-        <option value="Present">Present</option>
-        <option value="Absent">Absent</option>
-        <option value="Late">Late</option>
-      </select>
-      <input type="month" id="filterMonth" onchange="applyFilter()">
-      <button class="btn-filter" onclick="clearFilters()"><i class="fas fa-times"></i> Clear</button>
-    </div>
-    <div class="table-wrap">
-      <div id="recordsContent">
-        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>
+  <!-- ATTENDANCE PAGE -->
+  <div class="page" id="page-attendance">
+    <div class="topbar"><div><h1>Attendance</h1><p>Subject-wise attendance record</p></div></div>
+    <div class="card">
+      <div class="att-ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 36 36">
+          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+          <path id="ringPath" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10b981" stroke-width="3" stroke-dasharray="0, 100"/>
+          <text x="18" y="20.35" font-size="7" text-anchor="middle" fill="#1e293b" font-weight="700" id="ringText">0%</text>
+        </svg>
+        <div class="att-stats">
+          <div class="att-stat"><div class="att-stat-num" id="attTotal" style="color:var(--primary)">0</div><div class="att-stat-label">Total Classes</div></div>
+          <div class="att-stat"><div class="att-stat-num" id="attPresent" style="color:var(--success)">0</div><div class="att-stat-label">Present</div></div>
+          <div class="att-stat"><div class="att-stat-num" id="attAbsent" style="color:var(--danger)">0</div><div class="att-stat-label">Absent</div></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div id="attendanceContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading attendance...</p></div></div>
       </div>
     </div>
   </div>
 
-</div>
+  <!-- FEES PAGE -->
+  <div class="page" id="page-fees">
+    <div class="topbar"><div><h1>Fee History</h1><p>Payment records aur receipts</p></div></div>
+    <div class="fee-summary-row">
+      <div class="fee-sum-box paid"><div class="fee-sum-amount" id="feesPaid" style="color:#166534">₹0</div><div class="fee-sum-label">Total Paid</div></div>
+      <div class="fee-sum-box due"><div class="fee-sum-amount" id="feesDue" style="color:#991b1b">₹0</div><div class="fee-sum-label">Total Due</div></div>
+      <div class="fee-sum-box total"><div class="fee-sum-amount" id="feesTotal" style="color:#1e40af">₹0</div><div class="fee-sum-label">Total Amount</div></div>
+    </div>
+    <div class="card">
+      <div id="feesContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading fee records...</p></div></div>
+    </div>
+  </div>
+
+  <!-- NOTICES PAGE -->
+  <div class="page" id="page-notices">
+    <div class="topbar"><div><h1>Notices</h1><p>College announcements aur updates</p></div></div>
+    <div class="card">
+      <div id="noticesContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading notices...</p></div></div>
+    </div>
+  </div>
+
+  <!-- STUDY MATERIAL PAGE -->
+  <div class="page" id="page-material">
+    <div class="topbar"><div><h1>Study Material</h1><p>Notes, PDFs aur videos</p></div></div>
+    <div class="card">
+      <div id="materialContent"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading materials...</p></div></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
 
 <script>
+// ── AUTH CHECK ─────────────────────────────────
 const token = localStorage.getItem('studentToken');
 if (!token) window.location.href = '/student/index.html';
-const headers = { 'Authorization': 'Bearer ' + token };
 
-let allRecords = [];
+const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+let studentData = null;
+let loadedPages = {};
 
+// ── CLOCK ──────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockChip').textContent = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  const h = now.getHours();
+  const greet = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening';
+  document.getElementById('greetMsg').textContent = greet + '! 👋';
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// ── NAVIGATION ─────────────────────────────────
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (window.innerWidth <= 768) closeSidebar();
+  if (!loadedPages[name]) { loadedPages[name] = true; loadPageData(name); }
+}
+
+function loadPageData(name) {
+  if (name === 'result') loadResults();
+  if (name === 'attendance') loadAttendance();
+  if (name === 'fees') loadFees();
+  if (name === 'notices') loadNotices();
+  if (name === 'material') loadMaterials();
+}
+
+// ── SIDEBAR TOGGLE ─────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// ── INIT — LOAD PROFILE ────────────────────────
+async function init() {
+  try {
+    const [profileRes, summaryRes] = await Promise.all([
+      fetch('/api/student/profile', { headers }),
+      fetch('/api/student/summary', { headers })
+    ]);
+
+    if (!profileRes.ok) { logout(); return; }
+
+    const { student } = await profileRes.json();
+    studentData = student;
+
+    // Sidebar
+    document.getElementById('sidebarName').textContent = student.name;
+    document.getElementById('sidebarCourse').textContent = `${student.course} • Sem ${student.semester}`;
+    document.getElementById('greetName').textContent = `Welcome back, ${student.name}!`;
+
+    // Avatar
+    if (student.photo) {
+      document.getElementById('sidebarAvatar').innerHTML = `<img src="/uploads/photos/${student.photo}" alt="Student profile photo on KIMT dashboard">`;
+      document.getElementById('profilePhoto').src = `/uploads/photos/${student.photo}`;
+    } else {
+      document.getElementById('profilePhoto').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=0b3c91&color=fff&size=130`;
+    }
+
+    // Profile fields
+    document.getElementById('profileName').textContent = student.name;
+    document.getElementById('profileCourse').textContent = `${student.course} • Semester ${student.semester}`;
+    document.getElementById('profileEnroll').textContent = student.enrollmentNo || 'Not Assigned';
+    document.getElementById('v_name').textContent = student.name || '—';
+    document.getElementById('v_email').textContent = student.email || '—';
+    document.getElementById('v_phone').textContent = student.phone || '—';
+    document.getElementById('v_dob').textContent = student.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—';
+    document.getElementById('v_gender').textContent = student.gender || '—';
+    document.getElementById('v_course').textContent = student.course || '—';
+    document.getElementById('v_sem').textContent = student.semester ? `Semester ${student.semester}` : '—';
+    document.getElementById('v_session').textContent = student.session || '—';
+    document.getElementById('v_father').textContent = student.fatherName || '—';
+    document.getElementById('v_mother').textContent = student.motherName || '—';
+    document.getElementById('v_address').textContent = student.address || '—';
+
+    // Summary stats
+    if (summaryRes.ok) {
+      const { summary } = await summaryRes.json();
+      document.getElementById('sumFeePaid').textContent = '₹' + Number(summary.feeSummary.totalPaid).toLocaleString('en-IN');
+      document.getElementById('sumFeeDue').textContent = '₹' + Number(summary.feeSummary.totalDue).toLocaleString('en-IN');
+      document.getElementById('sumAttendance').textContent = summary.attendancePercentage + '%';
+      document.getElementById('sumResults').textContent = summary.resultCount;
+
+      // Home notices
+      if (summary.recentNotices && summary.recentNotices.length) {
+        renderHomeNotices(summary.recentNotices);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderHomeNotices(notices) {
+  document.getElementById('homeNotices').innerHTML = notices.map(n => `
+    <div class="notice-item ${n.isPinned ? 'pinned' : ''} ${n.category === 'Urgent' ? 'urgent' : ''}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        ${n.isPinned ? '<span class="badge yellow">📌 Pinned</span>' : ''}
+        <span class="badge blue">${n.category || 'General'}</span>
+      </div>
+      <div class="notice-title">${n.title}</div>
+      <div class="notice-meta">${new Date(n.createdAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</div>
+    </div>`).join('');
+}
+
+// ── PHOTO UPLOAD ───────────────────────────────
+async function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const fd = new FormData();
+  fd.append('photo', file);
+
+  try {
+    const res = await fetch('/api/student/profile/photo', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + token
+      },
+      body: fd
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return alert(data.error || 'Upload failed');
+    }
+
+    document.getElementById('profilePhoto').src =
+      data.photoUrl + '?t=' + Date.now();
+
+    document.getElementById('sidebarAvatar').innerHTML =
+      `<img src="${data.photoUrl}?t=${Date.now()}" alt="Student profile photo on KIMT dashboard">`;
+
+    alert('Photo update Successful! ');
+
+  } catch (err) {
+    alert('Upload failed. Try again.');
+  }
+}
+// ── EDIT PROFILE ───────────────────────────────
+let editMode = false;
+
+function formatDateForInput(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toISOString().slice(0, 10);
+}
+
+function toggleProfileOtherCourse() {
+  const course = document.getElementById('e_course').value;
+  const box = document.getElementById('e_other_course_box');
+  const input = document.getElementById('e_other_course');
+  if (course === 'Other') {
+    box.style.display = '';
+    input.required = true;
+  } else {
+    box.style.display = 'none';
+    input.required = false;
+    input.value = '';
+  }
+}
+
+function updateProfileUI(student) {
+  document.getElementById('sidebarName').textContent = student.name || 'Student';
+  document.getElementById('sidebarCourse').textContent = `${student.course || '—'} • Sem ${student.semester || '—'}`;
+  document.getElementById('profileName').textContent = student.name || '—';
+  document.getElementById('profileCourse').textContent = `${student.course || '—'} • Semester ${student.semester || '—'}`;
+  document.getElementById('v_name').textContent = student.name || '—';
+  document.getElementById('v_email').textContent = student.email || '—';
+  document.getElementById('v_phone').textContent = student.phone || '—';
+  document.getElementById('v_dob').textContent = student.dob ? new Date(student.dob).toLocaleDateString('en-IN') : '—';
+  document.getElementById('v_gender').textContent = student.gender || '—';
+  document.getElementById('v_course').textContent = student.course || '—';
+  document.getElementById('v_sem').textContent = student.semester ? `Semester ${student.semester}` : '—';
+  document.getElementById('v_session').textContent = student.session || '—';
+  document.getElementById('v_father').textContent = student.fatherName || '—';
+  document.getElementById('v_mother').textContent = student.motherName || '—';
+  document.getElementById('v_address').textContent = student.address || '—';
+}
+
+function toggleEditProfile() {
+  editMode = !editMode;
+  document.getElementById('profileViewMode').style.display = editMode ? 'none' : '';
+  document.getElementById('profileEditMode').style.display = editMode ? '' : 'none';
+  document.getElementById('editProfileBtn').innerHTML = editMode ? '<i class="fas fa-times"></i> Cancel' : '<i class="fas fa-pen"></i> Edit';
+
+  if (editMode && studentData) {
+    const predefinedCourses = ['BCA','MCA','B.Tech','BBA','MBA','B.Com','BA','MA','BSc','MSc','ParaMedical','Vocational'];
+    document.getElementById('e_name').value = studentData.name || '';
+    document.getElementById('e_email').value = studentData.email || '';
+    document.getElementById('e_phone').value = studentData.phone || '';
+    document.getElementById('e_dob').value = formatDateForInput(studentData.dob);
+    document.getElementById('e_gender').value = studentData.gender || '';
+    document.getElementById('e_course').value = predefinedCourses.includes(studentData.course) ? studentData.course : 'Other';
+    document.getElementById('e_other_course').value = predefinedCourses.includes(studentData.course) ? '' : (studentData.course || '');
+    document.getElementById('e_semester').value = studentData.semester || 1;
+    document.getElementById('e_session').value = studentData.session || '';
+    document.getElementById('e_father').value = studentData.fatherName || '';
+    document.getElementById('e_mother').value = studentData.motherName || '';
+    document.getElementById('e_address').value = studentData.address || '';
+    toggleProfileOtherCourse();
+  }
+}
+
+async function saveProfile() {
+  const selectedCourse = document.getElementById('e_course').value;
+  const customCourse = document.getElementById('e_other_course').value.trim();
+  const finalCourse = selectedCourse === 'Other' ? customCourse : selectedCourse;
+
+  if (!document.getElementById('e_name').value.trim()) return alert('Full name bharna zaroori hai.');
+  if (!document.getElementById('e_email').value.trim()) return alert('Email bharna zaroori hai.');
+  if (!document.getElementById('e_phone').value.trim()) return alert('Phone bharna zaroori hai.');
+  if (!finalCourse) return alert('Course select/enter karo.');
+
+  const body = {
+    name: document.getElementById('e_name').value.trim(),
+    email: document.getElementById('e_email').value.trim(),
+    phone: document.getElementById('e_phone').value.trim(),
+    dob: document.getElementById('e_dob').value,
+    gender: document.getElementById('e_gender').value,
+    course: finalCourse,
+    semester: document.getElementById('e_semester').value,
+    session: document.getElementById('e_session').value.trim(),
+    fatherName: document.getElementById('e_father').value.trim(),
+    motherName: document.getElementById('e_mother').value.trim(),
+    address: document.getElementById('e_address').value.trim()
+  };
+
+  try {
+    const res = await fetch('/api/student/profile', { method: 'PUT', headers, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) return alert(data.error || 'Update failed.');
+    studentData = data.student;
+    localStorage.setItem('studentInfo', JSON.stringify(data.student));
+    updateProfileUI(data.student);
+    toggleEditProfile();
+    alert('Profile update ho gaya! ✅');
+  } catch (err) {
+    alert('Update failed.');
+  }
+}
+
+// ── RESULTS ───────────────────────────────────
+let allStudentResults = [];
+
+function romanSem(n) {
+  return ({1:'I',2:'II',3:'III',4:'IV',5:'V',6:'VI'}[Number(n)] || n || '—');
+}
+function safe(v, fallback='—') { return (v === undefined || v === null || v === '') ? fallback : v; }
+function resultPhoto() {
+  if (studentData?.photoUrl) return studentData.photoUrl;
+  if (studentData?.photo) return studentData.photo.startsWith('http') ? studentData.photo : `/uploads/students/${studentData.photo}`;
+  return '';
+}
+function populateResultFilters(results) {
+  const yearSel = document.getElementById('resYear');
+  const semSel = document.getElementById('resSemester');
+
+  const years = [...new Set(
+    results
+      .map(r => String(r.session || '').trim())
+      .filter(Boolean)
+  )].sort().reverse();
+
+  yearSel.innerHTML = '<option value="">Select Academic Year</option>' +
+    years.map(y => `<option value="${y}">${y}</option>`).join('');
+
+  const sems = [...new Set(
+    results
+      .map(r => Number(r.semester))
+      .filter(Boolean)
+  )].sort((a, b) => a - b);
+
+  semSel.innerHTML = '<option value="">Select Semester</option>' +
+    sems.map(s => `<option value="${s}">${romanSem(s)}</option>`).join('');
+
+  // Page load par koi result auto-select / auto-show nahi hoga.
+  yearSel.value = '';
+  semSel.value = '';
+}
+
+function renderSelectedResult() {
+  const type = document.getElementById('resType')?.value || 'Main';
+  const session = String(document.getElementById('resYear')?.value || '').trim();
+  const semester = Number(document.getElementById('resSemester')?.value || 0);
+  const el = document.getElementById('resultContent');
+
+  if (!session || !semester) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Pehle Academic Year aur Semester select karke Show dabaiye.</p></div>';
+    return;
+  }
+
+  const rows = allStudentResults.filter(r => {
+    const rSession = String(r.session || '').trim();
+    const rSem = Number(r.semester);
+    const rType = String(r.examType || 'Main').trim();
+
+    const typeMatch =
+      rType === type ||
+      (type === 'Main' && ['Main', 'End Semester', 'End Term'].includes(rType));
+
+    return rSession === session && rSem === semester && typeMatch;
+  });
+
+  if (!rows.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Is selection ka result nahi mila</p></div>'; return;
+  }
+  const totalObt = rows.reduce((s,r)=>s + Number(r.marksObtained || 0), 0);
+  const totalMax = rows.reduce((s,r)=>s + Number(r.maxMarks || 0), 0);
+  const percentage = totalMax ? ((totalObt / totalMax) * 100).toFixed(2) : '0.00';
+  const pass = rows.every(r => r.isPassed !== false);
+  const photo = resultPhoto();
+  el.innerHTML = `<div class="marksheet">
+    <div class="marksheet-head">${type.toUpperCase()} RESULT</div>
+    <div class="student-result-info">
+      <div class="result-kv">
+        <b>Institute Name</b><span>:</span><span>KIMT Bareilly</span>
+        <b>Program Name</b><span>:</span><span>${safe(studentData?.course)}</span>
+        <b>Program Code</b><span>:</span><span>${safe(studentData?.course)}-${String(semester).padStart(3,'0')}</span>
+        <b>Student ID</b><span>:</span><span>${safe(studentData?._id || studentData?.id)}</span>
+        <b>Name of Student</b><span>:</span><span>${safe(studentData?.name).toUpperCase()}</span>
+        <b>Mother's Name</b><span>:</span><span>${safe(studentData?.motherName).toUpperCase()}</span>
+        <b>Percentage</b><span>:</span><span>${percentage}</span>
+      </div>
+      <div class="result-kv">
+        <b>Enrollment No</b><span>:</span><span>${safe(studentData?.enrollmentNo)}</span>
+        <b>Roll No</b><span>:</span><span>${safe(studentData?.rollNo)}</span>
+        <b>Father's Name</b><span>:</span><span>${safe(studentData?.fatherName).toUpperCase()}</span>
+        <b>Gender</b><span>:</span><span>${safe(studentData?.gender)}</span>
+      </div>
+      ${photo ? `<img class="result-photo" src="${photo}" alt="Student Photo">` : '<div class="result-photo"></div>'}
+    </div>
+    <table class="marks-table">
+      <thead><tr><th>Code</th><th>Name</th><th>IntOB</th><th>IntTotal</th><th>ExtOB</th><th>ExtTotal</th><th>TotalOB</th><th>TotalMark</th></tr></thead>
+      <tbody>${rows.map(r => `<tr>
+        <td>${safe(r.subjectCode)}</td><td>${safe(r.subject).toUpperCase()}</td>
+        <td>${Number(r.internalObtained || 0)}</td><td>${Number(r.internalTotal || 0)}</td>
+        <td>${Number(r.externalObtained || 0)}</td><td>${Number(r.externalTotal || 0)}</td>
+        <td>${Number(r.marksObtained || 0)}</td><td>${Number(r.maxMarks || 0)}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+    <table class="result-summary-table">
+      <thead><tr><th>Session</th><th>Program-Semester</th><th>TotalObt/Max</th><th>Status</th><th>COP</th></tr></thead>
+      <tbody><tr><td>${session}</td><td>${romanSem(semester)} Semester</td><td>${totalObt}/${totalMax}</td><td>${pass ? 'Pass' : 'Fail'}</td><td></td></tr></tbody>
+    </table>
+  </div>`;
+}
+
+async function loadResults() {
+  try {
+    const res = await fetch('/api/student/results', { headers });
+    const data = await res.json();
+    const el = document.getElementById('resultContent');
+    allStudentResults = data.results || [];
+    if (!allStudentResults.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-award"></i><p>Abhi koi result publish nahi hua</p></div>'; return;
+    }
+    populateResultFilters(allStudentResults);
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Academic Year aur Semester select karke Show button dabaiye.</p></div>';
+  } catch (err) {
+    document.getElementById('resultContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Results load nahi hue</p></div>';
+  }
+}
+
+// ── ATTENDANCE ────────────────────────────────
 async function loadAttendance() {
   try {
     const res = await fetch('/api/student/attendance', { headers });
     const data = await res.json();
-    allRecords = data.records || [];
-
     const { total, present, absent, percentage } = data.summary;
 
-    // Ring
-    document.getElementById('ringPct').textContent = percentage + '%';
-    document.getElementById('ringCircle').setAttribute('stroke-dasharray', `${percentage} 100`);
-    document.getElementById('ringCircle').setAttribute('stroke',
-      percentage >= 75 ? '#10b981' : percentage >= 60 ? '#f59e0b' : '#ef4444');
+    document.getElementById('attTotal').textContent = total;
+    document.getElementById('attPresent').textContent = present;
+    document.getElementById('attAbsent').textContent = absent;
+    document.getElementById('ringText').textContent = percentage + '%';
+    document.getElementById('ringPath').setAttribute('stroke-dasharray', `${percentage}, 100`);
+    document.getElementById('ringPath').setAttribute('stroke', percentage >= 75 ? '#10b981' : percentage >= 60 ? '#f59e0b' : '#ef4444');
 
-    document.getElementById('ovTotal').textContent = total;
-    document.getElementById('ovPresent').textContent = present;
-    document.getElementById('ovAbsent').textContent = absent;
-
-    // Warning banners
-    if (percentage < 60) {
-      document.getElementById('dangerBanner').style.display = 'flex';
-    } else if (percentage < 75) {
-      document.getElementById('warningBanner').style.display = 'flex';
+    const el = document.getElementById('attendanceContent');
+    if (!data.records || !data.records.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><p>Koi attendance record nahi hai</p></div>'; return;
     }
-
-    // Subject breakdown
-    buildSubjectBreakdown(allRecords);
-
-    // Filter dropdowns
-    const subjects = [...new Set(allRecords.map(r => r.subject))].sort();
-    const sel = document.getElementById('filterSubject');
-    subjects.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o); });
-
-    renderTable(allRecords);
+    el.innerHTML = `<table><thead><tr><th>Date</th><th>Subject</th><th>Status</th></tr></thead>
+      <tbody>${data.records.map(r => `
+        <tr>
+          <td>${new Date(r.date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
+          <td>${r.subject}</td>
+          <td><span class="badge ${r.status==='Present'?'green':r.status==='Late'?'yellow':'red'}">${r.status}</span></td>
+        </tr>`).join('')}
+      </tbody></table>`;
   } catch (err) {
-    document.getElementById('recordsContent').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Load nahi hua</h3></div>`;
+    document.getElementById('attendanceContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Attendance load nahi hui</p></div>';
   }
 }
 
-function buildSubjectBreakdown(records) {
-  const bySubject = {};
-  records.forEach(r => {
-    if (!bySubject[r.subject]) bySubject[r.subject] = { total: 0, present: 0 };
-    bySubject[r.subject].total++;
-    if (r.status === 'Present') bySubject[r.subject].present++;
-  });
+// ── FEES ──────────────────────────────────────
+async function loadFees() {
+  try {
+    const res = await fetch('/api/student/fees', { headers });
+    const data = await res.json();
+    const total = (data.summary.totalPaid || 0) + (data.summary.totalDue || 0);
+    document.getElementById('feesPaid').textContent = '₹' + Number(data.summary.totalPaid).toLocaleString('en-IN');
+    document.getElementById('feesDue').textContent = '₹' + Number(data.summary.totalDue).toLocaleString('en-IN');
+    document.getElementById('feesTotal').textContent = '₹' + Number(total).toLocaleString('en-IN');
 
-  const el = document.getElementById('subjectGrid');
-  if (!Object.keys(bySubject).length) {
-    el.innerHTML = `<div style="text-align:center;padding:24px;color:var(--muted);grid-column:1/-1">Koi attendance record nahi hai</div>`; return;
+    const el = document.getElementById('feesContent');
+    if (!data.fees || !data.fees.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Koi fee record nahi hai</p></div>'; return;
+    }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Fee Type</th><th>Paid</th><th>Due</th><th>Mode</th><th>Receipt</th></tr></thead>
+      <tbody>${data.fees.map(f => `
+        <tr>
+          <td>${new Date(f.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
+          <td>${f.feeType || 'Tuition Fee'}</td>
+          <td style="color:var(--success);font-weight:600">₹${Number(f.paidAmount||0).toLocaleString('en-IN')}</td>
+          <td style="color:${f.dueAmount>0?'var(--danger)':'var(--success)'};font-weight:600">₹${Number(f.dueAmount||0).toLocaleString('en-IN')}</td>
+          <td><span class="badge blue">${f.paymentMode||'Online'}</span></td>
+          <td><a href="/api/student/fees/${f._id}/download" target="_blank" style="padding:5px 12px;background:var(--primary);color:#fff;border-radius:7px;font-size:12px;text-decoration:none"><i class="fas fa-download"></i> PDF</a></td>
+        </tr>`).join('')}
+      </tbody></table></div>`;
+  } catch (err) {
+    document.getElementById('feesContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Fee records load nahi hue</p></div>';
   }
-
-  el.innerHTML = Object.entries(bySubject).map(([subj, d]) => {
-    const pct = Math.round((d.present / d.total) * 100);
-    const color = pct >= 75 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--danger)';
-    return `<div class="subject-card" onclick="filterBySubject('${subj}')">
-      <div class="subj-name">${subj}</div>
-      <div class="subj-bar-wrap"><div class="subj-bar" style="width:${pct}%;background:${color}"></div></div>
-      <div class="subj-meta">
-        <span>${d.present}/${d.total} Present</span>
-        <span style="font-weight:700;color:${color}">${pct}%</span>
-      </div>
-    </div>`;
-  }).join('');
 }
 
-function filterBySubject(subj) {
-  document.getElementById('filterSubject').value = subj;
-  applyFilter();
-  document.getElementById('recordsContent').scrollIntoView({ behavior: 'smooth' });
-}
-
-function applyFilter() {
-  const subj = document.getElementById('filterSubject').value;
-  const status = document.getElementById('filterStatus').value;
-  const month = document.getElementById('filterMonth').value;
-
-  let filtered = allRecords;
-  if (subj) filtered = filtered.filter(r => r.subject === subj);
-  if (status) filtered = filtered.filter(r => r.status === status);
-  if (month) filtered = filtered.filter(r => r.date && r.date.startsWith(month));
-
-  renderTable(filtered);
-}
-
-function clearFilters() {
-  document.getElementById('filterSubject').value = '';
-  document.getElementById('filterStatus').value = '';
-  document.getElementById('filterMonth').value = '';
-  renderTable(allRecords);
-}
-
-function renderTable(records) {
-  const el = document.getElementById('recordsContent');
-  if (!records.length) {
-    el.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-times"></i><h3>Koi record nahi mila</h3></div>`; return;
+// ── NOTICES ───────────────────────────────────
+async function loadNotices() {
+  try {
+    const res = await fetch('/api/student/notices', { headers });
+    const data = await res.json();
+    const el = document.getElementById('noticesContent');
+    if (!data.notices || !data.notices.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>Koi notice nahi hai abhi</p></div>'; return;
+    }
+    el.innerHTML = data.notices.map(n => `
+      <div class="notice-item ${n.isPinned?'pinned':''} ${n.category==='Urgent'?'urgent':''}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          ${n.isPinned?'<span class="badge yellow">📌 Pinned</span>':''}
+          <span class="badge blue">${n.category||'General'}</span>
+          <span class="badge ${n.targetAudience==='All'?'green':'blue'}">${n.targetAudience}</span>
+        </div>
+        <div class="notice-title">${n.title}</div>
+        <div style="font-size:13px;color:var(--text);margin:6px 0">${n.content}</div>
+        <div class="notice-meta">📅 ${new Date(n.createdAt).toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})} • By ${n.postedBy||'Admin'}</div>
+        ${n.attachmentUrl?`<a href="${n.attachmentUrl}" target="_blank" style="font-size:12px;color:var(--primary);margin-top:6px;display:inline-block"><i class="fas fa-paperclip"></i> Attachment</a>`:''}
+      </div>`).join('');
+  } catch (err) {
+    document.getElementById('noticesContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Notices load nahi hue</p></div>';
   }
-  el.innerHTML = `<table>
-    <thead><tr><th>Date</th><th>Day</th><th>Subject</th><th>Status</th><th>Marked By</th></tr></thead>
-    <tbody>${records.map(r => {
-      const d = new Date(r.date);
-      return `<tr>
-        <td>${d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
-        <td style="color:var(--muted)">${d.toLocaleDateString('en-IN',{weekday:'short'})}</td>
-        <td style="font-weight:500">${r.subject}</td>
-        <td><span class="badge ${r.status==='Present'?'green':r.status==='Late'?'yellow':'red'}">${r.status}</span></td>
-        <td style="color:var(--muted)">${r.markedBy || 'Faculty'}</td>
-      </tr>`;
-    }).join('')}
-    </tbody></table>`;
 }
 
-loadAttendance();
+// ── STUDY MATERIAL ────────────────────────────
+async function loadMaterials() {
+  try {
+    const res = await fetch('/api/student/materials', { headers });
+    const data = await res.json();
+    const el = document.getElementById('materialContent');
+    if (!data.materials || !data.materials.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><p>Abhi koi study material nahi hai</p></div>'; return;
+    }
+    const icons = { PDF:'pdf fas fa-file-pdf', Video:'video fas fa-video', Link:'link fas fa-link', Notes:'pdf fas fa-sticky-note', Assignment:'link fas fa-tasks' };
+    el.innerHTML = data.materials.map(m => {
+      const [cls, ico] = (icons[m.type]||'link fas fa-file').split(' ');
+      const href = m.fileUrl ? `/uploads/materials/${m.fileUrl}` : m.externalLink || '#';
+      return `<div class="material-item">
+        <div class="material-icon ${cls}"><i class="fas ${ico.replace('fas ','')}"></i></div>
+        <div style="flex:1">
+          <div class="material-title">${m.title}</div>
+          <div class="material-sub">${m.subject} • ${m.type} • Sem ${m.semester}</div>
+          ${m.description?`<div style="font-size:11px;color:var(--muted);margin-top:2px">${m.description}</div>`:''}
+        </div>
+        <a href="${href}" target="_blank" class="material-btn"><i class="fas fa-external-link-alt"></i> Open</a>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    document.getElementById('materialContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Material load nahi hua</p></div>';
+  }
+}
+
+// ── LOGOUT ────────────────────────────────────
+function logout() {
+  localStorage.removeItem('studentToken');
+  localStorage.removeItem('studentInfo');
+  window.location.href = '/student/index.html';
+}
+
+// ── START ─────────────────────────────────────
+init();
 </script>
 </body>
 </html>

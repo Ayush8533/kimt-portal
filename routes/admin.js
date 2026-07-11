@@ -221,82 +221,129 @@ router.post('/results', async (req, res) => {
   try {
     const {
       enrollmentNo,
-      subject,
-      subjectCode,
       examType,
       semester,
       session,
-      maxMarks,
-      marksObtained,
-      grade,
-      internalObtained,
-      internalTotal,
-      externalObtained,
-      externalTotal,
-      isPublished
+      isPublished,
+      subjects
     } = req.body;
 
-    if (!enrollmentNo) return res.status(400).json({ error: 'Enrollment No. missing hai.' });
-    if (!subject) return res.status(400).json({ error: 'Subject missing hai.' });
-    if (!session) return res.status(400).json({ error: 'Session missing hai.' });
+    if (!enrollmentNo) {
+      return res.status(400).json({ error: 'Enrollment No. missing hai.' });
+    }
+
+    if (!session || !String(session).trim()) {
+      return res.status(400).json({ error: 'Session missing hai.' });
+    }
+
+    if (!Array.isArray(subjects) || !subjects.length) {
+      return res.status(400).json({ error: 'Kam se kam ek subject add karo.' });
+    }
 
     const foundStudent = await Student.findOne({
-      enrollmentNo: enrollmentNo.trim()
+      enrollmentNo: String(enrollmentNo).trim()
     });
 
     if (!foundStudent) {
-      return res.status(404).json({ error: 'Is enrollment number ka student nahi mila.' });
+      return res.status(404).json({
+        error: 'Is enrollment number ka student nahi mila.'
+      });
     }
 
-    const max = Number(maxMarks) || 100;
-    const obtained = Number(marksObtained) || 0;
-    const percent = max > 0 ? (obtained / max) * 100 : 0;
-    const passed = obtained >= max * 0.33;
-    const publishNow = isPublished === true || isPublished === 'true';
+    const publishNow =
+      isPublished === true ||
+      isPublished === 'true';
 
-    const result = await Result.create({
+    const common = {
       student: foundStudent._id,
       enrollmentNo: foundStudent.enrollmentNo,
       name: foundStudent.name,
       course: foundStudent.course,
-
-      subject: subject.trim(),
-      subjectCode: subjectCode || '',
       examType: examType || 'Main',
       semester: Number(semester),
-      session: session.trim(),
-
-      internalObtained: Number(internalObtained) || 0,
-      internalTotal: Number(internalTotal) || 0,
-      externalObtained: Number(externalObtained) || 0,
-      externalTotal: Number(externalTotal) || 0,
-
-      maxMarks: max,
-      marksObtained: obtained,
-      totalMarks: max,
-      obtainedMarks: obtained,
-      percentage: Number(percent.toFixed(2)),
-      grade: grade || (percent >= 75 ? 'A' : percent >= 60 ? 'B' : percent >= 45 ? 'C' : passed ? 'D' : 'F'),
-      isPassed: passed,
-      result: passed ? 'Pass' : 'Fail',
+      session: String(session).trim(),
       isPublished: publishNow,
       publishedAt: publishNow ? new Date() : undefined,
       publishedBy: req.admin._id
+    };
+
+    const documents = subjects.map((item, index) => {
+      const subject = String(item.subject || item.name || '').trim();
+
+      if (!subject) {
+        throw new Error(`Subject ${index + 1} ka naam missing hai.`);
+      }
+
+      const internalObtained = Number(item.internalObtained) || 0;
+      const internalTotal = Number(item.internalTotal) || 0;
+      const externalObtained = Number(item.externalObtained) || 0;
+      const externalTotal = Number(item.externalTotal) || 0;
+
+      const marksObtained =
+        item.marksObtained !== '' &&
+        item.marksObtained !== undefined &&
+        item.marksObtained !== null
+          ? Number(item.marksObtained)
+          : internalObtained + externalObtained;
+
+      const maxMarks =
+        item.maxMarks !== '' &&
+        item.maxMarks !== undefined &&
+        item.maxMarks !== null
+          ? Number(item.maxMarks)
+          : (internalTotal + externalTotal || 100);
+
+      if (marksObtained < 0 || maxMarks <= 0 || marksObtained > maxMarks) {
+        throw new Error(
+          `${subject}: marks 0 se total marks ke beech hone chahiye.`
+        );
+      }
+
+      const percentage = (marksObtained / maxMarks) * 100;
+      const passed = marksObtained >= maxMarks * 0.33;
+
+      const grade =
+        String(item.grade || '').trim() ||
+        (
+          percentage >= 75 ? 'A' :
+          percentage >= 60 ? 'B' :
+          percentage >= 45 ? 'C' :
+          passed ? 'D' : 'F'
+        );
+
+      return {
+        ...common,
+        subject,
+        subjectCode: String(item.subjectCode || item.code || '').trim(),
+        internalObtained,
+        internalTotal,
+        externalObtained,
+        externalTotal,
+        marksObtained,
+        maxMarks,
+        totalMarks: maxMarks,
+        obtainedMarks: marksObtained,
+        percentage: Number(percentage.toFixed(2)),
+        grade,
+        isPassed: passed,
+        result: passed ? 'Pass' : 'Fail'
+      };
     });
+
+    const savedResults = await Result.insertMany(documents);
 
     res.status(201).json({
       success: true,
-      message: 'Result add ho gaya!',
-      result
+      message: `${savedResults.length} subject result add ho gaye!`,
+      results: savedResults
     });
-
   } catch (err) {
+    console.error('ADD MULTI RESULT ERROR:', err);
     res.status(500).json({
       error: 'Result add nahi hua: ' + err.message
     });
   }
 });
-
 
 // Bulk result upload
 router.post('/results/bulk', async (req, res) => {
@@ -369,18 +416,21 @@ router.post('/fees', async (req, res) => {
     const {
       enrollmentNo,
       feeType,
+      totalAmount,
       paidAmount,
       dueAmount,
       paymentMode,
       transactionId
     } = req.body;
 
-    if (!enrollmentNo) {
-      return res.status(400).json({ error: 'Enrollment No. missing hai.' });
+    if (!enrollmentNo || !String(enrollmentNo).trim()) {
+      return res.status(400).json({
+        error: 'Enrollment No. missing hai.'
+      });
     }
 
     const student = await Student.findOne({
-      enrollmentNo: enrollmentNo.trim()
+      enrollmentNo: String(enrollmentNo).trim()
     });
 
     if (!student) {
@@ -389,9 +439,42 @@ router.post('/fees', async (req, res) => {
       });
     }
 
-    const paid = Number(paidAmount) || 0;
-    const due = Number(dueAmount) || 0;
-    const total = paid + due;
+    const paid = Math.max(Number(paidAmount) || 0, 0);
+    const enteredDue = Math.max(Number(dueAmount) || 0, 0);
+
+    // New form totalAmount bhejta hai. Old form ke liye paid + due fallback hai.
+    const total = Math.max(
+      Number(totalAmount) || (paid + enteredDue),
+      0
+    );
+
+    if (total <= 0) {
+      return res.status(400).json({
+        error: 'Total amount 0 se zyada hona chahiye.'
+      });
+    }
+
+    if (paid > total) {
+      return res.status(400).json({
+        error: 'Paid amount total amount se zyada nahi ho sakta.'
+      });
+    }
+
+    const allowedFeeTypes = [
+      'Total',
+      'Total Fee',
+      'Institute Fee',
+      'Tuition Fee',
+      'Exam Fee',
+      'Library Fee',
+      'Hostel Fee',
+      'Sports Fee',
+      'Other'
+    ];
+
+    const selectedFeeType = allowedFeeTypes.includes(feeType)
+      ? feeType
+      : 'Other';
 
     const fee = await Fee.create({
       student: student._id,
@@ -401,12 +484,11 @@ router.post('/fees', async (req, res) => {
       semester: student.semester,
       session: student.session,
 
-      feeType: feeType || 'Tuition Fee',
-      paidAmount: paid,
-      dueAmount: due,
+      feeType: selectedFeeType,
       totalAmount: total,
-      paymentMode: paymentMode || 'Cash',
-      transactionId: transactionId || ''
+      paidAmount: paid,
+      paymentMode: paymentMode || 'Online',
+      transactionId: String(transactionId || '').trim()
     });
 
     res.status(201).json({
@@ -414,8 +496,8 @@ router.post('/fees', async (req, res) => {
       message: 'Fee record add ho gaya!',
       fee
     });
-
   } catch (err) {
+    console.error('ADD FEE ERROR:', err);
     res.status(500).json({
       error: 'Fee add nahi hua: ' + err.message
     });
