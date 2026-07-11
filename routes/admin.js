@@ -506,11 +506,37 @@ router.post('/fees', async (req, res) => {
 
 router.put('/fees/:id', async (req, res) => {
   try {
-    const fee = await Fee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const fee = await Fee.findById(req.params.id);
     if (!fee) return res.status(404).json({ error: 'Fee record nahi mila.' });
-    res.json({ success: true, message: 'Fee update ho gaya!', fee });
+
+    const total = Math.max(Number(req.body.totalAmount) || 0, 0);
+    const paid = Math.max(Number(req.body.paidAmount) || 0, 0);
+
+    if (total <= 0) return res.status(400).json({ error: 'Total amount 0 se zyada hona chahiye.' });
+    if (paid > total) return res.status(400).json({ error: 'Paid amount total amount se zyada nahi ho sakta.' });
+
+    fee.feeType = req.body.feeType || fee.feeType;
+    fee.totalAmount = total;
+    fee.paidAmount = paid;
+    fee.paymentMode = req.body.paymentMode || fee.paymentMode || 'Online';
+    fee.transactionId = String(req.body.transactionId || '').trim();
+
+    await fee.save();
+
+    res.json({ success: true, message: 'Fee record update ho gaya!', fee });
   } catch (err) {
-    res.status(500).json({ error: 'Update nahi hua.' });
+    res.status(500).json({ error: 'Fee update nahi hui: ' + err.message });
+  }
+});
+
+router.delete('/fees/:id', async (req, res) => {
+  try {
+    const fee = await Fee.findByIdAndDelete(req.params.id);
+    if (!fee) return res.status(404).json({ error: 'Fee record nahi mila.' });
+
+    res.json({ success: true, message: 'Fee record permanently delete ho gaya.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Fee delete nahi hui: ' + err.message });
   }
 });
 

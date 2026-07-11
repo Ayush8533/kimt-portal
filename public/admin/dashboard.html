@@ -530,7 +530,7 @@
 <!-- Add Fee -->
 <div class="modal-overlay" id="modal-addFee">
   <div class="modal">
-    <h2>
+    <h2 id="feeModalTitle">
       <i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>
       Add Fee Record
     </h2>
@@ -587,8 +587,8 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('addFee')">Cancel</button>
-      <button class="btn btn-primary" onclick="addFee()">
+      <button class="btn btn-outline" onclick="closeFeeModal()">Cancel</button>
+      <button class="btn btn-primary" id="feeSaveBtn" onclick="saveFeeRecord()">
         <i class="fas fa-save"></i> Save
       </button>
     </div>
@@ -671,6 +671,8 @@ const token = localStorage.getItem('adminToken');
 if (!token) window.location.href = '/admin-panel/index.html';
 const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
 let loadedPages = {};
+let editingFeeId = null;
+let loadedFeeRecords = [];
 
 // ── NAV ────────────────────────────────────────
 function showPage(name, el) {
@@ -694,6 +696,7 @@ function closeSidebar() { document.getElementById('sidebar').classList.remove('o
 // ── MODAL ─────────────────────────────────────
 function openModal(id) {
   if (id === 'addStudent' && !editingStudentId) resetStudentForm();
+  if (id === 'addFee' && !editingFeeId) resetFeeForm();
   if (id === 'addResult' && !document.querySelector('.result-subject-row')) resetResultForm();
   document.getElementById('modal-' + id).classList.add('show');
 }
@@ -1279,22 +1282,38 @@ async function loadFees() {
   try {
     const res = await fetch(`/api/admin/fees?status=${status}`, { headers: H });
     const data = await res.json();
-    document.getElementById('feeCollected').textContent = '₹' + Number(data.summary?.totalCollected||0).toLocaleString('en-IN');
-    document.getElementById('feeDue').textContent = '₹' + Number(data.summary?.totalDue||0).toLocaleString('en-IN');
+    if (!res.ok) throw new Error(data.error || 'Fees load nahi hui.');
+
+    loadedFeeRecords = data.fees || [];
+    document.getElementById('feeCollected').textContent = '₹' + Number(data.summary?.totalCollected || 0).toLocaleString('en-IN');
+    document.getElementById('feeDue').textContent = '₹' + Number(data.summary?.totalDue || 0).toLocaleString('en-IN');
+
     const el = document.getElementById('feesTable');
-    if (!data.fees?.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Koi record nahi</p></div>'; return; }
+    if (!loadedFeeRecords.length) {
+      el.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Koi record nahi</p></div>';
+      return;
+    }
+
     el.innerHTML = `<div class="table-wrap"><table>
-      <thead><tr><th>Student</th><th>Fee Type</th><th>Paid</th><th>Due</th><th>Mode</th><th>Date</th></tr></thead>
-      <tbody>${data.fees.map(f=>`<tr>
-        <td>${f.student?.name||'—'}<br><span style="font-size:11px;color:var(--muted)">${f.student?.enrollmentNo||'—'}</span></td>
-        <td>${f.feeType||'—'}</td>
-        <td style="color:var(--success);font-weight:600">₹${Number(f.paidAmount||0).toLocaleString('en-IN')}</td>
-        <td style="color:${(f.dueAmount||0)>0?'var(--danger)':'var(--success)'};font-weight:600">₹${Number(f.dueAmount||0).toLocaleString('en-IN')}</td>
-        <td><span class="badge blue">${f.paymentMode||'Online'}</span></td>
+      <thead><tr><th>Student</th><th>Fee Type</th><th>Total</th><th>Paid</th><th>Due</th><th>Mode</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody>${loadedFeeRecords.map(f => `<tr>
+        <td>${f.student?.name || f.name || '—'}<br><span style="font-size:11px;color:var(--muted)">${f.student?.enrollmentNo || f.enrollmentNo || '—'}</span></td>
+        <td>${f.feeType || '—'}</td>
+        <td style="font-weight:600">₹${Number(f.totalAmount || 0).toLocaleString('en-IN')}</td>
+        <td style="color:var(--success);font-weight:600">₹${Number(f.paidAmount || 0).toLocaleString('en-IN')}</td>
+        <td style="color:${Number(f.dueAmount || 0) > 0 ? 'var(--danger)' : 'var(--success)'};font-weight:600">₹${Number(f.dueAmount || 0).toLocaleString('en-IN')}</td>
+        <td><span class="badge blue">${f.paymentMode || 'Online'}</span></td>
         <td>${new Date(f.createdAt).toLocaleDateString('en-IN')}</td>
-      </tr>`).join('')}
-      </tbody></table></div>`;
-  } catch(e) { document.getElementById('feesTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>'; }
+        <td><div style="display:flex;gap:7px">
+          <button class="btn btn-sm btn-warning" onclick="editFee('${f._id}')" title="Edit Fee"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-sm btn-danger" onclick="deleteFee('${f._id}')" title="Delete Fee"><i class="fas fa-trash"></i></button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch (error) {
+    console.error(error);
+    document.getElementById('feesTable').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Load nahi hua</p></div>';
+  }
 }
 
 function calculateFeeDue() {
@@ -1312,63 +1331,96 @@ document.addEventListener('input', event => {
   }
 });
 
-async function addFee() {
+function resetFeeForm() {
+  editingFeeId = null;
+  document.getElementById('feeModalTitle').innerHTML = '<i class="fas fa-credit-card" style="color:var(--primary);margin-right:8px"></i>Add Fee Record';
+  document.getElementById('feeSaveBtn').innerHTML = '<i class="fas fa-save"></i> Save';
+  document.getElementById('fee_enroll').value = '';
+  document.getElementById('fee_enroll').readOnly = false;
+  document.getElementById('fee_type').value = 'Total Fee';
+  document.getElementById('fee_total').value = '';
+  document.getElementById('fee_paid').value = '0';
+  document.getElementById('fee_due').value = '0';
+  document.getElementById('fee_mode').value = 'Online';
+  document.getElementById('fee_txn').value = '';
+}
+
+function closeFeeModal() {
+  closeModal('addFee');
+  resetFeeForm();
+}
+
+function editFee(id) {
+  const fee = loadedFeeRecords.find(item => item._id === id);
+  if (!fee) return showAlert('Fee record nahi mila.', 'error');
+
+  editingFeeId = id;
+  document.getElementById('feeModalTitle').innerHTML = '<i class="fas fa-pen" style="color:var(--primary);margin-right:8px"></i>Edit Fee Record';
+  document.getElementById('feeSaveBtn').innerHTML = '<i class="fas fa-save"></i> Update';
+  document.getElementById('fee_enroll').value = fee.student?.enrollmentNo || fee.enrollmentNo || '';
+  document.getElementById('fee_enroll').readOnly = true;
+
+  const feeTypeSelect = document.getElementById('fee_type');
+  const feeType = fee.feeType || 'Tuition Fee';
+  feeTypeSelect.value = [...feeTypeSelect.options].some(o => o.value === feeType) ? feeType : 'Other';
+
+  document.getElementById('fee_total').value = Number(fee.totalAmount || 0);
+  document.getElementById('fee_paid').value = Number(fee.paidAmount || 0);
+  document.getElementById('fee_due').value = Number(fee.dueAmount || 0);
+  document.getElementById('fee_mode').value = fee.paymentMode || 'Online';
+  document.getElementById('fee_txn').value = fee.transactionId || '';
+
+  openModal('addFee');
+}
+
+async function saveFeeRecord() {
   const enrollmentNo = document.getElementById('fee_enroll').value.trim();
   const totalAmount = Number(document.getElementById('fee_total').value) || 0;
   const paidAmount = Number(document.getElementById('fee_paid').value) || 0;
 
-  if (!enrollmentNo) {
-    return showAlert('Enrollment No. bharna zaroori hai.', 'error');
-  }
-
-  if (totalAmount <= 0) {
-    return showAlert('Total amount 0 se zyada bharo.', 'error');
-  }
-
-  if (paidAmount < 0 || paidAmount > totalAmount) {
-    return showAlert(
-      'Paid amount 0 aur total amount ke beech hona chahiye.',
-      'error'
-    );
-  }
+  if (!enrollmentNo) return showAlert('Enrollment No. bharna zaroori hai.', 'error');
+  if (totalAmount <= 0) return showAlert('Total amount 0 se zyada bharo.', 'error');
+  if (paidAmount < 0 || paidAmount > totalAmount) return showAlert('Paid amount sahi bharo.', 'error');
 
   const body = {
     enrollmentNo,
     feeType: document.getElementById('fee_type').value,
     totalAmount,
     paidAmount,
-    dueAmount: Math.max(totalAmount - paidAmount, 0),
     paymentMode: document.getElementById('fee_mode').value,
     transactionId: document.getElementById('fee_txn').value.trim()
   };
 
+  const isEditing = Boolean(editingFeeId);
+  const url = isEditing ? `/api/admin/fees/${editingFeeId}` : '/api/admin/fees';
+  const method = isEditing ? 'PUT' : 'POST';
+
   try {
-    const res = await fetch('/api/admin/fees', {
-      method: 'POST',
-      headers: H,
-      body: JSON.stringify(body)
-    });
-
+    const res = await fetch(url, { method, headers: H, body: JSON.stringify(body) });
     const data = await res.json();
+    if (!res.ok) return showAlert(data.error || 'Fee save nahi hui.', 'error');
 
-    if (!res.ok) {
-      return showAlert(data.error || 'Fee add nahi hui.', 'error');
-    }
-
-    showAlert(data.message || 'Fee record add ho gaya!');
-    closeModal('addFee');
-
-    ['fee_enroll', 'fee_total', 'fee_txn'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    document.getElementById('fee_paid').value = '0';
-    document.getElementById('fee_due').value = '0';
-
+    showAlert(data.message || 'Fee save ho gayi!');
+    closeFeeModal();
     loadedPages.fees = false;
-    loadFees();
+    await loadFees();
   } catch (error) {
     showAlert('Network error. Fee save nahi hui.', 'error');
+  }
+}
+
+async function deleteFee(id) {
+  const fee = loadedFeeRecords.find(item => item._id === id);
+  const studentName = fee?.student?.name || fee?.name || 'student';
+  if (!confirm(`${studentName} ka fee record permanently delete karna hai?`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/fees/${id}`, { method: 'DELETE', headers: H });
+    const data = await res.json();
+    showAlert(data.message || data.error, res.ok ? 'success' : 'error');
+    if (res.ok) await loadFees();
+  } catch (error) {
+    showAlert('Network error. Fee delete nahi hui.', 'error');
   }
 }
 
